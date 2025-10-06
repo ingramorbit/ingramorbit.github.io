@@ -1,242 +1,211 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AssistKingOnline</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AssistKingOnline</title>
 
-  <!-- Crown Favicon (inline SVG) -->
-  <link rel="icon" href="data:image/svg+xml;utf8,
-  <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
-    <rect width='64' height='64' rx='12' fill='%235A2D82'/>
-    <path d='M8 20l8 8 8-12 8 12 8-12 8 12 8-8v24H8V20z' fill='%23FFD700' stroke='%23B8860B' stroke-width='2'/>
-  </svg>">
+<!-- Favicon (inline) -->
+<link rel="icon" href="data:image/svg+xml;utf8,
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>
+  <rect width='64' height='64' rx='12' fill='%231E3A8A'/>
+  <path d='M8 20l8 8 8-12 8 12 8-12 8 12 8-8v24H8V20z' fill='%23FFD700' stroke='%23B8860B' stroke-width='2'/>
+</svg>">
 
-  <style>
-    /* Brand tokens */
-    :root{
-      --gold:#FFD700;
-      --gold-deep:#e0b800;
-      --royal:#5A2D82;
-      --royal-deep:#2B0F49;
-      --crimson:#B2331C;
-      --crimson-deep:#8e2817;
-      --blue:#1F68FF;
-      --red:#9D2A1F;
-      --green:#1F6B35;
-      --text:#161616;
-      --card:#ffffff;
-      --shadow:0 10px 30px rgba(0,0,0,.15);
-    }
+<style>
+  :root{
+    /* Updated brand to BLUE hero */
+    --blue-900:#0A2A66;
+    --blue-800:#123A8A;
+    --blue-700:#1E3A8A;
+    --blue-600:#2447A8;
+    --gold:#FFD700; --gold-deep:#e0b800;
+    --crimson:#B2331C; --crimson-deep:#8e2817;
+    --text:#161616; --card:#fff;
+    --shadow:0 10px 30px rgba(0,0,0,.15);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:var(--text);background:#fff}
+  .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;
-      color:var(--text);
-      background:#fff;
-    }
+  /* ===== HERO (BLUE) ===== */
+  .hero-wrap{
+    background:
+      radial-gradient(1200px 600px at 15% -40%, rgba(255,215,0,.14), transparent 60%),
+      linear-gradient(180deg, var(--blue-700) 0%, var(--blue-900) 100%);
+    color:#fff; padding:28px 0 12px; position:relative;
+  }
+  .brand-bar{display:flex;align-items:center;gap:14px}
+  .brand-name{font-weight:900;font-size:40px;letter-spacing:.3px;color:var(--gold)}
+  .king{width:90px;height:90px;flex:0 0 auto}
+  .tagline{margin:6px 0 18px;font-size:18px;line-height:1.35;max-width:820px;color:#f7f9ff}
+  h1.big{margin:12px 0 16px;font-size:44px;line-height:1.1;font-weight:900;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25)}
 
-    /* Layout helpers */
-    .container{max-width:1100px;margin:0 auto;padding:0 16px}
+  .search{margin:10px auto 18px;display:flex;gap:10px;background:#fff;border-radius:18px;
+    padding:10px 10px 10px 14px;box-shadow:var(--shadow);max-width:860px}
+  .search input{flex:1;border:0;outline:0;padding:12px 10px;border-radius:12px;font-size:16px}
+  .search button{border:0;border-radius:12px;padding:12px 16px;font-weight:800;color:#fff;background:var(--blue-700)}
 
-    /* ======= HERO (royal gradient) ======= */
-    .hero-wrap{
-      background:
-        radial-gradient(1500px 700px at 20% -50%, rgba(255,215,0,.18), transparent 60%),
-        linear-gradient(180deg, var(--royal) 0%, #3f1f63 55%, var(--royal-deep) 100%);
-      color:#fff;
-      padding:26px 0 10px;
-      position:relative;
-    }
-    .brand-row{
-      display:flex;align-items:center;gap:10px;
-      font-weight:900;font-size:38px;letter-spacing:.4px;color:var(--gold);
-    }
-    .brand-row svg{width:64px;height:64px;flex:0 0 auto}
-    .tagline{
-      margin:6px 0 18px;
-      font-size:18px;line-height:1.35;opacity:.95;
-      max-width:780px;color:#f8f8ff;
-    }
-    h1.big{
-      margin:10px 0 14px;font-size:42px;line-height:1.1;
-      font-weight:900;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.25);
-    }
+  /* Pills (keep as before) */
+  .pill-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:860px;margin:6px auto 20px}
+  .pill{display:flex;align-items:center;justify-content:center;border-radius:9999px;color:#fff;padding:12px 8px;font-weight:900;box-shadow:var(--shadow)}
+  .pill.gold{background:var(--gold);color:#111}
+  .pill.blue{background:#2A58F0}
+  .pill.red{background:#B1432F}
 
-    /* Search */
-    .search{
-      margin:10px auto 16px;display:flex;gap:10px;
-      background:#fff;border-radius:18px;padding:10px 10px 10px 14px;
-      box-shadow:var(--shadow);max-width:820px
-    }
-    .search input{
-      flex:1;border:0;outline:0;padding:12px 10px;border-radius:12px;font-size:16px
-    }
-    .search button{
-      border:0;border-radius:12px;padding:12px 16px;font-weight:700;color:#fff;background:var(--royal);
-    }
+  /* Plain white category cards */
+  .categories{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:980px;margin:6px auto 24px}
+  @media (max-width:980px){.categories{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:620px){.categories{grid-template-columns:repeat(2,1fr)}}
+  .cat{
+    background:var(--card);border-radius:16px;padding:16px 12px;box-shadow:var(--shadow);text-align:center
+  }
+  .cat .emoji{font-size:28px;display:block}
+  .cat .label{margin-top:8px;font-weight:800}
 
-    /* Pills row (Residential / Commercial / Food) */
-    .pill-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:820px;margin:6px auto 18px}
-    .pill{
-      display:flex;align-items:center;justify-content:center;
-      border-radius:9999px;color:#fff;padding:12px 8px;font-weight:800;box-shadow:var(--shadow)
-    }
-    .pill.gold{background:var(--gold);color:#111}
-    .pill.blue{background:var(--blue)}
-    .pill.red{background:#B1432F}
+  /* Crimson CTA band */
+  .crimson{background:linear-gradient(180deg, var(--crimson) 0%, var(--crimson-deep) 100%);color:#fff;padding:28px 0 36px;text-align:center}
+  .crimson h3{font-size:26px;margin:0 0 16px}
+  .big-cta{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
+    color:#121212;border-radius:40px;padding:16px 28px;font-weight:900;box-shadow:var(--shadow);text-decoration:none}
 
-    /* Category cards */
-    .categories{
-      display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:980px;margin:6px auto 20px
-    }
-    @media (max-width:900px){
-      .categories{grid-template-columns:repeat(3,1fr)}
-    }
-    @media (max-width:580px){
-      .categories{grid-template-columns:repeat(2,1fr)}
-    }
-    .cat{
-      background:var(--card);border-radius:16px;padding:10px 10px 12px;
-      box-shadow:var(--shadow);text-align:center;color:#222
-    }
-    .cat .top{
-      border-radius:14px 14px 6px 6px;padding:10px 8px;margin-bottom:6px;color:#fff;font-weight:800
-    }
-    .cat .bottom{font-weight:700;font-size:14px}
+  /* Testimonial strip with inline avatar */
+  .testi{background:#fff5f0;border-top:1px solid rgba(0,0,0,.05);border-bottom:1px solid rgba(0,0,0,.05);padding:12px 0}
+  .testi-row{display:flex;align-items:center;gap:14px;max-width:860px;margin:0 auto}
+  .avatar{width:56px;height:56px;border-radius:9999px;overflow:hidden;flex:0 0 auto;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+  .stars{color:var(--gold);font-size:20px}
+  .tcopy{font-weight:700}
 
-    /* ======= CRIMSON BAND (CTA) ======= */
-    .crimson{
-      background:linear-gradient(180deg, var(--crimson) 0%, var(--crimson-deep) 100%);
-      color:#fff;padding:28px 0 36px;text-align:center
-    }
-    .big-cta{
-      display:inline-flex;align-items:center;gap:14px;background:linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
-      color:#121212;border-radius:40px;padding:16px 28px;font-weight:900;box-shadow:var(--shadow);text-decoration:none
-    }
-    .crimson h3{font-size:26px;margin:0 0 16px}
+  /* Gold banner with U.S. map */
+  .gold-banner{
+    background:
+      radial-gradient(900px 320px at 60% 0%, rgba(0,0,0,.06), transparent 60%),
+      repeating-linear-gradient(45deg, rgba(255,215,0,.18) 0 10px, rgba(255,215,0,.10) 10px 20px),
+      linear-gradient(180deg, #f7d24a 0%, #efc22a 100%);
+    padding:24px 0 70px; position:relative; overflow:hidden; color:#5d4200
+  }
+  .gold-banner h4{margin:0 0 10px;text-align:center;font-size:22px;font-weight:800}
+  .us-map{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);width:min(900px,95%);opacity:.3}
 
-    /* ======= TESTIMONIAL STRIP ======= */
-    .testi{
-      background:#fff5f0;border-top:1px solid rgba(0,0,0,.05);border-bottom:1px solid rgba(0,0,0,.05);
-      padding:12px 0
-    }
-    .testi-row{display:flex;align-items:center;gap:14px;max-width:820px}
-    .avatar{
-      width:56px;height:56px;border-radius:9999px;background:#ddd;flex:0 0 auto;
-      background-image:radial-gradient(circle at 30% 30%, #eee, #bbb);
-    }
-    .stars{color:var(--gold);font-size:20px}
-    .tcopy{font-weight:700}
+  footer{background:#faf6ff;border-top:1px solid #eee}
+  .foot{display:flex;align-items:center;justify-content:space-between;padding:18px 0;color:#5a5a5a}
 
-    /* ======= GOLD MAP BANNER ======= */
-    .gold-banner{
-      background:
-        radial-gradient(900px 300px at 60% 0%, rgba(0,0,0,.06), transparent 60%),
-        repeating-linear-gradient(45deg, rgba(255,215,0,.18) 0 10px, rgba(255,215,0,.10) 10px 20px),
-        linear-gradient(180deg, #f7d24a 0%, #efc22a 100%);
-      padding:24px 0 60px; position:relative; overflow:hidden; color:#5d4200
-    }
-    .gold-banner h4{
-      margin:0 0 10px;text-align:center;font-size:22px;font-weight:800
-    }
-    /* Faint US map silhouette (inline SVG as background) */
-    .us-map{
-      position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);
-      width:min(900px,95%);opacity:.26;filter:blur(.2px)
-    }
-
-    footer{background:#faf6ff;border-top:1px solid #eee}
-    .foot{display:flex;align-items:center;justify-content:space-between;padding:18px 0;color:#5a5a5a}
-
-    /* Utility */
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-  </style>
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
 </head>
 <body>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero-wrap">
-    <div class="container">
-      <!-- Brand / Title row -->
-      <div class="brand-row">
-        <!-- King (simple emoji stand-in; replace with your image if you want) -->
-        <svg aria-hidden="true" viewBox="0 0 64 64">
-          <rect x="2" y="30" width="60" height="24" rx="6" fill="#7a3a10"/>
-          <rect x="6" y="18" width="20" height="26" rx="4" fill="#b55124"/>
-          <rect x="38" y="18" width="20" height="26" rx="4" fill="#b55124"/>
-          <rect x="13" y="10" width="38" height="12" rx="6" fill="#ffd46a" />
-          <path d="M12 10l6 8 8-10 8 10 8-10 6 8" fill="#ffc300" stroke="#b8860b" stroke-width="2"/>
-        </svg>
-        AssistKingOnline
-      </div>
+<!-- ===== HERO ===== -->
+<section class="hero-wrap">
+  <div class="container">
+    <div class="brand-bar">
+      <!-- Inline SVG King (always shows) -->
+      <svg class="king" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="gThrone" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#a24a14"/><stop offset="1" stop-color="#6e310c"/>
+          </linearGradient>
+          <linearGradient id="gRobe" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#e14b24"/><stop offset="1" stop-color="#b53a1c"/>
+          </linearGradient>
+          <linearGradient id="gGold" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stop-color="#ffd875"/><stop offset="1" stop-color="#ffbf2f"/>
+          </linearGradient>
+        </defs>
+        <!-- Throne -->
+        <rect x="10" y="70" width="108" height="40" rx="8" fill="url(#gThrone)"/>
+        <rect x="18" y="28" width="24" height="50" rx="6" fill="#7c3f11"/>
+        <rect x="86" y="28" width="24" height="50" rx="6" fill="#7c3f11"/>
+        <!-- Body -->
+        <rect x="40" y="44" width="48" height="44" rx="10" fill="url(#gRobe)"/>
+        <rect x="56" y="44" width="16" height="44" rx="8" fill="url(#gGold)"/>
+        <!-- Face -->
+        <circle cx="64" cy="36" r="14" fill="#f4c7a1"/>
+        <circle cx="58" cy="34" r="2.5" fill="#3b2d1f"/>
+        <circle cx="70" cy="34" r="2.5" fill="#3b2d1f"/>
+        <path d="M56 40c4 5 12 5 16 0" stroke="#3b2d1f" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Crown -->
+        <path d="M48 20l5 8 11-10 11 10 5-8 3 10H45z" fill="url(#gGold)" stroke="#b8860b" stroke-width="1.5"/>
+      </svg>
 
-      <p class="tagline">Your place to find all of your household, commercial, and food service needs.</p>
-
-      <h1 class="big">How can I help you?</h1>
-
-      <!-- Search -->
-      <form class="search" onsubmit="event.preventDefault()">
-        <label class="sr-only" for="q">Ask the King</label>
-        <input id="q" placeholder="Ask the King…" />
-        <button>Search</button>
-      </form>
-
-      <!-- Pills -->
-      <div class="pill-row">
-        <a class="pill gold" href="#">Residential</a>
-        <a class="pill blue" href="#">Commercial</a>
-        <a class="pill red" href="#">Food</a>
-      </div>
-
-      <!-- Categories -->
-      <div class="categories">
-        <div class="cat"><div class="top" style="background:#C03A2B">🔧 Plumbing</div><div class="bottom">Residential</div></div>
-        <div class="cat"><div class="top" style="background:#1F68FF">⚡ Electricians</div><div class="bottom">Residential</div></div>
-        <div class="cat"><div class="top" style="background:#f2b705">🪚 Carpentry</div><div class="bottom">Residential</div></div>
-        <div class="cat"><div class="top" style="background:#1F6B35">🌱 Lawn Care</div><div class="bottom">Residential</div></div>
-        <div class="cat"><div class="top" style="background:#B1432F">💳 Financial Help</div><div class="bottom">Business</div></div>
-      </div>
+      <div class="brand-name">AssistKingOnline</div>
     </div>
-  </section>
 
-  <!-- ===== CRIMSON CTA BAND ===== -->
-  <section class="crimson">
-    <div class="container">
-      <h3>Grow your business with AssistKingOnline</h3>
-      <a href="#" class="big-cta">Get Leads Now</a>
-    </div>
-  </section>
+    <p class="tagline">Your place to find all of your household, commercial, and food service needs.</p>
 
-  <!-- ===== TESTIMONIAL STRIP ===== -->
-  <section class="testi">
-    <div class="container">
-      <div class="testi-row">
-        <div class="avatar" aria-hidden="true"></div>
-        <div class="stars">★ ★ ★ ★ ★</div>
-        <div class="tcopy">Always great contractors on AssistKing.</div>
-      </div>
-    </div>
-  </section>
+    <h1 class="big">How can I help you?</h1>
 
-  <!-- ===== GOLD MAP BANNER ===== -->
-  <section class="gold-banner">
-    <div class="container">
-      <h4>Available everywhere across the nation</h4>
+    <!-- Search -->
+    <form class="search" onsubmit="event.preventDefault()">
+      <label class="sr-only" for="q">Ask the King</label>
+      <input id="q" placeholder="Ask the King…" />
+      <button>Search</button>
+    </form>
+
+    <!-- Pills -->
+    <div class="pill-row">
+      <a class="pill gold" href="#">Residential</a>
+      <a class="pill blue" href="#">Commercial</a>
+      <a class="pill red" href="#">Food</a>
     </div>
-    <!-- simple golden US silhouette; decorative -->
-    <svg class="us-map" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#d9aa00" d="M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z" />
+
+    <!-- Plain white category cards (Trucking included) -->
+    <div class="categories">
+      <div class="cat"><span class="emoji">🔧</span><div class="label">Plumbing</div></div>
+      <div class="cat"><span class="emoji">⚡</span><div class="label">Electricians</div></div>
+      <div class="cat"><span class="emoji">🪚</span><div class="label">Carpentry</div></div>
+      <div class="cat"><span class="emoji">🚚</span><div class="label">Trucking</div></div>
+      <div class="cat"><span class="emoji">💳</span><div class="label">Financial Help</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CRIMSON CTA ===== -->
+<section class="crimson">
+  <div class="container">
+    <h3>Grow your business with AssistKingOnline</h3>
+    <a href="#" class="big-cta">Get Leads Now</a>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIAL ===== -->
+<section class="testi">
+  <div class="testi-row">
+    <!-- Inline avatar: simple vector face -->
+    <svg class="avatar" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="skin" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f6d0b6"/><stop offset="1" stop-color="#e9b898"/></linearGradient>
+      </defs>
+      <circle cx="32" cy="32" r="30" fill="#f2f2f2"/>
+      <circle cx="32" cy="30" r="16" fill="url(#skin)"/>
+      <circle cx="26" cy="28" r="2.2" fill="#3b2d1f"/>
+      <circle cx="38" cy="28" r="2.2" fill="#3b2d1f"/>
+      <path d="M24 35c5 5 11 5 16 0" stroke="#7a4a2a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M16 50c10-8 22-8 32 0" stroke="#caa287" stroke-width="8" stroke-linecap="round"/>
     </svg>
-  </section>
+    <div class="stars">★ ★ ★ ★ ★</div>
+    <div class="tcopy">Always great contractors on AssistKing.</div>
+  </div>
+</section>
 
-  <!-- ===== FOOTER ===== -->
-  <footer>
-    <div class="container foot">
-      <span>© AssistKingOnline</span>
-      <span>Privacy • Terms • Contact</span>
-    </div>
-  </footer>
+<!-- ===== GOLD BANNER WITH US MAP ===== -->
+<section class="gold-banner">
+  <div class="container">
+    <h4>Available everywhere across the nation</h4>
+  </div>
+  <svg class="us-map" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="#d5a900" d="M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z"/>
+  </svg>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container foot">
+    <span>© AssistKingOnline</span>
+    <span>Privacy • Terms • Contact</span>
+  </div>
+</footer>
+
 </body>
 </html>
