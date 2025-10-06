@@ -152,38 +152,6 @@
 
     /* Utility */
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
-    /* King placement */
-.hero-wrap .container {
-  position: relative;
-}
-.king-img {
-  position: absolute;
-  left: 20px;
-  top: 10px;
-  width: 180px;
-  height: auto;
-  filter: drop-shadow(0 8px 16px rgba(0,0,0,.25));
-}
-@media (max-width: 700px) {
-  .king-img {
-    width: 140px;
-    top: 6px;
-  }
-}
-@media (max-width: 520px) {
-  .king-img {
-    width: 110px;
-    top: 4px;
-  }
-}
-.brand-row {
-  padding-left: 190px; /* adds space so the text doesn’t overlap the king */
-}
-@media (max-width: 700px) {
-  .brand-row {
-    padding-left: 150px;
-  }
-}
   </style>
 </head>
 <body>
@@ -193,7 +161,6 @@
     <div class="container">
       <!-- Brand / Title row -->
       <div class="brand-row">
-        <img class="king-img" src="king.png" alt="AssistKingOnline King on throne">
         <!-- (simple placeholder icon) -->
         <svg aria-hidden="true" viewBox="0 0 64 64">
           <rect x="2" y="30" width="60" height="24" rx="6" fill="#7a3a10"/>
