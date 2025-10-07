@@ -211,115 +211,44 @@
   0%,100%{ transform: translateY(0) }
   50%{ transform: translateY(-4px) }
 }
+    /* Search-first hero spacing (no brand/title/tagline) */
+.hero-wrap{ padding:20px 0 10px; }
+.search{ margin-top: 8px; }
   </style>
 </head>
 <body>
 
   <!-- ===== HERO ===== -->
-  <section class="hero-wrap">
-    <div class="container">
-      <!-- Brand / Title row -->
-<div class="brand-row">
-  <!-- KING (detailed inline SVG to match your image) -->
-  <svg class="king-hero" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-    <defs>
-      <!-- metals & fabrics -->
-      <linearGradient id="gold" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stop-color="#FFD873"/><stop offset="1" stop-color="#E7B52A"/>
-      </linearGradient>
-      <linearGradient id="throne-wood" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stop-color="#C2872E"/><stop offset="1" stop-color="#8C5A19"/>
-      </linearGradient>
-      <radialGradient id="capeshade" cx="50%" cy="35%" r="70%">
-        <stop offset="0" stop-color="#C63A2E"/><stop offset="1" stop-color="#8E241B"/>
-      </radialGradient>
-      <linearGradient id="pants" x1="0" x2="0" y1="0" y2="1">
-        <stop offset="0" stop-color="#2F4F7F"/><stop offset="1" stop-color="#1E3B67"/>
-      </linearGradient>
-    </defs>
+  <!-- ===== HERO (search-first) ===== -->
+<section class="hero-wrap">
+  <div class="container">
 
-    <!-- background/seat -->
-    <rect x="36" y="140" width="184" height="68" rx="10" fill="url(#throne-wood)"/>
-    <rect x="48" y="72" width="28" height="86" rx="8" fill="#9B631C"/>
-    <rect x="180" y="72" width="28" height="86" rx="8" fill="#9B631C"/>
-    <rect x="72" y="92" width="112" height="58" rx="14" fill="#5E3F85"/>
+    <!-- Search ONLY -->
+    <form class="search" onsubmit="event.preventDefault()">
+      <label class="sr-only" for="q">Ask the King</label>
+      <input id="q" placeholder="Ask the King…" />
+      <button>Search</button>
+    </form>
 
-    <!-- top spires -->
-    <circle cx="56" cy="64" r="10" fill="url(#gold)"/>
-    <circle cx="200" cy="64" r="10" fill="url(#gold)"/>
-
-    <!-- crown -->
-    <path d="M96 62l10 16 22-18 22 18 10-16 6 20H90z" fill="url(#gold)" stroke="#9C7709" stroke-width="3" />
-
-    <!-- head -->
-    <circle cx="128" cy="88" r="24" fill="#BB7F55"/>
-    <!-- hair -->
-    <path d="M106 82c6-14 44-14 52 0v10c-12-10-40-10-52 0z" fill="#5A3A23"/>
-    <!-- brows/eyes -->
-    <path d="M114 88c6-4 12-4 18 0" stroke="#4A3524" stroke-width="2" stroke-linecap="round" opacity=".35"/>
-    <circle cx="118" cy="94" r="3.2" fill="#2b2b2b"/>
-    <circle cx="138" cy="94" r="3.2" fill="#2b2b2b"/>
-    <!-- beard -->
-    <path d="M108 96c3 18 16 26 20 26s17-8 20-26" fill="#5A3A23"/>
-
-    <!-- torso -->
-    <path d="M92 114h72c10 0 18 8 18 18v44H74v-44c0-10 8-18 18-18z" fill="url(#gold)"/>
-    <circle cx="128" cy="128" r="10" fill="#EAD27A" stroke="#9C7709" stroke-width="2"/>
-
-    <!-- cape -->
-    <path d="M72 122c12-18 28-28 56-28s44 10 56 28v70H72z" fill="url(#capeshade)" opacity=".95"/>
-
-    <!-- arms -->
-    <rect x="76" y="128" width="24" height="40" rx="12" fill="#BB7F55"/>
-    <rect x="156" y="128" width="24" height="40" rx="12" fill="#BB7F55"/>
-    <rect x="64" y="154" width="36" height="16" rx="8" fill="#BB7F55"/>
-    <rect x="156" y="154" width="36" height="16" rx="8" fill="#BB7F55"/>
-
-    <!-- pants -->
-    <rect x="92" y="164" width="28" height="44" rx="10" fill="url(#pants)"/>
-    <rect x="136" y="164" width="28" height="44" rx="10" fill="url(#pants)"/>
-
-    <!-- boots -->
-    <path d="M92 204h40v16H86c-6 0-10-4-10-8s4-8 10-8z" fill="#603716"/>
-    <path d="M136 204h40c6 0 10 4 10 8s-4 8-10 8h-46v-16z" fill="#603716"/>
-
-    <!-- throne legs -->
-    <rect x="58" y="206" width="30" height="22" rx="6" fill="url(#throne-wood)"/>
-    <rect x="168" y="206" width="30" height="22" rx="6" fill="url(#throne-wood)"/>
-  AssistKingOnline
-</div>
-        AssistKingOnline
-      </div>
-
-      <p class="tagline">Your place to find all of your household, commercial, and food service needs.</p>
-
-      <h1 class="big">How can I help you?</h1>
-
-      <!-- Search -->
-      <form class="search" onsubmit="event.preventDefault()">
-        <label class="sr-only" for="q">Ask the King</label>
-        <input id="q" placeholder="Ask the King…" />
-        <button>Search</button>
-      </form>
-
-      <!-- Pills -->
-      <div class="pill-row">
-        <a class="pill gold" href="#">Residential</a>
-        <a class="pill blue" href="#">Commercial</a>
-        <a class="pill red" href="#">Food</a>
-      </div>
-
-      <!-- Categories -->
-<div class="categories">
-  <div class="cat"><div class="top" style="background:#C03A2B">🔧 Plumbing</div></div>
-  <div class="cat"><div class="top" style="background:#1F68FF">⚡ Electricians</div></div>
-  <div class="cat"><div class="top" style="background:#f2b705">🪚 Carpentry</div></div>
-  <div class="cat"><div class="top" style="background:#1F6B35">🌱 Lawn Care</div></div>
-  <div class="cat"><div class="top" style="background:#B1432F">💳 Financial Help</div></div>
-  <div class="cat"><div class="top" style="background:#005f73">🚚 Trucking</div></div>
-</div>
+    <!-- Pills -->
+    <div class="pill-row">
+      <a class="pill gold" href="#">Residential</a>
+      <a class="pill blue" href="#">Commercial</a>
+      <a class="pill red" href="#">Food</a>
     </div>
-  </section>
+
+    <!-- Categories -->
+    <div class="categories">
+      <div class="cat"><div class="top" style="background:#C03A2B">🔧 Plumbing</div></div>
+      <div class="cat"><div class="top" style="background:#1F68FF">⚡ Electricians</div></div>
+      <div class="cat"><div class="top" style="background:#f2b705">🪚 Carpentry</div></div>
+      <div class="cat"><div class="top" style="background:#1F6B35">🌱 Lawn Care</div></div>
+      <div class="cat"><div class="top" style="background:#B1432F">💳 Financial Help</div></div>
+      <div class="cat"><div class="top" style="background:#005f73">🚚 Trucking</div></div>
+    </div>
+
+  </div>
+</section>
 
   <!-- ===== CRIMSON CTA BAND ===== -->
   <section class="crimson">
