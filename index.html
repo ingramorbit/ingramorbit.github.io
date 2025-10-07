@@ -297,6 +297,15 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+    /* --- Blend King's background with hero background --- */
+.king-img {
+  width: 120px;
+  height: auto;
+  background: transparent; /* removes any white or solid background */
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.25));
+  border-radius: 0; /* ensure no border edges show */
+  mix-blend-mode: lighten; /* helps blend gently with blue background */
+}
   </style>
 </head>
 <body>
