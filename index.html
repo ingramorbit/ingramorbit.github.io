@@ -261,6 +261,43 @@
 
 /* optional: tighten section spacing after hero */
 .crimson{ padding-top: 24px; }
+    /* --- King + Title styling --- */
+.hero-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.king-img {
+  width: 120px;
+  height: auto;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.25));
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 3px 12px rgba(0,0,0,.3);
+  letter-spacing: .5px;
+}
+
+/* floating animation for the King */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* simple fade-in for entry */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
   </style>
 </head>
 <body>
@@ -271,6 +308,11 @@
   <div class="container">
 
     <!-- Search ONLY -->
+    <!-- KING + TITLE -->
+<div class="hero-header">
+  <img src="king.png" alt="Assist King" class="king-img">
+  <h1 class="hero-title">AssistKingOnline</h1>
+</div>
     <form class="search" onsubmit="event.preventDefault()">
       <label class="sr-only" for="q">Ask the King</label>
       <input id="q" placeholder="Ask the King…" />
