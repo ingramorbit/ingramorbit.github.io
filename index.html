@@ -298,31 +298,31 @@
   to { opacity: 1; transform: translateY(0); }
 }
     /* --- Blend King's background with hero background --- */
-.king-img {
-  width: 120px;
-  height: auto;
-  background: transparent;
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,.25));
-  border-radius: 0;
-}
-    .king-wrapper {
+.king-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin-top: 0;
-  margin-bottom: 4px;
-  gap: 4px; /* tightly controls spacing between King and title */
-    }
+  margin-bottom: 0;
+  gap: 0;
+}
 
 .king-img {
   width: 200px;
-  max-width: 60vw;
   height: auto;
-  background: transparent;
   display: block;
-  margin-bottom: 12px;
+  background: transparent;
+  margin-bottom: -10px; /* pulls the title closer */
   filter: drop-shadow(0 10px 20px rgba(0,0,0,0.25));
+}
+
+.king-wrapper h1,
+.hero-title,
+.big {
+  margin: 0;
+  padding: 0;
+  line-height: 1;
 }
   </style>
 </head>
