@@ -152,6 +152,27 @@
 
     /* Utility */
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    /* Center category icons & titles inside each card */
+.categories .cat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100px; /* keeps them all even */
+  text-align: center;
+}
+
+.categories .cat .top {
+  border-radius: 12px;
+  padding: 18px 8px;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
   </style>
 </head>
 <body>
