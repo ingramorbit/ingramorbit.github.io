@@ -103,14 +103,31 @@
       h1{font-size:30px}
     }
   </style>
+  /* King placement */
+.king-hero{
+  width:72px;
+  height:auto;
+  margin-right:10px;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+  animation:floaty 3.5s ease-in-out infinite;
+}
+@keyframes floaty{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
 </head>
 <body>
 
   <section class="hero">
     <div class="container">
       <header>
-        <div class="brand">
-          <!-- small crown -->
+          <div class="brand">
+  <img src="https://cdn.jsdelivr.net/gh/assistkingonline/assets/king-throne.png"
+       alt="AssistKingOnline King on throne"
+       class="king-hero" />
+  AssistKingOnline
+          </div>
           <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M8 22l8 8 8-12 8 12 8-12 8 12 8-8v24H8V22z" fill="#FFD700" stroke="#B8860B" stroke-width="2"/>
           </svg>
