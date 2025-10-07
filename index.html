@@ -198,9 +198,18 @@
   filter: drop-shadow(0 6px 16px rgba(0,0,0,0.25));
   animation: floaty 3s ease-in-out infinite;
 }
-@keyframes floaty {
+@keyframestranslateY floaty {
   0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: (-4px); }
+}
+    .king-hero{
+  width:72px; height:72px; flex:0 0 auto;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
+  animation: king-float 3s ease-in-out infinite;
+}
+@keyframes king-float{
+  0%,100%{ transform: translateY(0) }
+  50%{ transform: translateY(-4px) }
 }
   </style>
 </head>
@@ -210,29 +219,37 @@
   <section class="hero-wrap">
     <div class="container">
       <!-- Brand / Title row -->
-      <div class="brand-row">
-        <!-- KING illustration (inline SVG) -->
-<svg class="king-hero" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
-  <defs>
-    <linearGradient id="kingGold" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="#FFD875"/><stop offset="1" stop-color="#FFBF2F"/>
-    </linearGradient>
-  </defs>
-  <!-- throne -->
-  <rect x="12" y="74" width="104" height="38" rx="10" fill="#7a3a10"/>
-  <rect x="20" y="32" width="22" height="46" rx="6" fill="#b55124"/>
-  <rect x="86" y="32" width="22" height="46" rx="6" fill="#b55124"/>
-  <!-- robe -->
-  <rect x="44" y="46" width="40" height="42" rx="10" fill="#d24a2c"/>
-  <rect x="58" y="46" width="12" height="42" rx="6" fill="url(#kingGold)"/>
-  <!-- face -->
-  <circle cx="64" cy="38" r="14" fill="#f4c7a1"/>
-  <circle cx="58" cy="36" r="2.6" fill="#3b2d1f"/>
-  <circle cx="70" cy="36" r="2.6" fill="#3b2d1f"/>
-  <path d="M56 42c4 5 12 5 16 0" stroke="#3b2d1f" stroke-width="2" fill="none" stroke-linecap="round"/>
-  <!-- crown -->
-  <path d="M48 22l5 8 11-10 11 10 5-8 3 10H45z" fill="url(#kingGold)" stroke="#b8860b" stroke-width="1.5"/>
-</svg>
+<div class="brand-row">
+  <!-- KING illustration (inline SVG) -->
+  <svg class="king-hero" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+    <defs>
+      <linearGradient id="kgGold" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#FFD875"/><stop offset="1" stop-color="#E8B62A"/>
+      </linearGradient>
+      <linearGradient id="kgBlue" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#2563EB"/><stop offset="1" stop-color="#1E3A8A"/>
+      </linearGradient>
+      <linearGradient id="kgThrone" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0" stop-color="#8B4513"/><stop offset="1" stop-color="#5E2F0C"/>
+      </linearGradient>
+    </defs>
+    <rect x="12" y="74" width="104" height="38" rx="10" fill="url(#kgThrone)"/>
+    <rect x="20" y="32" width="22" height="46" rx="6" fill="#7C3F11"/>
+    <rect x="86" y="32" width="22" height="46" rx="6" fill="#7C3F11"/>
+    <rect x="88" y="40" width="4" height="40" rx="2" fill="#d1a121"/>
+    <circle cx="90" cy="38" r="6" fill="url(#kgGold)" stroke="#b8860b" stroke-width="1.5"/>
+    <rect x="44" y="46" width="40" height="42" rx="10" fill="url(#kgBlue)"/>
+    <rect x="58" y="46" width="12" height="42" rx="6" fill="url(#kgGold)"/>
+    <ellipse cx="64" cy="50" rx="24" ry="8" fill="#ffffff" opacity=".95"/>
+    <circle cx="64" cy="38" r="14" fill="#d9a577"/>
+    <path d="M52 40c2 10 10 14 12 14s10-4 12-14" fill="#5a3a23"/>
+    <circle cx="58" cy="36" r="2.6" fill="#2c2c2c"/>
+    <circle cx="70" cy="36" r="2.6" fill="#2c2c2c"/>
+    <path d="M56 44c4 4 12 4 16 0" stroke="#3b2d1f" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M48 22l5 8 11-10 11 10 5-8 3 10H45z" fill="url(#kgGold)" stroke="#b8860b" stroke-width="1.5"/>
+  </svg>
+  AssistKingOnline
+</div>
         AssistKingOnline
       </div>
 
