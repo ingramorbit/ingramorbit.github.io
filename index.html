@@ -335,6 +335,12 @@
   height: 18px;
   cursor: pointer;
   z-index: 100;
+  padding: 8px;
+  border: 2px solid rgba(255, 215, 0, 0.8); /* subtle gold border */
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.15); /* semi-transparent background */
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* faint gold glow */
 }
 
 .menu-button .bar {
@@ -343,6 +349,11 @@
   background-color: #FFD700;
   border-radius: 3px;
   transition: all 0.3s ease;
+}
+
+.menu-button:hover {
+  border-color: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
 }
 
 .menu-button:hover .bar {
