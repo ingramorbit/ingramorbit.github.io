@@ -575,14 +575,26 @@
   </section>
 
   <!-- ===== GOLD MAP BANNER ===== -->
-  <section class="gold-banner">
-    <div class="container">
-      <h4>Available everywhere across the nation</h4>
-    </div>
-    <!-- simple golden US silhouette; decorative -->
-    <svg class="us-map" viewBox="0 0 960 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path fill="#d9aa00" d="M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z" />
-    </svg>
+  <!-- ===== GOLD MAP BANNER (force-visible) ===== -->
+<section class="gold-banner" style="position:relative; overflow:hidden; padding:28px 0 80px;">
+  <div class="container" style="position:relative; z-index:1;">
+    <h4>Available everywhere across the nation</h4>
+  </div>
+
+  <!-- Force the map to appear behind the text -->
+  <svg class="us-map" viewBox="0 0 960 600" aria-hidden="true"
+       style="position:absolute; left:50%; bottom:-10px; transform:translateX(-50%) scale(1.25);
+              width:min(1000px,98%); opacity:.6; filter:none; z-index:0; pointer-events:none;">
+    <defs>
+      <linearGradient id="goldMap" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#FFD875"/>
+        <stop offset="1" stop-color="#E7B52A"/>
+      </linearGradient>
+    </defs>
+    <path fill="url(#goldMap)"
+      d="M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z"/>
+  </svg>
+</section>
   </section>
 
   <!-- ===== FOOTER ===== -->
