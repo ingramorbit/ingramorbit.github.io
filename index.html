@@ -500,6 +500,31 @@
   z-index: 0;
   pointer-events: none;          /* never block clicks */
 }
+    /* Force the US map as a background layer on the banner */
+.gold-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 0 80px; /* room for the map at the bottom */
+}
+
+.gold-banner > .container {
+  position: relative;
+  z-index: 1; /* keep heading above the map */
+}
+
+/* Map background layer */
+.gold-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6; /* adjust strength (0.4–0.8) */
+  background:
+    center bottom / min(1000px, 95%) auto
+    no-repeat
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 600'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23FFD875'/><stop offset='1' stop-color='%23E7B52A'/></linearGradient></defs><path fill='url(%23g)' d='M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z'/></svg>");
+}
   </style>
 </head>
 <body>
