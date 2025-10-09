@@ -331,23 +331,23 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 26px;
-  height: 18px;
+  align-items: center;
+  width: 30px;
+  height: 22px;
   cursor: pointer;
   z-index: 100;
   padding: 8px;
-  border: 2px solid rgba(255, 215, 0, 0.8); /* subtle gold border */
+  border: 2px solid rgba(255, 215, 0, 0.9); /* gold border */
   border-radius: 6px;
-  background-color: rgba(0, 0, 0, 0.15); /* semi-transparent background */
-  backdrop-filter: blur(4px);
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3); /* faint gold glow */
+  background-color: rgba(10, 10, 10, 0.3); /* slightly darker transparent background */
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .menu-button .bar {
   width: 100%;
   height: 3px;
-  background-color: #FFD700;
-  border-radius: 3px;
+  background-color: #FFD700; /* bright gold bars */
+  border-radius: 2px;
   transition: all 0.3s ease;
 }
 
@@ -358,7 +358,6 @@
 
 .menu-button:hover .bar {
   background-color: #fff;
-  transform: scaleX(1.1);
 }
   </style>
 </head>
