@@ -477,6 +477,29 @@
   box-shadow: 0 2px 6px rgba(0,0,0,.2);
   border: 2px solid #FFD700;
     }
+    /* Stronger gold map in banner */
+.gold-banner{
+  position: relative;            /* ensure absolute children anchor here */
+  overflow: hidden;
+  padding: 28px 0 80px;          /* extra room so map can peek in */
+}
+
+.gold-banner .container{
+  position: relative;
+  z-index: 1;                    /* keep text above the map */
+}
+
+.us-map{
+  position: absolute;
+  left: 50%;
+  bottom: -10px;                 /* lift into view; tweak as needed */
+  transform: translateX(-50%) scale(1.2);
+  width: min(1000px, 98%);
+  opacity: .5;                   /* stronger than before so it shows */
+  filter: none;                  /* remove blur so it’s crisp */
+  z-index: 0;
+  pointer-events: none;          /* never block clicks */
+}
   </style>
 </head>
 <body>
