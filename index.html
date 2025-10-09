@@ -386,6 +386,29 @@
   border-radius: 2px;
   transition: all 0.3s ease;
 }
+    .login-button {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  z-index: 100;
+}
+
+.login-button a {
+  display: inline-block;
+  padding: 8px 16px;
+  background: linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
+  color: #1c1c1c;
+  font-weight: 800;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  transition: all 0.25s ease;
+}
+
+.login-button a:hover {
+  background: linear-gradient(180deg, #fff27a 0%, #FFD700 100%);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.6);
+}
   </style>
 </head>
 <body>
@@ -393,6 +416,9 @@
   <!-- ===== HERO ===== -->
   <!-- ===== HERO (search-first) ===== -->
 <section class="hero-wrap">
+  <div class="login-button">
+  <a href="#">Log In / Sign Up</a>
+</div>
   <div class="menu-button">
   <span class="bar"></span>
   <span class="bar"></span>
