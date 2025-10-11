@@ -138,14 +138,6 @@
         linear-gradient(180deg, #f7d24a 0%, #efc22a 100%);
       padding:24px 0 60px; position:relative; overflow:hidden; color:#5d4200
     }
-    .gold-banner h4{
-      margin:0 0 10px;text-align:center;font-size:22px;font-weight:800
-    }
-    /* Faint US map silhouette (inline SVG as background) */
-    .us-map{
-      position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);
-      width:min(900px,95%);opacity:.26;filter:blur(.2px)
-    }
 
     footer{background:#faf6ff;border-top:1px solid #eee}
     .foot{display:flex;align-items:center;justify-content:space-between;padding:18px 0;color:#5a5a5a}
@@ -550,19 +542,34 @@
 </div>
     </div>
   </section>
-<!-- ===== GOLD MAP BANNER (clean, self-contained) ===== -->
-<section class="gold-banner" style="position:relative; overflow:hidden; padding:28px 0 80px;">
+<!-- ===== GOLD MAP BANNER (bold visible version) ===== -->
+<section class="gold-banner" 
+  style="position:relative; overflow:hidden; padding:28px 0 80px;
+         background:
+           radial-gradient(900px 300px at 60% 0%, rgba(0,0,0,.08), transparent 60%),
+           repeating-linear-gradient(45deg, rgba(255,215,0,.22) 0 10px, rgba(255,215,0,.12) 10px 20px),
+           linear-gradient(180deg, #f7d24a 0%, #efc22a 100%);">
+
   <div class="container" style="position:relative; z-index:2; text-align:center;">
-    <h4 style="margin:0 0 10px; font-size:22px; font-weight:800; color:#5d4200;">
+    <h4 style="margin:0 0 12px; font-size:24px; font-weight:900; color:#4a3700;">
       Available everywhere across the nation
     </h4>
   </div>
 
-  <!-- Map as an inline image so it can't be hidden by CSS -->
   <img alt="" aria-hidden="true"
-       src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 600'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23FFD875'/><stop offset='1' stop-color='%23E7B52A'/></linearGradient></defs><path fill='url(%23g)' d='M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z'/></svg>"
-       style="position:absolute; left:50%; bottom:-14px; transform:translateX(-50%) scale(1.2);
-              width:min(1000px,96%); opacity:.65; z-index:1; pointer-events:none; display:block;">
+       src="data:image/svg+xml;utf8,
+       <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 960 600'>
+         <defs>
+           <linearGradient id='g' x1='0' y1='0' x2='0' y2='1'>
+             <stop offset='0' stop-color='%23FFD200'/>
+             <stop offset='1' stop-color='%23E6A800'/>
+           </linearGradient>
+         </defs>
+         <path fill='url(%23g)' stroke='%23B8860B' stroke-width='3' 
+               d='M28 330l30-10 20 10 22-5 15-20 35 10 25-20 30 5 22-25 18 10 25-5 15-20 45 5 40-20 40 15 35-15 50 12 22 18 35-18 55 10 35 28 45 5 20 22 22 8 10 30-12 18-40-8-25 20-38-10-50 18-30-8-35 12-45-8-22 18-50-15-28 12-45-10-25 15-25-5-22-20-30 5-25-18-40 10-38-20-10-25z'/>
+       </svg>"
+       style="position:absolute; left:50%; bottom:-12px; transform:translateX(-50%) scale(1.2);
+              width:min(1000px,96%); opacity:.9; z-index:1; pointer-events:none; display:block;">
 </section>
   </section>
 
