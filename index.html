@@ -469,6 +469,23 @@
   box-shadow: 0 2px 6px rgba(0,0,0,.2);
   border: 2px solid #FFD700; /* ← add the color */
     }
+    /* Make cards that are <a> look/behave like buttons */
+.categories .cat {
+  text-decoration: none;
+  color: inherit;
+  border: 2px solid transparent;
+  outline: none;
+}
+
+/* Press / focus feedback */
+.categories .cat:active { transform: translateY(-2px) scale(0.99); }
+
+.categories .cat:focus-visible {
+  border-color: rgba(255,215,0,0.8); /* gold focus ring */
+  box-shadow:
+    0 0 0 3px rgba(255,215,0,0.25),
+    0 12px 24px rgba(0,0,0,0.18);
+}
   </style>
 </head>
 <body>
@@ -507,16 +524,24 @@
     </div>
 
     <!-- Categories -->
-    <div class="categories">
-      <div class="cat"><div class="top" style="background:#C03A2B">🔧 Plumbing</div></div>
-      <div class="cat"><div class="top" style="background:#1F68FF">⚡ Electricians</div></div>
-      <div class="cat"><div class="top" style="background:#f2b705">🪚 Carpentry</div></div>
-      <div class="cat"><div class="top" style="background:#1F6B35">🌱 Lawn Care</div></div>
-      <div class="cat"><div class="top" style="background:#B1432F">💳 Financial Help</div></div>
-      <div class="cat"><div class="top" style="background:#005f73">🚚 Trucking</div></div>
-    </div>
+<div class="categories">
+  <a class="cat" href="#plumbing" aria-label="Plumbing">
+    <span class="top" style="background:#C03A2B">🔧 Plumbing</span>
+  </a>
+  <a class="cat" href="#electricians" aria-label="Electricians">
+    <span class="top" style="background:#1F68FF">⚡ Electricians</span>
+  </a>
+  <a class="cat" href="#carpentry" aria-label="Carpentry">
+    <span class="top" style="background:#f2b705">🪚 Carpentry</span>
+  </a>
+  <a class="cat" href="#trucking" aria-label="Trucking">
+    <span class="top" style="background:#005f73">🚚 Trucking</span>
+  </a>
+  <a class="cat" href="#financial-help" aria-label="Financial Help">
+    <span class="top" style="background:#B1432F">💳 Financial Help</span>
+  </a>
+</div>
 
-  </div>
 </section>
 
   <!-- ===== CRIMSON CTA BAND ===== -->
