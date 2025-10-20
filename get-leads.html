@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AssistKingOnline — Get Leads</title>
+<style>
+  :root{
+    --gold:#FFD700; --gold-deep:#e0b800;
+    --royal:#1E3A8A; --royalDeep:#0A2A66;
+    --text:#161616; --card:#ffffff;
+    --shadow:0 10px 30px rgba(0,0,0,.15);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:#fff}
+  .container{max-width:1100px;margin:0 auto;padding:0 16px}
+
+  /* Hero */
+  .hero{
+    background:linear-gradient(180deg,var(--royal) 0%,var(--royalDeep) 100%);
+    color:#fff; padding:24px 0 16px;
+  }
+  .topbar{display:flex;align-items:center;justify-content:space-between}
+  .brand{font-weight:900;font-size:22px;color:var(--gold)}
+  .back{display:inline-block;background:#fff;color:#0f172a;border:0;border-radius:10px;padding:10px 14px;font-weight:800;text-decoration:none;box-shadow:var(--shadow)}
+  h1{margin:14px 0 10px;font-size:34px}
+
+  /* Form card */
+  .wrap{padding:18px 0 28px}
+  .card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:720px){ .row{grid-template-columns:1fr} }
+  label{font-size:13px;font-weight:800;color:#333;display:block;margin:6px 0 6px}
+  input,select,textarea{
+    width:100%; padding:12px; border:1px solid #e6e6e6; border-radius:12px;
+    font-size:15px; outline:0; background:#fff;
+  }
+  input:focus,select:focus,textarea:focus{
+    border-color:#1E3A8A; box-shadow:0 0 0 3px rgba(30,58,138,.12);
+  }
+  textarea{min-height:120px; resize:vertical}
+
+  .tiny{font-size:12px;color:#666}
+  .actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .primary{
+    background:linear-gradient(180deg,var(--gold) 0%,var(--gold-deep) 100%);
+    color:#111; font-weight:900; border:0; border-radius:12px; padding:12px 16px; cursor:pointer;
+    box-shadow:0 10px 22px rgba(0,0,0,.18);
+  }
+  .ghost{
+    background:#fff; color:#0f172a; font-weight:800; border:1px solid #e6e6e6; border-radius:12px; padding:12px 16px; cursor:pointer;
+  }
+
+  /* success message */
+  .success{
+    display:none; margin-top:14px; padding:14px; border-radius:12px; background:#ecffe9; border:1px solid #b9e7b0; color:#1b5e20; font-weight:700;
+  }
+</style>
+</head>
+<body>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="topbar">
+        <div class="brand">AssistKingOnline</div>
+        <a class="back" href="index.html">← Back to Home</a>
+      </div>
+      <h1>Get Leads Now</h1>
+      <p>Tell us about your business and the services you offer. We’ll follow up to get you listed and start sending leads.</p>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <main class="container wrap">
+    <div class="card">
+      <!--
+        SUBMISSION OPTIONS (pick one)
+        --------------------------------
+        A) Default (no backend): show a “Thanks” message in-page (JS only)
+        B) Formspree: replace ACTION_URL with your endpoint to receive emails
+           action="https://formspree.io/f/XXXXXXXX" method="POST"
+        C) Mailto: uncomment the mailto form and comment out the JS handler
+      -->
+
+      <form id="leadForm" novalidate>
+        <div class="row">
+          <div>
+            <label for="company">Business / Company Name</label>
+            <input id="company" name="company" type="text" placeholder="Royal Plumbing LLC" required />
+          </div>
+          <div>
+            <label for="contact">Contact Name</label>
+            <input id="contact" name="contact" type="text" placeholder="John King" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@business.com" required />
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="(555) 123-4567" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="service">Primary Service</label>
+            <select id="service" name="service" required>
+              <option value="">Select a service…</option>
+              <option>Plumbing</option>
+              <option>Electricians</option>
+              <option>Carpentry</option>
+              <option>Lawn Care</option>
+              <option>Trucking</option>
+              <option>Food Services</option>
+              <option>Financial Help</option>
+            </select>
+          </div>
+          <div>
+            <label for="locations">Service Area (City/State or ZIPs)</label>
+            <input id="locations" name="locations" type="text" placeholder="Atlanta, GA • 30301–30319" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="budget">Monthly Lead Budget (optional)</label>
+            <select id="budget" name="budget">
+              <option value="">Choose a range…</option>
+              <option>$0–$250</option>
+              <option>$250–$500</option>
+              <option>$500–$1,000</option>
+              <option>$1,000–$2,500</option>
+              <option>$2,500+</option>
+            </select>
+          </div>
+          <div>
+            <label for="website">Website (optional)</label>
+            <input id="website" name="website" type="url" placeholder="https://yourbusiness.com" />
+          </div>
+        </div>
+
+        <label for="about">Tell us about your business (experience, licenses, specialties)</label>
+        <textarea id="about" name="about" placeholder="We’re a licensed, insured contractor serving metro areas…"></textarea>
+
+        <div style="margin-top:10px">
+          <label class="tiny">
+            <input type="checkbox" id="consent" required />
+            I agree to be contacted by AssistKingOnline about leads and promotions.
+          </label>
+        </div>
+
+        <!-- honeypot (spam trap) -->
+        <input type="text" name="website_field" style="display:none" tabindex="-1" autocomplete="off" />
+
+        <div class="actions">
+          <button class="primary" type="submit">Submit</button>
+          <button class="ghost" type="reset">Clear</button>
+        </div>
+
+        <div id="success" class="success">✅ Thanks! We’ve received your info. We’ll reach out shortly.</div>
+      </form>
+
+      <!-- Mailto fallback (optional). If you prefer mailto, you can use this instead of JS.
+      <form action="mailto:your-email@example.com" method="POST" enctype="text/plain">
+        ...
+      </form>
+      -->
+
+      <p class="tiny" style="margin-top:10px">Want submissions to hit your inbox? Replace this page’s form handler with a Formspree endpoint and it’ll email you new leads automatically.</p>
+    </div>
+  </main>
+
+<script>
+  // Simple client-side handler (no backend): validate + show success
+  document.getElementById('leadForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    // basic validation
+    const required = ['company','contact','email','phone','service','locations','consent'];
+    for (const id of required){
+      const el = document.getElementById(id);
+      if (!el) continue;
+      if ((el.type === 'checkbox' && !el.checked) || (el.value || '').trim() === ''){
+        el.focus();
+        el.scrollIntoView({behavior:'smooth', block:'center'});
+        return;
+      }
+    }
+
+    // If you want to use Formspree:
+    // 1) Replace ACTION_URL below with your real endpoint (e.g., "https://formspree.io/f/abcdwxyz")
+    // 2) Uncomment the fetch block; it will POST JSON to Formspree.
+    const USE_FORMSPREE = false; // set to true after adding your endpoint
+    const ACTION_URL = "https://formspree.io/f/XXXXXXXX"; // <- replace when ready
+
+    if (USE_FORMSPREE) {
+      const data = Object.fromEntries(new FormData(this).entries());
+      fetch(ACTION_URL, {
+        method: "POST",
+        headers: {"Accept":"application/json","Content-Type":"application/json"},
+        body: JSON.stringify(data)
+      }).then(() => {
+        document.getElementById('success').style.display = 'block';
+        this.reset();
+      }).catch(() => {
+        alert("There was a problem submitting the form. Please try again.");
+      });
+    } else {
+      // No backend: just show success locally
+      document.getElementById('success').style.display = 'block';
+      this.reset();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  });
+</script>
+</body>
+</html>
