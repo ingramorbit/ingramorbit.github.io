@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Get Leads — AssistKingOnline</title>
+<style>
+  body{font-family:system-ui;margin:0;background:#fafafa;color:#222}
+  .container{max-width:800px;margin:0 auto;padding:20px}
+  h1{color:#1E3A8A}
+  form{background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+  label{display:block;font-weight:700;margin-top:12px}
+  input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:16px;margin-top:4px}
+  button{margin-top:16px;padding:12px 20px;font-size:16px;font-weight:800;color:#fff;background:#1E3A8A;border:0;border-radius:8px;cursor:pointer}
+  button:hover{background:#0A2A66}
+  a{color:#1E3A8A;text-decoration:none;font-weight:700}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Get Leads</h1>
+    <p>Tell us about your service or business — we’ll connect customers to you!</p>
+
+    <form method="POST" action="send-lead.php">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="service">Service Type</label>
+      <input type="text" id="service" name="service" required placeholder="Example: Plumbing, Lawn Care, Trucking...">
+
+      <label for="message">Message / Description</label>
+      <textarea id="message" name="message" required></textarea>
+
+      <button type="submit">Send Lead</button>
+    </form>
+
+    <p><a href="index.html">← Back to Home</a></p>
+  </div>
+</body>
+</html>
