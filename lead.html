@@ -21,18 +21,22 @@
     <h1>Get Leads</h1>
     <p>Tell us about your service or business — we’ll connect customers to you!</p>
 
-    <form method="POST" action="send-lead.php">
+    <form action="https://formspree.io/f/maypkwzz" method="POST">
+      <input type="hidden" name="_subject" value="New Lead from AssistKingOnline">
       <label for="name">Full Name</label>
-      <input type="text" id="name" name="name" required>
+      <input id="name" name="name" required>
 
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
+      <input id="email" name="email" type="email" required>
 
       <label for="service">Service Type</label>
-      <input type="text" id="service" name="service" required placeholder="Example: Plumbing, Lawn Care, Trucking...">
+      <input id="service" name="service" placeholder="Example: Plumbing, Lawn Care, Trucking…" required>
 
       <label for="message">Message / Description</label>
-      <textarea id="message" name="message" required></textarea>
+      <textarea id="message" name="message" rows="4" required></textarea>
+
+      <!-- optional redirect after submit -->
+      <input type="hidden" name="_redirect" value="thank-you.html">
 
       <button type="submit">Send Lead</button>
     </form>
