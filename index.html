@@ -129,7 +129,22 @@
   box-shadow: 0 2px 4px rgba(0,0,0,.15);
   transition: transform .15s ease, box-shadow .15s ease;
 }
+.mic-btn,
+.cam-btn {
+  /* they already get the base look from .icon-btn */
+}
 
+#searchBtn {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--royal);
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,.2);
+  white-space: nowrap; /* keeps "Search" on one line */
+}
 .icon-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0,0,0,.25);
@@ -622,14 +637,27 @@
   <label class="sr-only" for="q">Ask the King</label>
   <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
 
-  <!-- Mic -->
-  <span class="mic-btn" id="micBtn">🎤</span>
+  <div class="search-right">
+    <!-- Mic -->
+    <button type="button" class="icon-btn mic-btn" id="micBtn" aria-label="Use your voice">
+      🎤
+    </button>
 
-  <!-- Camera -->
-  <label class="cam-btn" for="imgInput">📷</label>
-  <input type="file" id="imgInput" accept="image/*" capture="environment" style="display:none;">
+    <!-- Camera -->
+    <label class="icon-btn cam-btn" for="imgInput" aria-label="Upload a photo">
+      📷
+    </label>
+    <input
+      type="file"
+      id="imgInput"
+      accept="image/*"
+      capture="environment"
+      style="display:none;"
+    >
 
-  <button id="searchBtn" type="submit">Search</button>
+    <!-- Search button -->
+    <button id="searchBtn" type="submit">Search</button>
+  </div>
     </form>
     <div class="pill-row">
   <a class="pill gold" href="residential.html">Residential</a>
