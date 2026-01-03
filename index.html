@@ -853,6 +853,7 @@
     });
   })();
   </script>
+<script>
 (function(){
   const form = document.getElementById("searchForm");
   const input = document.getElementById("q");
@@ -865,71 +866,69 @@
     const q = input.value.trim();
     if (!q) return;
 
-    // calls your Vercel serverless endpoint
-    const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-    const data = await r.json();
+    try {
+      const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+      const data = await r.json();
 
-    // If we got a top route, go there
-    if (data.intent === "route" && data.results?.[0]?.url) {
-      window.location.href = data.results[0].url;
-      return;
+      if (data.intent === "route" && data.results?.[0]?.url) {
+        window.location.href = data.results[0].url;
+        return;
+      }
+
+      window.location.href = `/search.html?q=${encodeURIComponent(q)}`;
+    } catch (err) {
+      console.error(err);
+      alert("Search is temporarily unavailable.");
     }
-
-    // Otherwise send to a results page (we can build search.html next)
-    window.location.href = `/search.html?q=${encodeURIComponent(q)}`;
   });
 })();
 </script>
-  (function () {
-    const micBtn = document.getElementById('micBtn');
-    const qInput = document.getElementById('q');
 
-    if (!micBtn || !qInput) return;
+<script>
+(function () {
+  const micBtn = document.getElementById('micBtn');
+  const qInput = document.getElementById('q');
 
-    // Check if browser supports speech recognition
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!micBtn || !qInput) return;
 
-    if (!SpeechRecognition) {
-      // If not supported, at least show a message when they tap the mic
-      micBtn.addEventListener('click', () => {
-        alert('Voice search is not supported in this browser.');
-      });
-      return;
-    }
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
+  if (!SpeechRecognition) {
     micBtn.addEventListener('click', () => {
-      try {
-        recognition.start();
-        // simple visual feedback
-        micBtn.style.background = '#e9e9e9';
-      } catch (e) {
-        console.error(e);
-      }
+      alert('Voice search is not supported in this browser.');
     });
+    return;
+  }
 
-    recognition.addEventListener('result', (event) => {
-      const text = event.results[0][0].transcript;
-      qInput.value = text;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
 
-      // OPTIONAL: auto-submit search after speaking
-      // document.getElementById('searchForm').submit();
-    });
+  micBtn.addEventListener('click', () => {
+    try {
+      recognition.start();
+      micBtn.style.background = '#e9e9e9';
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
-    recognition.addEventListener('end', () => {
-      micBtn.style.background = '#f3f3f3';
-    });
+  recognition.addEventListener('result', (event) => {
+    const text = event.results[0][0].transcript;
+    qInput.value = text;
+  });
 
-    recognition.addEventListener('error', (event) => {
-      console.error('Speech recognition error:', event.error);
-      micBtn.style.background = '#f3f3f3';
-    });
-  })();
-  </script>
+  recognition.addEventListener('end', () => {
+    micBtn.style.background = '#f3f3f3';
+  });
+
+  recognition.addEventListener('error', (event) => {
+    console.error('Speech recognition error:', event.error);
+    micBtn.style.background = '#f3f3f3';
+  });
+})();
+</script>
 </body>
 </html>
