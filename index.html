@@ -269,10 +269,6 @@
   filter: drop-shadow(0 6px 16px rgba(0,0,0,0.25));
   animation: floaty 3s ease-in-out infinite;
 }
-@keyframestranslateY floaty {
-  0%,100% { transform: translateY(0); }
-  50% { transform: (-4px); }
-}
     .king-hero{
   width:72px; height:72px; flex:0 0 auto;
   filter: drop-shadow(0 8px 18px rgba(0,0,0,.25));
@@ -394,24 +390,6 @@
   margin: 0;
   padding: 0;
   line-height: 1;
-}
-    .menu-button {
-  position: absolute;
-  top: 16px;
-  right: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  width: 30px;
-  height: 22px;
-  cursor: pointer;
-  z-index: 100;
-  padding: 8px;
-  border: 2px solid rgba(255, 215, 0, 0.9); /* gold border */
-  border-radius: 6px;
-  background-color: rgba(10, 10, 10, 0.3); /* slightly darker transparent background */
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .menu-button .bar {
@@ -718,7 +696,6 @@
       Trusted professionals coast to coast — your home, your business, your King.
     </p>
   </div>
-  </div>
 </section>
   <!-- ===== FOOTER ===== -->
   <footer>
@@ -876,17 +853,6 @@
     }
 
     window.location.href = `/search.html?q=${encodeURIComponent(q)}`;
-  });
-
-  // 🔹 Step 2 — Auto submit on typing pause
-  let typingTimer;
-  input.addEventListener("input", () => {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      if (input.value.trim().length >= 3) {
-        form.requestSubmit();
-      }
-    }, 600);
   });
 
 })();
