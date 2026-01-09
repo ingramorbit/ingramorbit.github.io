@@ -912,8 +912,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
       if (has("food", "catering", "chef", "meal")) return "food2.html";
       if (has("finance", "credit", "bank", "loan")) return "financial-help.html";
 
-      return "search.html?q=" + encodeURIComponent(q);
-    }
+      return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
