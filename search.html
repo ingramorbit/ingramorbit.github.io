@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Search Results • AssistKingOnline</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:24px}
+    .box{max-width:900px;margin:0 auto}
+    h1{margin:0 0 8px}
+    .q{font-weight:800}
+    .card{margin-top:14px;padding:14px;border:1px solid #eee;border-radius:12px}
+    a{color:#1E3A8A;text-decoration:none;font-weight:700}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Search</h1>
+    <div class="card">
+      You searched for: <span class="q" id="queryText"></span>
+    </div>
+
+    <div class="card" id="suggestions">
+      <div style="font-weight:800;margin-bottom:8px;">Try one of these:</div>
+      <div><a href="plumbing.html">🔧 Plumbing</a></div>
+      <div><a href="electricians.html">⚡ Electricians</a></div>
+      <div><a href="carpentry.html">🪚 Carpentry</a></div>
+      <div><a href="trucking.html">🚚 Trucking</a></div>
+      <div><a href="financial-help.html">💳 Financial Help</a></div>
+    </div>
+
+    <p style="margin-top:18px;"><a href="index.html">← Back to Home</a></p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const q = params.get("q") || "";
+    document.getElementById("queryText").textContent = q || "(blank)";
+  </script>
+</body>
+</html>
