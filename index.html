@@ -895,32 +895,25 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     });
   })();
   </script>
-<script>
-(function(){
-  const form = document.getElementById("searchForm");
-  const input = document.getElementById("q");
-
-  if (!form || !input) return;
-
-  // Submit handler
-  <script type="module">
+<script type="module">
   import { routeQuery } from "./search-router.js";
 
   const form = document.getElementById("searchForm");
   const input = document.getElementById("q");
 
-  if (!form || !input) return;
+  if (!form || !input) {
+    console.error("Missing #searchForm or #q");
+  } else {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const q = input.value.trim();
-    if (!q) return;
-
-    const result = routeQuery(q);
-    window.location.href = result.url;
-  });
+      const result = routeQuery(q);
+      window.location.href = result.url;
+    });
+  }
 </script>
-
 <script>
 (function () {
   const micBtn = document.getElementById('micBtn');
