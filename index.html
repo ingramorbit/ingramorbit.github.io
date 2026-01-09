@@ -895,24 +895,33 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     });
   })();
   </script>
-<script type="module">
-  import { routeQuery } from "./search-router.js";
+<script>
+  (function(){
+    const form = document.getElementById("searchForm");
+    const input = document.getElementById("q");
+    if (!form || !input) return;
 
-  const form = document.getElementById("searchForm");
-  const input = document.getElementById("q");
+    function routeQuery(q){
+      const s = (q || "").toLowerCase().trim();
+      const has = (...w) => w.some(x => s.includes(x));
 
-  if (!form || !input) {
-    console.error("Missing #searchForm or #q");
-  } else {
+      if (has("plumb", "leak", "clog", "toilet", "drain")) return "plumbing.html";
+      if (has("electric", "outlet", "breaker", "wiring")) return "electricians.html";
+      if (has("carp", "wood", "cabinet", "deck")) return "carpentry.html";
+      if (has("truck", "moving", "delivery")) return "trucking.html";
+      if (has("food", "catering", "chef", "meal")) return "food2.html";
+      if (has("finance", "credit", "bank", "loan")) return "financial-help.html";
+
+      return "search.html?q=" + encodeURIComponent(q);
+    }
+
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const q = input.value.trim();
       if (!q) return;
-
-      const result = routeQuery(q);
-      window.location.href = result.url;
+      window.location.href = routeQuery(q);
     });
-  }
+  })();
 </script>
 <script>
 (function () {
