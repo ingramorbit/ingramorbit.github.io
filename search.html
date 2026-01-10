@@ -212,9 +212,9 @@
         subEl.textContent = "Or choose a category below.";
       } else {
         msgEl.textContent = `We found no exact match for “${q}”.`;
-        subEl.textContent = intent
-          ? "Try one of these popular categories:"
-          : "Try one of these categories below:";
+        subEl.textContent = intent === "unknown"
+  ? "Try one of these popular categories:"
+  : "Try one of these categories below:";
       }
 
       // When user searches again from this page, go back through the SAME router on index.html
