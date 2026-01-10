@@ -223,7 +223,7 @@
         e.preventDefault();
         const newQ = (input.value || "").trim();
         if (!newQ) return;
-        window.location.href = "index.html?q=" + encodeURIComponent(newQ);
+        window.location.href = "search.html?q=" + encodeURIComponent(newQ) + "&intent=unknown";
       });
     })();
   </script>
