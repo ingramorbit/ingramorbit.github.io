@@ -3,40 +3,229 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Search Results • AssistKingOnline</title>
+  <title>Search • AssistKingOnline</title>
+
   <style>
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:24px}
-    .box{max-width:900px;margin:0 auto}
-    h1{margin:0 0 8px}
-    .q{font-weight:800}
-    .card{margin-top:14px;padding:14px;border:1px solid #eee;border-radius:12px}
-    a{color:#1E3A8A;text-decoration:none;font-weight:700}
-    a:hover{text-decoration:underline}
+    :root{
+      --gold:#FFD700;
+      --gold-deep:#e0b800;
+      --royal:#5A2D82;
+      --blue:#1F68FF;
+      --crimson:#B2331C;
+      --text:#161616;
+      --card:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,.15);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;
+      color:var(--text);
+      background:#fff;
+    }
+    .hero{
+      background:
+        radial-gradient(1200px 500px at 20% -40%, rgba(255,215,0,.12), transparent 60%),
+        linear-gradient(180deg, #1E3A8A 0%, #0A2A66 55%, #061b3f 100%);
+      color:#fff;
+      padding:22px 0 18px;
+    }
+    .container{max-width:980px;margin:0 auto;padding:0 16px}
+    .toprow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      font-weight:900;
+      letter-spacing:.3px;
+      color:var(--gold);
+      font-size:22px;
+      text-decoration:none;
+    }
+    .homebtn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      color:#111;
+      background:linear-gradient(180deg, var(--gold) 0%, var(--gold-deep) 100%);
+      text-decoration:none;
+      box-shadow:var(--shadow);
+      white-space:nowrap;
+    }
+
+    .card{
+      margin-top:14px;
+      background:#fff;
+      border-radius:16px;
+      box-shadow:0 16px 42px rgba(0,0,0,.22);
+      padding:14px;
+      color:#111;
+    }
+    .searchbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .searchbar input{
+      flex:1;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid #e7e7e7;
+      outline:0;
+      font-size:16px;
+    }
+    .searchbar button{
+      border:0;
+      border-radius:12px;
+      padding:12px 14px;
+      font-weight:900;
+      color:#fff;
+      background:var(--royal);
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(0,0,0,.18);
+      white-space:nowrap;
+    }
+
+    .msg{
+      margin:14px 0 8px;
+      font-weight:900;
+      font-size:18px;
+    }
+    .sub{
+      margin:0 0 14px;
+      color:#333;
+      font-weight:600;
+      line-height:1.35;
+    }
+
+    .categories{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width:900px){ .categories{grid-template-columns:repeat(3,1fr)} }
+    @media (max-width:580px){ .categories{grid-template-columns:repeat(2,1fr)} }
+
+    .cat{
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      text-decoration:none;
+      border:2px solid transparent;
+      outline:none;
+      height:96px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      color:#fff;
+      transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      text-align:center;
+      padding:10px;
+    }
+    .cat:hover{
+      transform:translateY(-5px);
+      box-shadow:0 14px 28px rgba(0,0,0,0.22), 0 0 18px rgba(255,215,0,0.35);
+      border-color:rgba(255,215,0,0.6);
+    }
+
+    footer{
+      margin-top:26px;
+      padding:16px 0;
+      border-top:1px solid #eee;
+      background:#faf6ff;
+      color:#5a5a5a;
+      font-weight:600;
+    }
+    footer a{color:inherit;text-decoration:none}
+    footer a:hover{text-decoration:underline}
+    .muted{opacity:.9}
   </style>
 </head>
+
 <body>
-  <div class="box">
-    <h1>Search</h1>
-    <div class="card">
-      You searched for: <span class="q" id="queryText"></span>
-    </div>
+  <header class="hero">
+    <div class="container">
+      <div class="toprow">
+        <a class="brand" href="index.html">AssistKingOnline</a>
+        <a class="homebtn" href="index.html">← Back Home</a>
+      </div>
 
-    <div class="card" id="suggestions">
-      <div style="font-weight:800;margin-bottom:8px;">Try one of these:</div>
-      <div><a href="plumbing.html">🔧 Plumbing</a></div>
-      <div><a href="electricians.html">⚡ Electricians</a></div>
-      <div><a href="carpentry.html">🪚 Carpentry</a></div>
-      <div><a href="trucking.html">🚚 Trucking</a></div>
-      <div><a href="financial-help.html">💳 Financial Help</a></div>
-    </div>
+      <div class="card">
+        <form class="searchbar" id="searchForm">
+          <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
+          <button type="submit">Search</button>
+        </form>
 
-    <p style="margin-top:18px;"><a href="index.html">← Back to Home</a></p>
-  </div>
+        <div class="msg" id="msg">Searching…</div>
+        <p class="sub" id="sub"></p>
+
+        <div class="categories">
+          <a class="cat" href="plumbing.html" style="background:#C03A2B">🔧 Plumbing</a>
+          <a class="cat" href="electricians.html" style="background:#1F68FF">⚡ Electricians</a>
+          <a class="cat" href="carpentry.html" style="background:#f2b705;color:#111">🪚 Carpentry</a>
+          <a class="cat" href="trucking.html" style="background:#005f73">🚚 Trucking</a>
+          <a class="cat" href="financial-help.html" style="background:#B1432F">💳 Financial Help</a>
+        </div>
+
+        <p class="sub muted" style="margin-top:14px">
+          Tip: Try keywords like <b>“leak”</b>, <b>“outlet”</b>, <b>“deck”</b>, <b>“moving”</b>, or <b>“credit card”</b>.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <footer>
+    <div class="container">
+      <span>© AssistKingOnline</span>
+      <span class="muted"> • </span>
+      <a href="privacy.html">Privacy</a>
+      <span class="muted"> • </span>
+      <a href="terms.html">Terms</a>
+      <span class="muted"> • </span>
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
 
   <script>
-    const params = new URLSearchParams(location.search);
-    const q = params.get("q") || "";
-    document.getElementById("queryText").textContent = q || "(blank)";
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get("q") || "").trim();
+      const intent = (params.get("intent") || "").trim();
+
+      const msgEl = document.getElementById("msg");
+      const subEl = document.getElementById("sub");
+      const input = document.getElementById("q");
+      const form = document.getElementById("searchForm");
+
+      // Fill input with query
+      input.value = q;
+
+      if (!q) {
+        msgEl.textContent = "Type a search above to get started.";
+        subEl.textContent = "Or choose a category below.";
+      } else {
+        msgEl.textContent = `We found no exact match for “${q}”.`;
+        subEl.textContent = intent
+          ? "Try one of these popular categories:"
+          : "Try one of these categories below:";
+      }
+
+      // When user searches again from this page, go back through the SAME router on index.html
+      // (simple and reliable for GitHub Pages)
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const newQ = (input.value || "").trim();
+        if (!newQ) return;
+        window.location.href = "index.html?q=" + encodeURIComponent(newQ);
+      });
+    })();
   </script>
 </body>
 </html>
