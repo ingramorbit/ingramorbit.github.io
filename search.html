@@ -146,6 +146,24 @@
     footer a{color:inherit;text-decoration:none}
     footer a:hover{text-decoration:underline}
     .muted{opacity:.9}
+    .chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 12px;
+  border-radius:999px;
+  font-weight:900;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  color:#111;
+  text-decoration:none;
+  box-shadow:0 8px 18px rgba(0,0,0,.10);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.chip:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(0,0,0,.16);
+}
   </style>
 </head>
 
@@ -175,6 +193,28 @@
         </div>
 
         <p class="sub muted" style="margin-top:14px">
+<!-- AI-like suggestions -->
+<div id="aiBox" style="margin-top:14px">
+  <div id="intentBadge" style="
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-weight:900;
+    background:rgba(255,215,0,.18);
+    color:#2b0f49;
+    border:1px solid rgba(255,215,0,.35);
+  "></div>
+
+  <div style="margin-top:10px; font-weight:900;">Suggested searches</div>
+  <div id="chips" style="
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:10px;
+  "></div>
+</div>
           Tip: Try keywords like <b>“leak”</b>, <b>“outlet”</b>, <b>“deck”</b>, <b>“moving”</b>, or <b>“credit card”</b>.
         </p>
       </div>
