@@ -233,39 +233,66 @@
     </div>
   </footer>
 
-  <script>
-    (function(){
-      const params = new URLSearchParams(window.location.search);
-      const q = (params.get("q") || "").trim();
-      const intent = (params.get("intent") || "").trim();
+<script>
+  (function(){
+    const params = new URLSearchParams(window.location.search);
+    const q = (params.get("q") || "").trim();
+    const intent = (params.get("intent") || "").trim();
 
-      const msgEl = document.getElementById("msg");
-      const subEl = document.getElementById("sub");
-      const input = document.getElementById("q");
-      const form = document.getElementById("searchForm");
+    const msgEl = document.getElementById("msg");
+    const subEl = document.getElementById("sub");
+    const input = document.getElementById("q");
+    const form = document.getElementById("searchForm");
+    const chipsEl = document.getElementById("chips");
 
-      // Fill input with query
-      input.value = q;
+    // Fill input with query
+    if (input) input.value = q;
 
-      if (!q) {
-        msgEl.textContent = "Type a search above to get started.";
-        subEl.textContent = "Or choose a category below.";
-      } else {
-        msgEl.textContent = `We found no exact match for “${q}”.`;
-        subEl.textContent = intent === "unknown"
-  ? "Try one of these popular categories:"
-  : "Try one of these categories below:";
-      }
+    // Quick chip links
+    const chipData = [
+      { label: "Plumbing", href: "plumbing.html" },
+      { label: "Electricians", href: "electricians.html" },
+      { label: "Carpentry", href: "carpentry.html" },
+      { label: "Trucking", href: "trucking.html" },
+      { label: "Financial Help", href: "financial-help.html" },
+      { label: "Residential", href: "residential.html" },
+      { label: "Commercial", href: "commercial.html" },
+      { label: "Food", href: "food2.html" }
+    ];
 
-      // When user searches again from this page, go back through the SAME router on index.html
-      // (simple and reliable for GitHub Pages)
+    function renderChips(show){
+      if (!chipsEl) return;
+      if (!show) { chipsEl.innerHTML = ""; return; }
+
+      chipsEl.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 2px;">
+          ${chipData.map(c => `<a class="chip" href="${c.href}">${c.label}</a>`).join("")}
+        </div>
+      `;
+    }
+
+    // Set message + chips
+    if (!q) {
+      if (msgEl) msgEl.textContent = "Type a search above to get started.";
+      if (subEl) subEl.textContent = "Or choose a category below.";
+      renderChips(false);
+    } else {
+      if (msgEl) msgEl.textContent = `We found no exact match for “${q}”.`;
+      if (subEl) subEl.textContent =
+        (intent === "unknown")
+          ? "Try these quick picks, or choose a category below:"
+          : "Try one of these categories below:";
+      renderChips(intent === "unknown");
+    }
+
+    // Search again (stay on search.html)
+    if (form) {
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        const newQ = (input.value || "").trim();
+        const newQ = (input?.value || "").trim();
         if (!newQ) return;
         window.location.href = "search.html?q=" + encodeURIComponent(newQ) + "&intent=unknown";
       });
-    })();
-  </script>
-</body>
-</html>
+    }
+  })();
+</script>
