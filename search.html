@@ -224,10 +224,8 @@
     const form = document.getElementById("searchForm");
     const chipsEl = document.getElementById("chips");
 
-    // Fill input with query
     if (input) input.value = q;
 
-    // Quick chip links
     const chipData = [
       { label: "Plumbing", href: "plumbing.html" },
       { label: "Electricians", href: "electricians.html" },
@@ -241,15 +239,14 @@
     ];
 
     function renderChips(show){
-  if (!chipsEl) return;
-  if (!show) { chipsEl.innerHTML = ""; return; }
+      if (!chipsEl) return;
+      if (!show) { chipsEl.innerHTML = ""; return; }
 
-  chipsEl.innerHTML = chipData
-    .map(c => `<a class="chip" href="${c.href}">${c.label}</a>`)
-    .join("");
+      chipsEl.innerHTML = chipData
+        .map(c => `<a class="chip" href="${c.href}">${c.label}</a>`)
+        .join("");
     }
 
-    // Set message + chips
     if (!q) {
       if (msgEl) msgEl.textContent = "Type a search above to get started.";
       if (subEl) subEl.textContent = "Or choose a category below.";
@@ -260,10 +257,9 @@
         (intent === "unknown")
           ? "Try these quick picks, or choose a category below:"
           : "Try one of these categories below:";
-      renderChips(intent === "unknown" || !!q);
+      renderChips(intent === "unknown");
     }
 
-    // Search again (stay on search.html)
     if (form) {
       form.addEventListener("submit", (e) => {
         e.preventDefault();
