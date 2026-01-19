@@ -104,10 +104,10 @@
     }
 
     .categories{
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:12px;
-      margin-top:10px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:10px;
     }
     @media (max-width:900px){ .categories{grid-template-columns:repeat(3,1fr)} }
     @media (max-width:580px){ .categories{grid-template-columns:repeat(2,1fr)} }
@@ -260,7 +260,7 @@
         (intent === "unknown")
           ? "Try these quick picks, or choose a category below:"
           : "Try one of these categories below:";
-      renderChips(intent === "unknown");
+      renderChips(intent === "unknown" || !!q);
     }
 
     // Search again (stay on search.html)
