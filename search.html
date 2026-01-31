@@ -166,11 +166,22 @@
 .cat-trucking .top{ background:var(--cat-trucking); }
 .cat-auto .top{ background:var(--cat-auto); }
 .cat-finance .top{ background:var(--cat-finance); }
-    .cat:hover{
-      transform:translateY(-5px);
-      box-shadow:0 14px 28px rgba(0,0,0,0.22), 0 0 18px rgba(255,215,0,0.35);
-      border-color:rgba(255,215,0,0.6);
-    }
+    .categories .cat:hover{
+  transform:translateY(-6px);
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.22),
+    0 0 20px rgba(255,215,0,0.4);
+  border-color:rgba(255,215,0,0.6);
+}
+.categories .cat:active{
+  transform:translateY(-2px) scale(0.99);
+}
+.categories .cat:focus-visible{
+  border-color:rgba(255,215,0,0.8);
+  box-shadow:
+    0 0 0 3px rgba(255,215,0,0.25),
+    0 12px 24px rgba(0,0,0,0.18);
+}
 
     footer{
       margin-top:26px;
