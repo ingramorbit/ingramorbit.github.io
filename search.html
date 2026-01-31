@@ -125,23 +125,46 @@
     @media (max-width:900px){ .categories{grid-template-columns:repeat(3,1fr)} }
     @media (max-width:580px){ .categories{grid-template-columns:repeat(2,1fr)} }
 
-    .cat{
-      background:var(--card);
-      border-radius:16px;
-      box-shadow:var(--shadow);
-      text-decoration:none;
-      border:2px solid transparent;
-      outline:none;
-      height:96px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      color:#fff;
-      transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-      text-align:center;
-      padding:10px;
-    }
+    .categories .cat{
+  background:var(--card);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  text-align:center;
+  color:#222;
+  text-decoration:none;
+  border:2px solid transparent;
+  outline:none;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  height:100px;
+
+  cursor:pointer;
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.categories .cat .top{
+  border-radius:12px;
+  padding:18px 8px;
+  margin:0;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  color:#fff;
+  font-weight:800;
+}
+    /* Category color bindings */
+.cat-plumbing .top{ background:var(--cat-plumbing); }
+.cat-electric .top{ background:var(--cat-electric); }
+.cat-carpentry .top{ background:var(--cat-carpentry); color:#111; }
+.cat-trucking .top{ background:var(--cat-trucking); }
+.cat-auto .top{ background:var(--cat-auto); }
+.cat-finance .top{ background:var(--cat-finance); }
     .cat:hover{
       transform:translateY(-5px);
       box-shadow:0 14px 28px rgba(0,0,0,0.22), 0 0 18px rgba(255,215,0,0.35);
@@ -204,12 +227,12 @@
         <p class="sub" id="sub"></p>
 <div id="chips"></div>
         <div class="categories">
-          <a class="cat" href="plumbing.html" style="background:#C03A2B">🔧 Plumbing</a>
-          <a class="cat" href="electricians.html" style="background:#1F68FF">⚡ Electricians</a>
-          <a class="cat" href="carpentry.html" style="background:#f2b705;color:#111">🪚 Carpentry</a>
-          <a class="cat" href="trucking.html" style="background:#005f73">🚚 Trucking</a>
-          <a class="cat" href="auto.html" style="background:#2E7D32">🚗 Auto</a>
-          <a class="cat" href="financial-help.html" style="background:#B1432F">💳 Financial Help</a>
+  <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
+  <a class="cat cat-electric" href="electricians.html"><span class="top">⚡ Electricians</span></a>
+  <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
+  <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
+  <a class="cat cat-auto" href="auto.html"><span class="top">🚗 Auto</span></a>
+  <a class="cat cat-finance" href="financial-help.html"><span class="top">💳 Financial Help</span></a>
         </div>
 <p class="sub muted" style="margin-top:14px">
   Tip: Try keywords like <b>“leak”</b>, <b>“outlet”</b>, <b>“deck”</b>, <b>“moving”</b>, or <b>“credit card”</b>.
