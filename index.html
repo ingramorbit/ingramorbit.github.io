@@ -682,55 +682,107 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   })();
   </script>
 <script>
-  (function(){
-    const form = document.getElementById("searchForm");
-    const input = document.getElementById("q");
-    if (!form || !input) return;
+(function(){
+  const form = document.getElementById("searchForm");
+  const input = document.getElementById("q");
+  if (!form || !input) return;
 
-    function routeQuery(q){
-  const s = (q || "").toLowerCase().trim();
-  const has = (...w) => w.some(x => s.includes(x));
+  function scoreMatch(s, rules){
+    let score = 0;
 
-  // AUTO FIRST (specific keywords)
-  if (has("auto", "car", "vehicle", "oil", "brake", "brakes", "tire", "tires", "battery", "mechanic", "tow", "towing", "engine")) {
-    return "auto.html";
-  }
+    for (const r of rules) {
+      // phrase match
+      if (r.phrase && s.includes(r.phrase)) score += (r.points ?? 2);
 
-  // PLUMBING (removed generic "leak")
-  if (has("plumb", "pipe", "toilet", "drain", "clog", "water heater")) {
-    return "plumbing.html";
-  }
-
-  if (has("electric", "outlet", "breaker", "wiring")) {
-    return "electricians.html";
-  }
-
-  if (has("carp", "wood", "cabinet", "deck")) {
-    return "carpentry.html";
-  }
-
-  if (has("truck", "moving", "delivery")) {
-    return "trucking.html";
-  }
-
-  if (has("food", "catering", "chef", "meal")) {
-    return "food2.html";
-  }
-
-  if (has("finance", "credit", "bank", "loan")) {
-    return "financial-help.html";
-  }
-
-  return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
+      // word match (checks any of the words)
+      if (r.words && r.words.some(w => s.includes(w))) score += (r.points ?? 1);
     }
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const q = input.value.trim();
-      if (!q) return;
-      window.location.href = routeQuery(q);
-    });
-  })();
+    return score;
+  }
+
+  function routeQuery(q){
+    const s = (q || "").toLowerCase().trim();
+
+    // Scoring rules (you can tune these anytime)
+    const categories = [
+      {
+        page: "auto.html",
+        min: 2,
+        rules: [
+          { phrase: "oil leak", points: 5 },
+          { words: ["oil","engine","car","vehicle","mechanic","tow","towing","brake","brakes","tire","tires","battery"], points: 2 }
+        ]
+      },
+      {
+        page: "plumbing.html",
+        min: 2,
+        rules: [
+          { phrase: "water leak", points: 5 },
+          { phrase: "pipe leak", points: 5 },
+          { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer"], points: 2 }
+        ]
+      },
+      {
+        page: "electricians.html",
+        min: 2,
+        rules: [
+          { words: ["electric","outlet","breaker","wiring","switch","panel"], points: 2 }
+        ]
+      },
+      {
+        page: "carpentry.html",
+        min: 2,
+        rules: [
+          { words: ["carp","wood","cabinet","deck","door","trim","frame"], points: 2 }
+        ]
+      },
+      {
+        page: "trucking.html",
+        min: 2,
+        rules: [
+          { words: ["truck","moving","delivery","freight","transport"], points: 2 }
+        ]
+      },
+      {
+        page: "financial-help.html",
+        min: 2,
+        rules: [
+          { phrase: "credit card", points: 5 },
+          { words: ["finance","credit","bank","loan","debt","interest"], points: 2 }
+        ]
+      },
+      {
+        page: "food2.html",
+        min: 2,
+        rules: [
+          { words: ["food","catering","chef","meal"], points: 2 }
+        ]
+      }
+    ];
+
+    // compute best score
+    let best = { page: null, score: 0 };
+
+    for (const c of categories) {
+      const score = scoreMatch(s, c.rules);
+      if (score > best.score) best = { page: c.page, score };
+    }
+
+    // threshold check (prevents random misroutes)
+    const winner = categories.find(c => c.page === best.page);
+    if (winner && best.score >= winner.min) return best.page;
+
+    return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = input.value.trim();
+    if (!q) return;
+    window.location.href = routeQuery(q);
+  });
+})();
 </script>
 <script>
 (function () {
