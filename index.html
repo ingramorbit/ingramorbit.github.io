@@ -682,6 +682,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   })();
   </script>
 <script>
+<script>
   (function(){
     const form = document.getElementById("searchForm");
     const input = document.getElementById("q");
@@ -707,6 +708,8 @@ footer{background:#faf6ff;border-top:1px solid #eee}
       const q = input.value.trim();
       if (!q) return;
       window.location.href = routeQuery(q);
+    });
+  })();
 </script>
 <script>
 (function () {
