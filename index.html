@@ -688,18 +688,40 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     if (!form || !input) return;
 
     function routeQuery(q){
-      const s = (q || "").toLowerCase().trim();
-      const has = (...w) => w.some(x => s.includes(x));
+  const s = (q || "").toLowerCase().trim();
+  const has = (...w) => w.some(x => s.includes(x));
 
-      if (has("plumb", "leak", "clog", "toilet", "drain")) return "plumbing.html";
-      if (has("electric", "outlet", "breaker", "wiring")) return "electricians.html";
-      if (has("carp", "wood", "cabinet", "deck")) return "carpentry.html";
-      if (has("truck", "moving", "delivery")) return "trucking.html";
-      if (has("auto", "car", "vehicle", "oil", "brake", "brakes", "tire", "tires", "battery", "mechanic", "tow", "towing", "engine")) return "auto.html";
-      if (has("food", "catering", "chef", "meal")) return "food2.html";
-      if (has("finance", "credit", "bank", "loan")) return "financial-help.html";
+  // AUTO FIRST (specific keywords)
+  if (has("auto", "car", "vehicle", "oil", "brake", "brakes", "tire", "tires", "battery", "mechanic", "tow", "towing", "engine")) {
+    return "auto.html";
+  }
 
-      return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
+  // PLUMBING (removed generic "leak")
+  if (has("plumb", "pipe", "toilet", "drain", "clog", "water heater")) {
+    return "plumbing.html";
+  }
+
+  if (has("electric", "outlet", "breaker", "wiring")) {
+    return "electricians.html";
+  }
+
+  if (has("carp", "wood", "cabinet", "deck")) {
+    return "carpentry.html";
+  }
+
+  if (has("truck", "moving", "delivery")) {
+    return "trucking.html";
+  }
+
+  if (has("food", "catering", "chef", "meal")) {
+    return "food2.html";
+  }
+
+  if (has("finance", "credit", "bank", "loan")) {
+    return "financial-help.html";
+  }
+
+  return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
     }
 
     form.addEventListener("submit", (e) => {
