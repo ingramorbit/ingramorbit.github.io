@@ -893,5 +893,71 @@ const suggestionData = [
   });
 })();
 </script>
+  <script>
+(function(){
+  const input = document.getElementById("q");
+  const box = document.getElementById("suggestions");
+  const form = document.getElementById("searchForm");
+
+  if (!input || !box) return;
+
+  const suggestions = [
+    { label: "🔧 Plumbing (leak, toilet, drain)", page: "plumbing.html" },
+    { label: "🚗 Auto (oil leak, brakes, tires)", page: "auto.html" },
+    { label: "⚡ Electricians (outlet, breaker, wiring)", page: "electricians.html" },
+    { label: "🪚 Carpentry (deck, cabinet, trim)", page: "carpentry.html" },
+    { label: "🚚 Trucking (moving, freight, delivery)", page: "trucking.html" },
+    { label: "💳 Financial Help (credit card, loan, bank)", page: "financial-help.html" },
+    { label: "🍽 Food (catering, chef, meal)", page: "food2.html" }
+  ];
+
+  function highlight(text, query) {
+    if (!query) return text;
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp("(" + escaped + ")", "ig");
+    return text.replace(regex, "<strong>$1</strong>");
+  }
+
+  input.addEventListener("input", () => {
+    const value = input.value.trim().toLowerCase();
+
+    if (!value) {
+      box.hidden = true;
+      box.innerHTML = "";
+      return;
+    }
+
+    const filtered = suggestions.filter(s =>
+      s.label.toLowerCase().includes(value)
+    );
+
+    if (!filtered.length) {
+      box.hidden = true;
+      box.innerHTML = "";
+      return;
+    }
+
+    box.innerHTML = filtered.map(s =>
+      `<div class="suggestion-item" data-page="${s.page}">
+         ${highlight(s.label, value)}
+       </div>`
+    ).join("");
+
+    box.hidden = false;
+  });
+
+  box.addEventListener("click", (e) => {
+    const item = e.target.closest(".suggestion-item");
+    if (!item) return;
+    window.location.href = item.dataset.page;
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!box.contains(e.target) && e.target !== input) {
+      box.hidden = true;
+    }
+  });
+})();
+  </script>
 </body>
 </html>
