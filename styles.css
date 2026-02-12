@@ -65,3 +65,45 @@
     0 0 0 3px rgba(255,215,0,0.25),
     0 12px 24px rgba(0,0,0,0.18);
 }
+/* ===== Search suggestions dropdown ===== */
+
+.search{
+  position:relative;
+}
+
+.suggestions{
+  position:absolute;
+  left:12px;
+  right:12px;
+  top:calc(100% + 8px);
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 16px 40px rgba(0,0,0,.18);
+  border:1px solid rgba(0,0,0,.08);
+  overflow:hidden;
+  z-index:999;
+}
+
+.suggestion{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 12px;
+  cursor:pointer;
+  font-weight:800;
+  color:#111;
+}
+
+.suggestion small{
+  font-weight:700;
+  color:#666;
+  margin-left:10px;
+}
+
+.suggestion:hover{
+  background:rgba(255,215,0,.12);
+}
+
+.suggestion + .suggestion{
+  border-top:1px solid rgba(0,0,0,.06);
+}
