@@ -107,3 +107,35 @@
 .suggestion + .suggestion{
   border-top:1px solid rgba(0,0,0,.06);
 }
+/* ===== Search Suggestions Dropdown ===== */
+.suggestions{
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:calc(100% + 8px);
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 16px 42px rgba(0,0,0,.22);
+  overflow:hidden;
+  z-index:999;
+  border:1px solid rgba(0,0,0,.08);
+}
+
+.suggestion-item{
+  padding:12px 14px;
+  font-weight:800;
+  color:#111;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.suggestion-item:hover{
+  background:rgba(31,104,255,.08);
+}
+
+.suggestion-muted{
+  opacity:.75;
+  font-weight:700;
+}
