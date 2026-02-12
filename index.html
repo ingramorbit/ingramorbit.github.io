@@ -911,39 +911,94 @@ const suggestionData = [
     { label: "🍽 Food (catering, chef, meal)", page: "food2.html" }
   ];
 
-  function highlight(text, query) {
+  let activeIndex = -1;
+
+  function highlightText(text, query) {
     if (!query) return text;
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp("(" + escaped + ")", "ig");
     return text.replace(regex, "<strong>$1</strong>");
   }
 
-  input.addEventListener("input", () => {
-    const value = input.value.trim().toLowerCase();
-
-    if (!value) {
+  function render(list, query){
+    if (!list.length) {
       box.hidden = true;
       box.innerHTML = "";
+      activeIndex = -1;
       return;
     }
 
-    const filtered = suggestions.filter(s =>
-      s.label.toLowerCase().includes(value)
-    );
-
-    if (!filtered.length) {
-      box.hidden = true;
-      box.innerHTML = "";
-      return;
-    }
-
-    box.innerHTML = filtered.map(s =>
-      `<div class="suggestion-item" data-page="${s.page}">
-         ${highlight(s.label, value)}
+    box.innerHTML = list.map((s, i) =>
+      `<div class="suggestion-item ${i === activeIndex ? "active" : ""}"
+            data-index="${i}" data-page="${s.page}">
+         ${highlightText(s.label, query)}
        </div>`
     ).join("");
 
     box.hidden = false;
+  }
+
+  function getFiltered(){
+    const value = input.value.trim().toLowerCase();
+    if (!value) return { value, list: [] };
+
+    const list = suggestions.filter(s => s.label.toLowerCase().includes(value));
+    return { value, list };
+  }
+
+  function goToActive(list){
+    if (activeIndex < 0 || activeIndex >= list.length) return false;
+    window.location.href = list[activeIndex].page;
+    return true;
+  }
+
+  input.addEventListener("input", () => {
+    const { value, list } = getFiltered();
+
+    if (!value || !list.length) {
+      render([], value);
+      return;
+    }
+
+    activeIndex = 0; // auto select first item
+    render(list, value);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    const { value, list } = getFiltered();
+    if (!value || !list.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % list.length;
+      render(list, value);
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + list.length) % list.length;
+      render(list, value);
+    }
+
+    if (e.key === "Enter") {
+      // If dropdown is showing, Enter should choose it
+      if (!box.hidden) {
+        e.preventDefault();
+        if (goToActive(list)) return;
+      }
+    }
+
+    if (e.key === "Escape") {
+      box.hidden = true;
+    }
+  });
+
+  box.addEventListener("mousemove", (e) => {
+    const item = e.target.closest(".suggestion-item");
+    if (!item) return;
+    activeIndex = Number(item.dataset.index);
+    const { value, list } = getFiltered();
+    render(list, value);
   });
 
   box.addEventListener("click", (e) => {
@@ -957,6 +1012,7 @@ const suggestionData = [
       box.hidden = true;
     }
   });
+
 })();
   </script>
 </body>
