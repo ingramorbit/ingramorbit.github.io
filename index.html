@@ -686,6 +686,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 (function(){
   const form = document.getElementById("searchForm");
   const input = document.getElementById("q");
+  const suggestionsEl = document.getElementById("suggestions");
   if (!form || !input) return;
 
   function scoreMatch(s, rules){
@@ -776,7 +777,67 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
     return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
   }
+const suggestionData = [
+    { label: "Plumbing (leaks, drains, toilet)", value: "plumbing leak" },
+    { label: "Electricians (outlet, breaker, wiring)", value: "electric outlet" },
+    { label: "Carpentry (deck, doors, cabinets)", value: "deck repair" },
+    { label: "Trucking / Moving (delivery, freight)", value: "moving truck" },
+    { label: "Auto (oil leak, brakes, tires)", value: "oil leak" },
+    { label: "Financial Help (credit card, loan, bank)", value: "credit card" },
+    { label: "Food (catering, chef, meals)", value: "catering" }
+  ];
 
+  function showSuggestions(matches){
+    if (!suggestionsEl) return;
+
+    if (!matches.length) {
+      suggestionsEl.hidden = true;
+      suggestionsEl.innerHTML = "";
+      return;
+    }
+
+    suggestionsEl.innerHTML = matches
+      .slice(0, 6)
+      .map(m => `
+        <div class="suggestion-item" data-value="${m.value}">
+          🔎 <span>${m.label}</span>
+        </div>
+      `)
+      .join("");
+
+    suggestionsEl.hidden = false;
+  }
+
+  input.addEventListener("input", () => {
+    const q = input.value.toLowerCase().trim();
+    if (!q) return showSuggestions([]);
+
+    const matches = suggestionData.filter(s =>
+      s.label.toLowerCase().includes(q) || s.value.toLowerCase().includes(q)
+    );
+
+    showSuggestions(matches);
+  });
+
+  // click a suggestion
+  document.addEventListener("click", (e) => {
+    const item = e.target.closest(".suggestion-item");
+    if (!item) {
+      // click outside closes suggestions
+      if (suggestionsEl) suggestionsEl.hidden = true;
+      return;
+    }
+
+    const val = item.getAttribute("data-value") || "";
+    input.value = val;
+    if (suggestionsEl) suggestionsEl.hidden = true;
+    form.requestSubmit(); // triggers your routing
+  });
+
+  // ESC closes suggestions
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && suggestionsEl) suggestionsEl.hidden = true;
+  });
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = input.value.trim();
