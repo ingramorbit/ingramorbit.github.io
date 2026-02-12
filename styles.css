@@ -139,3 +139,31 @@
   opacity:.75;
   font-weight:700;
 }
+/* Suggestions dropdown */
+.suggestions{
+  position:absolute;
+  top:100%;
+  left:0;
+  width:100%;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 12px 28px rgba(0,0,0,.18);
+  margin-top:6px;
+  z-index:500;
+  overflow:hidden;
+}
+
+.suggestion-item{
+  padding:12px 14px;
+  cursor:pointer;
+  font-weight:700;
+  transition:background .15s ease;
+}
+
+.suggestion-item:hover{
+  background:#f3f3f3;
+}
+
+.suggestion-item strong{
+  color:#1F68FF;
+}
