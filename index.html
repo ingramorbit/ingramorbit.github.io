@@ -472,19 +472,20 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 </div>
     <form class="search" id="searchForm">
   <label class="sr-only" for="q">Ask the King</label>
-  <<input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
-<div id="suggestions" class="suggestions" hidden></div>
+
+  <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
+
+  <div id="suggestions" class="suggestions" hidden></div>
 
   <div class="search-right">
-    <!-- Mic -->
     <button type="button" class="icon-btn mic-btn" id="micBtn" aria-label="Use your voice">
       🎤
     </button>
 
-    <!-- Camera -->
     <label class="icon-btn cam-btn" for="imgInput" aria-label="Upload a photo">
       📷
     </label>
+
     <input
       type="file"
       id="imgInput"
@@ -493,10 +494,9 @@ footer{background:#faf6ff;border-top:1px solid #eee}
       style="display:none;"
     >
 
-    <!-- Search button (hidden like Google) -->
     <button id="searchBtn" type="submit" class="sr-only">Search</button>
   </div>
-    </form>
+</form>
     <div class="pill-row">
   <a class="pill gold" href="residential.html">Residential</a>
   <a class="pill blue" href="commercial.html">Commercial</a>
