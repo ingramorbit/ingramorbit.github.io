@@ -1002,10 +1002,19 @@ const suggestionData = [
   });
 
   box.addEventListener("click", (e) => {
-    const item = e.target.closest(".suggestion-item");
-    if (!item) return;
-    window.location.href = item.dataset.page;
-  });
+  const item = e.target.closest(".suggestion-item");
+  if (!item) return;
+
+  // 1) Fill the input with the suggestion text (clean it up)
+  const textOnly = item.textContent.replace(/\s+/g, " ").trim();
+  input.value = textOnly;
+
+  // 2) Hide dropdown
+  box.hidden = true;
+
+  // 3) Trigger the normal submit routing (your routeQuery decides)
+  form.requestSubmit();
+});
 
   document.addEventListener("click", (e) => {
     if (!box.contains(e.target) && e.target !== input) {
