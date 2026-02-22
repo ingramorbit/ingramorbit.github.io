@@ -98,6 +98,7 @@
 
   -webkit-tap-highlight-color: transparent; /* mobile tap feel */
 }
+touch-action: manipulation;
 .suggestions button:hover{
   background:rgba(255,215,0,.14);
 }
