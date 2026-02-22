@@ -95,9 +95,8 @@
   align-items:center;
   justify-content:space-between;
   gap:10px;
-}
-.suggestions button{
-  -webkit-tap-highlight-color: transparent;
+
+  -webkit-tap-highlight-color: transparent; /* mobile tap feel */
 }
 .suggestions button:hover{
   background:rgba(255,215,0,.14);
