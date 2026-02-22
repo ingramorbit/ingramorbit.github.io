@@ -97,7 +97,7 @@
   gap:10px;
 
   -webkit-tap-highlight-color: transparent; /* mobile tap feel */
-  touch-action: manipulation;               /* removes tap delay */
+  touch-action: manipulation;               /* removes mobile delay */
 }
 .suggestions button:hover{
   background:rgba(255,215,0,.14);
