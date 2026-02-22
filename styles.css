@@ -96,7 +96,9 @@
   justify-content:space-between;
   gap:10px;
 }
-
+.suggestions button{
+  -webkit-tap-highlight-color: transparent;
+}
 .suggestions button:hover{
   background:rgba(255,215,0,.14);
 }
