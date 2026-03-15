@@ -311,3 +311,38 @@ body{
     grid-template-columns:1fr;
   }
 }
+/* ===== Post a Load Form ===== */
+.post-load-form{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.post-load-form input,
+.post-load-form select{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.post-load-form input:focus,
+.post-load-form select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.post-load-form button{
+  border:0;
+  cursor:pointer;
+}
+
+@media (max-width:700px){
+  .post-load-form{
+    grid-template-columns:1fr;
+  }
+}
