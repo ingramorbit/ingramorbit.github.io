@@ -1,0 +1,26 @@
+[
+  {
+    "id": "AK-1001",
+    "pickupCity": "Charlotte, NC",
+    "dropCity": "Atlanta, GA",
+    "equipment": "Dry Van",
+    "weight": 42000,
+    "miles": 245,
+    "rate": 650,
+    "pickupDate": "2026-02-22",
+    "commodity": "General Freight",
+    "contact": "Dispatch: (555) 123-4567"
+  },
+  {
+    "id": "AK-1002",
+    "pickupCity": "Greensboro, NC",
+    "dropCity": "Richmond, VA",
+    "equipment": "Reefer",
+    "weight": 38000,
+    "miles": 170,
+    "rate": 800,
+    "pickupDate": "2026-02-23",
+    "commodity": "Food",
+    "contact": "Dispatch: (555) 222-3333"
+  }
+]
