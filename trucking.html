@@ -34,6 +34,33 @@
     <p style="margin:8px 0 0">Tell us your lane, equipment, and timing.</p>
     <a class="trucking-cta" href="#">Start trucking request</a>
   </div>
+  <div class="trucking-card">
+  <strong>Post a Load</strong>
+  <p style="margin:8px 0 14px">Enter the shipment details below to add a load to the board.</p>
+
+  <form id="postLoadForm" class="post-load-form">
+    <input id="plId" placeholder="Load ID (example: AK-1003)" />
+    <input id="plPickupCity" placeholder="Pickup City" required />
+    <input id="plDropCity" placeholder="Drop City" required />
+
+    <select id="plEquipment" required>
+      <option value="">Select equipment</option>
+      <option>Dry Van</option>
+      <option>Reefer</option>
+      <option>Flatbed</option>
+      <option>Power Only</option>
+    </select>
+
+    <input id="plWeight" type="number" placeholder="Weight (lbs)" />
+    <input id="plMiles" type="number" placeholder="Miles" required />
+    <input id="plRate" type="number" placeholder="Rate ($)" required />
+    <input id="plPickupDate" type="date" required />
+    <input id="plCommodity" placeholder="Commodity" />
+    <input id="plContact" placeholder="Contact info" required />
+
+    <button type="submit" class="trucking-cta">Post Load</button>
+  </form>
+  </div>
     <!-- Freight Load Board -->
     <section style="margin-top:18px">
       <h2 style="margin:0 0 10px;font-weight:900">Freight Load Board</h2>
