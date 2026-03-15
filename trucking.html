@@ -113,9 +113,21 @@
 <script>
 (function(){
   const body = document.getElementById("lbBody");
-  const search = document.getElementById("lbSearch");
-  const equip = document.getElementById("lbEquip");
-  const sort = document.getElementById("lbSort");
+const search = document.getElementById("lbSearch");
+const equip = document.getElementById("lbEquip");
+const sort = document.getElementById("lbSort");
+
+const postForm = document.getElementById("postLoadForm");
+const plId = document.getElementById("plId");
+const plPickupCity = document.getElementById("plPickupCity");
+const plDropCity = document.getElementById("plDropCity");
+const plEquipment = document.getElementById("plEquipment");
+const plWeight = document.getElementById("plWeight");
+const plMiles = document.getElementById("plMiles");
+const plRate = document.getElementById("plRate");
+const plPickupDate = document.getElementById("plPickupDate");
+const plCommodity = document.getElementById("plCommodity");
+const plContact = document.getElementById("plContact");
 
   if (!body || !search || !equip || !sort) return;
 
@@ -198,10 +210,34 @@
   }
 
   search.addEventListener("input", applyFilters);
-  equip.addEventListener("change", applyFilters);
-  sort.addEventListener("change", applyFilters);
+equip.addEventListener("change", applyFilters);
+sort.addEventListener("change", applyFilters);
 
-  init();
+if (postForm) {
+  postForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const newLoad = {
+      id: (plId.value || "").trim() || ("AK-" + Date.now()),
+      pickupCity: (plPickupCity.value || "").trim(),
+      dropCity: (plDropCity.value || "").trim(),
+      equipment: (plEquipment.value || "").trim(),
+      weight: Number(plWeight.value || 0),
+      miles: Number(plMiles.value || 0),
+      rate: Number(plRate.value || 0),
+      pickupDate: (plPickupDate.value || "").trim(),
+      commodity: (plCommodity.value || "").trim(),
+      contact: (plContact.value || "").trim()
+    };
+
+    loads.unshift(newLoad);
+    applyFilters();
+    postForm.reset();
+    alert("Load posted to board.");
+  });
+}
+
+init();
 })();
 </script>
 
