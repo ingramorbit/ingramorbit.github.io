@@ -47,6 +47,150 @@
       <p style="margin:8px 0 0">Tell us your lane, equipment, and timing.</p>
       <a class="cta" href="#">Start trucking request</a>
     </div>
+
+    <!-- Freight Load Board -->
+    <section style="margin-top:18px">
+      <h2 style="margin:0 0 10px;font-weight:900">Freight Load Board</h2>
+
+      <div class="lb-filters">
+        <input id="lbSearch" placeholder="Search lane, city, commodity..." />
+
+        <select id="lbEquip">
+          <option value="">All equipment</option>
+          <option>Dry Van</option>
+          <option>Reefer</option>
+          <option>Flatbed</option>
+          <option>Power Only</option>
+        </select>
+
+        <select id="lbSort">
+          <option value="date">Sort: Pickup date</option>
+          <option value="rateDesc">Sort: Rate (high → low)</option>
+          <option value="rpmDesc">Sort: $/mile (high → low)</option>
+          <option value="milesAsc">Sort: Miles (low → high)</option>
+        </select>
+      </div>
+
+      <div class="lb-wrap">
+        <table class="lb-table">
+          <thead>
+            <tr>
+              <th>Load ID</th>
+              <th>Pickup</th>
+              <th>Drop</th>
+              <th>Equip</th>
+              <th>Miles</th>
+              <th>Rate</th>
+              <th>$/mi</th>
+              <th>Pickup Date</th>
+              <th>Contact</th>
+            </tr>
+          </thead>
+          <tbody id="lbBody">
+            <tr>
+              <td colspan="9">Loading loads…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
+
+<script>
+(function(){
+  const body = document.getElementById("lbBody");
+  const search = document.getElementById("lbSearch");
+  const equip = document.getElementById("lbEquip");
+  const sort = document.getElementById("lbSort");
+
+  if (!body || !search || !equip || !sort) return;
+
+  let loads = [];
+
+  function dollars(n){
+    return "$" + Number(n).toLocaleString();
+  }
+
+  function rpm(load){
+    const m = Number(load.miles) || 0;
+    const r = Number(load.rate) || 0;
+    return m > 0 ? (r / m) : 0;
+  }
+
+  function matches(load, q){
+    const s = (q || "").toLowerCase().trim();
+    if (!s) return true;
+
+    const hay = [
+      load.id,
+      load.pickupCity,
+      load.dropCity,
+      load.equipment,
+      load.commodity
+    ].join(" ").toLowerCase();
+
+    return hay.includes(s);
+  }
+
+  function applyFilters(){
+    const q = search.value;
+    const e = equip.value;
+
+    let list = loads.filter(l => matches(l, q));
+
+    if (e) list = list.filter(l => (l.equipment || "") === e);
+
+    const mode = sort.value;
+
+    list.sort((a,b) => {
+      if (mode === "rateDesc") return (Number(b.rate)||0) - (Number(a.rate)||0);
+      if (mode === "rpmDesc") return rpm(b) - rpm(a);
+      if (mode === "milesAsc") return (Number(a.miles)||0) - (Number(b.miles)||0);
+      return String(a.pickupDate||"").localeCompare(String(b.pickupDate||""));
+    });
+
+    render(list);
+  }
+
+  function render(list){
+    if (!list.length){
+      body.innerHTML = `<tr><td colspan="9">No matching loads right now.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = list.map(l => {
+      const perMile = rpm(l);
+
+      return `
+        <tr>
+          <td>${l.id}</td>
+          <td>${l.pickupCity}</td>
+          <td>${l.dropCity}</td>
+          <td>${l.equipment}</td>
+          <td>${l.miles}</td>
+          <td>$${l.rate}</td>
+          <td>$${perMile.toFixed(2)}</td>
+          <td>${l.pickupDate}</td>
+          <td>${l.contact}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  async function init(){
+    const res = await fetch("loads.json");
+    loads = await res.json();
+    applyFilters();
+  }
+
+  search.addEventListener("input", applyFilters);
+  equip.addEventListener("change", applyFilters);
+  sort.addEventListener("change", applyFilters);
+
+  init();
+})();
+</script>
+
 </body>
 </html>
