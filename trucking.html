@@ -97,11 +97,12 @@
               <th>$/mi</th>
               <th>Pickup Date</th>
               <th>Contact</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="lbBody">
             <tr>
-              <td colspan="9">Loading loads…</td>
+              <td colspan="10">Loading loads…</td>
             </tr>
           </tbody>
         </table>
@@ -178,7 +179,7 @@
 
   function render(list) {
     if (!list.length) {
-      body.innerHTML = `<tr><td colspan="9">No matching loads right now.</td></tr>`;
+      body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
       return;
     }
 
@@ -186,18 +187,27 @@
       const perMile = rpm(load);
 
       return `
-        <tr>
-          <td>${load.id || ""}</td>
-          <td>${load.pickupCity || ""}</td>
-          <td>${load.dropCity || ""}</td>
-          <td><span class="lb-pill">${load.equipment || ""}</span></td>
-          <td>${load.miles || ""}</td>
-          <td class="lb-money">${dollars(load.rate)}</td>
-          <td>$${perMile.toFixed(2)}</td>
-          <td>${load.pickupDate || ""}</td>
-          <td>${load.contact || ""}</td>
-        </tr>
-      `;
+  <tr>
+    <td>${load.id || ""}</td>
+    <td>${load.pickupCity || ""}</td>
+    <td>${load.dropCity || ""}</td>
+    <td><span class="lb-pill">${load.equipment || ""}</span></td>
+    <td>${load.miles || ""}</td>
+    <td class="lb-money">${dollars(load.rate)}</td>
+    <td>$${perMile.toFixed(2)}</td>
+    <td>${load.pickupDate || ""}</td>
+    <td>${load.contact || ""}</td>
+    <td>
+      <button
+        type="button"
+        class="lb-contact-btn"
+        data-contact="${load.contact || ""}"
+      >
+        Contact
+      </button>
+    </td>
+  </tr>
+`;
     }).join("");
   }
 
@@ -224,7 +234,7 @@
   }
 
   async function loadFirestoreLoads() {
-    body.innerHTML = `<tr><td colspan="9">Connecting to Firebase...</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
 
     const snapshot = await getDocs(collection(db, "loads"));
 
@@ -239,7 +249,15 @@
   if (search) search.addEventListener("input", applyFilters);
   if (equip) equip.addEventListener("change", applyFilters);
   if (sort) sort.addEventListener("change", applyFilters);
+if (body) {
+  body.addEventListener("click", (e) => {
+    const btn = e.target.closest(".lb-contact-btn");
+    if (!btn) return;
 
+    const contact = btn.getAttribute("data-contact") || "No contact info available";
+    alert("Contact: " + contact);
+  });
+}
   if (postForm) {
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -275,7 +293,7 @@
     await loadFirestoreLoads();
   } catch (err) {
     console.error(err);
-    body.innerHTML = `<tr><td colspan="9">Could not load Firestore data: ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
   }
 </script>
 </body>
