@@ -254,7 +254,27 @@ if (body) {
     const btn = e.target.closest(".lb-contact-btn");
     if (!btn) return;
 
-    const contact = btn.getAttribute("data-contact") || "No contact info available";
+    const contact = (btn.getAttribute("data-contact") || "").trim();
+
+    if (!contact) {
+      alert("No contact info available.");
+      return;
+    }
+
+    const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
+    const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+
+    if (phoneMatch) {
+      const phone = phoneMatch[1].replace(/[^\d+]/g, "");
+      window.location.href = "tel:" + phone;
+      return;
+    }
+
+    if (emailMatch) {
+      window.location.href = "mailto:" + emailMatch[0];
+      return;
+    }
+
     alert("Contact: " + contact);
   });
 }
