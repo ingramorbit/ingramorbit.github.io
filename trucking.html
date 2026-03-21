@@ -101,7 +101,7 @@
           </thead>
           <tbody id="lbBody">
             <tr>
-              <td colspan="9">TEST VERSION 123</td>
+              <td colspan="9">Loading loads…</td>
             </tr>
           </tbody>
         </table>
@@ -520,6 +520,163 @@ if (postForm) {
 
       try {
         await addDoc(collection(db, "loads"), newLoad);
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
+    authDomain: "assistkingonline.firebaseapp.com",
+    projectId: "assistkingonline",
+    storageBucket: "assistkingonline.firebasestorage.app",
+    messagingSenderId: "924118312557",
+    appId: "1:924118312557:web:f7835e7f336e8886354164",
+    measurementId: "G-MZJG2MV47C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const body = document.getElementById("lbBody");
+  const search = document.getElementById("lbSearch");
+  const equip = document.getElementById("lbEquip");
+  const sort = document.getElementById("lbSort");
+
+  const postForm = document.getElementById("postLoadForm");
+  const plId = document.getElementById("plId");
+  const plPickupCity = document.getElementById("plPickupCity");
+  const plDropCity = document.getElementById("plDropCity");
+  const plEquipment = document.getElementById("plEquipment");
+  const plWeight = document.getElementById("plWeight");
+  const plMiles = document.getElementById("plMiles");
+  const plRate = document.getElementById("plRate");
+  const plPickupDate = document.getElementById("plPickupDate");
+  const plCommodity = document.getElementById("plCommodity");
+  const plContact = document.getElementById("plContact");
+
+  let loads = [];
+
+  function dollars(n) {
+    return "$" + Number(n || 0).toLocaleString();
+  }
+
+  function rpm(load) {
+    const miles = Number(load.miles) || 0;
+    const rate = Number(load.rate) || 0;
+    return miles > 0 ? rate / miles : 0;
+  }
+
+  function matches(load, q) {
+    const s = (q || "").toLowerCase().trim();
+    if (!s) return true;
+
+    const hay = [
+      load.id,
+      load.pickupCity,
+      load.dropCity,
+      load.equipment,
+      load.commodity,
+      load.contact
+    ].join(" ").toLowerCase();
+
+    return hay.includes(s);
+  }
+
+  function render(list) {
+    if (!body) return;
+
+    if (!list.length) {
+      body.innerHTML = `<tr><td colspan="9">No matching loads right now.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = list.map(load => {
+      const perMile = rpm(load);
+
+      return `
+        <tr>
+          <td>${load.id || ""}</td>
+          <td>${load.pickupCity || ""}</td>
+          <td>${load.dropCity || ""}</td>
+          <td><span class="lb-pill">${load.equipment || ""}</span></td>
+          <td>${load.miles || ""}</td>
+          <td class="lb-money">${dollars(load.rate)}</td>
+          <td>$${perMile.toFixed(2)}</td>
+          <td>${load.pickupDate || ""}</td>
+          <td>${load.contact || ""}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function applyFilters() {
+    if (!search || !equip || !sort) return;
+
+    const q = search.value;
+    const e = equip.value;
+
+    let list = loads.filter(load => matches(load, q));
+
+    if (e) {
+      list = list.filter(load => (load.equipment || "") === e);
+    }
+
+    const mode = sort.value;
+
+    list.sort((a, b) => {
+      if (mode === "rateDesc") return (Number(b.rate) || 0) - (Number(a.rate) || 0);
+      if (mode === "rpmDesc") return rpm(b) - rpm(a);
+      if (mode === "milesAsc") return (Number(a.miles) || 0) - (Number(b.miles) || 0);
+      return String(a.pickupDate || "").localeCompare(String(b.pickupDate || ""));
+    });
+
+    render(list);
+  }
+
+  async function loadFirestoreLoads() {
+    if (body) {
+      body.innerHTML = `<tr><td colspan="9">Connecting to Firebase...</td></tr>`;
+    }
+
+    const snapshot = await getDocs(collection(db, "loads"));
+
+    loads = snapshot.docs.map(doc => ({
+      id: doc.data().id || doc.id,
+      ...doc.data()
+    }));
+
+    applyFilters();
+  }
+
+  if (search) search.addEventListener("input", applyFilters);
+  if (equip) equip.addEventListener("change", applyFilters);
+  if (sort) sort.addEventListener("change", applyFilters);
+
+  if (postForm) {
+    postForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const newLoad = {
+        id: (plId.value || "").trim() || ("AK-" + Date.now()),
+        pickupCity: (plPickupCity.value || "").trim(),
+        dropCity: (plDropCity.value || "").trim(),
+        equipment: (plEquipment.value || "").trim(),
+        weight: Number(plWeight.value || 0),
+        miles: Number(plMiles.value || 0),
+        rate: Number(plRate.value || 0),
+        pickupDate: (plPickupDate.value || "").trim(),
+        commodity: (plCommodity.value || "").trim(),
+        contact: (plContact.value || "").trim(),
+        createdAt: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "loads"), newLoad);
         loads.unshift(newLoad);
         applyFilters();
         postForm.reset();
@@ -539,6 +696,6 @@ if (postForm) {
       body.innerHTML = `<tr><td colspan="9">Could not load Firestore data: ${err.message}</td></tr>`;
     }
   }
-                              </script>
+      </script>
 </body>
 </html>
