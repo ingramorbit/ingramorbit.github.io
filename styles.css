@@ -345,4 +345,22 @@ body{
   .post-load-form{
     grid-template-columns:1fr;
   }
+  .lb-contact-btn{
+  border:0;
+  background:var(--royal);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lb-contact-btn:hover{
+  opacity:.92;
+}
+
+.lb-contact-btn:active{
+  transform:translateY(1px);
+}
 }
