@@ -192,9 +192,9 @@ const plContact = document.getElementById("plContact");
           <td>${l.id}</td>
           <td>${l.pickupCity}</td>
           <td>${l.dropCity}</td>
-          <td>${l.equipment}</td>
+          <td><span class="lb-pill">${l.equipment}</span></td>
           <td>${l.miles}</td>
-          <td>$${l.rate}</td>
+          <td class="lb-money">${dollars(l.rate)}</td>
           <td>$${perMile.toFixed(2)}</td>
           <td>${l.pickupDate}</td>
           <td>${l.contact}</td>
