@@ -225,13 +225,11 @@ if (postForm) {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    orderBy
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -343,16 +341,14 @@ if (postForm) {
   }
 
   async function loadFirestoreLoads() {
-    const loadsRef = collection(db, "loads");
-    const qRef = query(loadsRef, orderBy("pickupDate", "asc"));
-    const snapshot = await getDocs(qRef);
+  const snapshot = await getDocs(collection(db, "loads"));
 
-    loads = snapshot.docs.map(doc => ({
-      id: doc.data().id || doc.id,
-      ...doc.data()
-    }));
+  loads = snapshot.docs.map(doc => ({
+    id: doc.data().id || doc.id,
+    ...doc.data()
+  }));
 
-    applyFilters();
+  applyFilters();
   }
 
   if (postForm) {
@@ -391,10 +387,10 @@ if (postForm) {
   sort.addEventListener("change", applyFilters);
 
   try {
-    await loadFirestoreLoads();
-  } catch (err) {
-    console.error(err);
-    body.innerHTML = `<tr><td colspan="9">Could not load Firestore data.</td></tr>`;
+  await loadFirestoreLoads();
+} catch (err) {
+  console.error(err);
+  body.innerHTML = `<tr><td colspan="9">Could not load Firestore data: ${err.message}</td></tr>`;
   }
                             </script>
 </body>
