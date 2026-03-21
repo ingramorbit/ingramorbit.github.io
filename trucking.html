@@ -363,6 +363,9 @@ if (postForm) {
         weight: Number(plWeight.value || 0),
         miles: Number(plMiles.value || 0),
 <script type="module">
+<script type="module">
+  document.getElementById("lbBody").innerHTML = `<tr><td colspan="9">SCRIPT STARTED</td></tr>`;
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getFirestore,
@@ -370,7 +373,6 @@ if (postForm) {
     addDoc,
     getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
     authDomain: "assistkingonline.firebaseapp.com",
