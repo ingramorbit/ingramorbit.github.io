@@ -310,7 +310,6 @@ body{
   .lb-filters{
     grid-template-columns:1fr;
   }
-}
 /* ===== Post a Load Form ===== */
 .post-load-form{
   display:grid;
