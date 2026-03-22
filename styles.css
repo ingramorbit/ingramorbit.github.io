@@ -386,3 +386,52 @@ body{
 .lb-delete-btn:active{
   transform:translateY(1px);
 }
+/* ===== Plans Page ===== */
+.plans-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.plan-card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:18px;
+  text-align:left;
+}
+
+.plan-card h2{
+  margin:0 0 8px;
+}
+
+.plan-price{
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.plan-card ul{
+  padding-left:18px;
+  margin:0 0 12px;
+}
+
+.plan-card li{
+  margin-bottom:6px;
+  font-weight:700;
+}
+
+.plan-note{
+  font-size:14px;
+  opacity:.7;
+}
+
+/* Tier colors */
+.plan-card.bronze{ border-top:6px solid #cd7f32; }
+.plan-card.silver{ border-top:6px solid #c0c0c0; }
+.plan-card.gold{ border-top:6px solid var(--gold); }
+
+@media (max-width:800px){
+  .plans-grid{
+    grid-template-columns:1fr;
+  }
+}
