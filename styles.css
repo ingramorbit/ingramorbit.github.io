@@ -20,6 +20,7 @@
   --cat-trucking:#005f73;
   --cat-auto:#2E7D32;
   --cat-finance:#B1432F;
+  --cat-hvac:#0ea5e9;
 }
 
 *{box-sizing:border-box}
@@ -91,6 +92,7 @@ body{
 .cat-trucking .top{ background:var(--cat-trucking); }
 .cat-auto .top{ background:var(--cat-auto); }
 .cat-finance .top{ background:var(--cat-finance); }
+.cat-hvac .top{ background:var(--cat-hvac); }
     .categories .cat:hover{
   transform:translateY(-6px);
   box-shadow:
