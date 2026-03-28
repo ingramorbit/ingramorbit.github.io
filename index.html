@@ -582,13 +582,13 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
     <!-- Panels -->
     <div class="panel active" id="panel-login" role="tabpanel">
-      <form class="auth-form" onsubmit="event.preventDefault()">
-        <label>Email</label>
-        <input type="email" placeholder="you@example.com" required />
-        <label>Password</label>
-        <input type="password" placeholder="••••••••" required />
-        <button class="primary" type="submit">Log In</button>
-      </form>
+  <form class="auth-form" id="loginForm">
+    <label>Email</label>
+    <input id="loginEmail" type="email" placeholder="you@example.com" required />
+    <label>Password</label>
+    <input id="loginPassword" type="password" placeholder="••••••••" required />
+    <button class="primary" type="submit">Log In</button>
+  </form>
     </div>
 
     <div class="panel" id="panel-signup" role="tabpanel" hidden>
@@ -1017,7 +1017,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -1032,9 +1032,40 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
+  const loginForm = document.getElementById("loginForm");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
+  const authModal = document.getElementById("authModal");
+
+  if (loginForm) {
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = (loginEmail?.value || "").trim();
+      const password = loginPassword?.value || "";
+
+      if (!email || !password) {
+        alert("Enter your email and password.");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        console.error(err);
+        alert("Login failed: " + err.message);
+      }
+    });
+  }
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
       alert("Your UID: " + user.uid);
+
+      if (authModal) {
+        authModal.classList.remove("show");
+        authModal.setAttribute("aria-hidden", "true");
+      }
     }
   });
 </script>
