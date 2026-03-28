@@ -1142,7 +1142,34 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      alert("Your UID: " + user.uid);
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      const data = snap.data();
+
+      if (data.tier === "admin") {
+        console.log("ADMIN LOGGED IN");
+
+        // 🔥 Save admin flag globally
+        window.isAdmin = true;
+
+      } else {
+        window.isAdmin = false;
+      }
+    }
+
+    // close modal
+    authModal.classList.remove("show");
+  }
+});
 
       if (authModal) {
         authModal.classList.remove("show");
