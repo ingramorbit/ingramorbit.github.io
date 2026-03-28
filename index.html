@@ -1015,5 +1015,29 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 })();
 </script>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
+    authDomain: "assistkingonline.firebaseapp.com",
+    projectId: "assistkingonline",
+    storageBucket: "assistkingonline.firebasestorage.app",
+    messagingSenderId: "924118312557",
+    appId: "1:924118312557:web:f7835e7f336e8886354164",
+    measurementId: "G-MZJG2MV47C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      alert("Your UID: " + user.uid);
+    }
+  });
+</script>
+
 </body>
 </html>
