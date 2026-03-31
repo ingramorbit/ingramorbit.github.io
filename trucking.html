@@ -639,38 +639,36 @@
       }
     });
   }
+if (jobBoardList) {
+  jobBoardList.addEventListener("click", async (e) => {
+    const deleteBtn = e.target.closest(".lb-delete-job-btn");
+    if (!deleteBtn) return;
 
-  if (jobBoardList) {
-    jobBoardList.addEventListener("click", async (e) => {
-      const deleteBtn = e.target.closest(".lb-delete-job-btn");
-      if (!deleteBtn) return;
+    const jobId = deleteBtn.getAttribute("data-jobid");
+    const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
 
-      const jobId = deleteBtn.getAttribute("data-jobid");
-      const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+    if (!jobId) {
+      alert("Could not delete this job.");
+      return;
+    }
 
-      if (!jobId) {
-        alert("Could not delete this job.");
-        return;
-      }
+    const confirmed = confirm(`Delete "${jobTitle}"?`);
+    if (!confirmed) return;
 
-      const confirmed = confirm(`Delete "${jobTitle}"?`);
-      if (!confirmed) return;
-
-      try {
-        await deleteDoc(doc(db, "jobs", jobId));
-        await loadTruckingJobs();
-        alert("Job deleted.");
-      } catch (err) {
-        console.error(err);
-        alert(
-          "Could not delete job:\n" +
-          "code: " + err.code + "\n" +
-          "message: " + err.message
-        );
-      }
-    });
-  }
-
+    try {
+      await deleteDoc(doc(db, "jobs", jobId));
+      await loadTruckingJobs();
+      alert("Job deleted.");
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Could not delete job:\n" +
+        "code: " + err.code + "\n" +
+        "message: " + err.message
+      );
+    }
+  });
+}
   if (postForm) {
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
