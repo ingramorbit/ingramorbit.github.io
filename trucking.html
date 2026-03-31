@@ -315,14 +315,16 @@
         <div class="lb-actions">
           <a href="#" class="trucking-cta">Apply Now</a>
 
-          <button
-            type="button"
-            class="lb-delete-job-btn"
-            data-jobid="${job._docId || ""}"
-            data-jobtitle="${job.title || "this job"}"
-          >
-            Delete
-          </button>
+          ${job.ownerUid === currentUser?.uid ? `
+  <button
+    type="button"
+    class="lb-delete-job-btn"
+    data-jobid="${job._docId || ""}"
+    data-jobtitle="${job.title || "this job"}"
+  >
+    Delete
+  </button>
+` : ""}
         </div>
       </div>
     `).join("");
