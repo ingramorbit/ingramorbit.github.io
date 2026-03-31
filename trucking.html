@@ -109,81 +109,19 @@
       </div>
     </section>
 <section style="margin-top:24px">
-      <h2 style="margin:0 0 10px;font-weight:900">Trucking Job Board</h2>
-      <p style="margin:0 0 14px">Find driving, dispatch, warehouse, and logistics opportunities.</p>
+  <h2 style="margin:0 0 10px;font-weight:900">Trucking Job Board</h2>
+  <p style="margin:0 0 14px">Find driving, dispatch, warehouse, and logistics opportunities.</p>
 
-      <div class="trucking-card">
-        <strong>Featured Jobs</strong>
+  <div class="trucking-card">
+    <strong>Featured Jobs</strong>
 
-        <div class="job-board-list">
-          <div class="job-card">
-            <div class="job-card-top">
-              <div>
-                <h3 class="job-title">CDL Class A Driver</h3>
-                <p class="job-company">Queen City Freight</p>
-              </div>
-              <span class="job-badge">Full-Time</span>
-            </div>
-
-            <div class="job-meta">
-              <span>📍 Charlotte, NC</span>
-              <span>💵 $1,500/week</span>
-              <span>🚚 OTR</span>
-            </div>
-
-            <p class="job-desc">
-              Looking for an experienced CDL Class A driver for regional lanes with weekly home time.
-            </p>
-
-            <a href="#" class="trucking-cta">Apply Now</a>
-          </div>
-
-          <div class="job-card">
-            <div class="job-card-top">
-              <div>
-                <h3 class="job-title">Local Delivery Driver</h3>
-                <p class="job-company">Triad Route Services</p>
-              </div>
-              <span class="job-badge">Local</span>
-            </div>
-
-            <div class="job-meta">
-              <span>📍 Greensboro, NC</span>
-              <span>💵 $24/hr</span>
-              <span>📦 Last-Mile</span>
-            </div>
-
-            <p class="job-desc">
-              Local route driver needed for daily delivery runs. Must have clean driving record.
-            </p>
-
-            <a href="#" class="trucking-cta">Apply Now</a>
-          </div>
-
-          <div class="job-card">
-            <div class="job-card-top">
-              <div>
-                <h3 class="job-title">Dispatcher</h3>
-                <p class="job-company">AssistKing Logistics Network</p>
-              </div>
-              <span class="job-badge">Office</span>
-            </div>
-
-            <div class="job-meta">
-              <span>📍 High Point, NC</span>
-              <span>💵 $55,000/year</span>
-              <span>🖥 Logistics</span>
-            </div>
-
-            <p class="job-desc">
-              Seeking a dispatcher with strong communication and routing experience for fleet coordination.
-            </p>
-
-            <a href="#" class="trucking-cta">Apply Now</a>
-          </div>
-        </div>
+    <div id="jobBoardList" class="job-board-list">
+      <div class="job-card">
+        <p style="margin:0;font-weight:800;">Loading jobs...</p>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
   </main>
 <script type="module">
@@ -194,7 +132,10 @@
   addDoc,
   getDocs,
   deleteDoc,
-  doc
+  doc,
+  query,
+  where,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -210,6 +151,74 @@
   const db = getFirestore(app);
 
   const body = document.getElementById("lbBody");
+  const jobBoardList = document.getElementById("jobBoardList");
+  function renderJobs(list) {
+  if (!jobBoardList) return;
+
+  if (!list.length) {
+    jobBoardList.innerHTML = `
+      <div class="job-card">
+        <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
+      </div>
+    `;
+    return;
+  }
+
+  jobBoardList.innerHTML = list.map(job => `
+    <div class="job-card">
+      <div class="job-card-top">
+        <div>
+          <h3 class="job-title">${job.title || ""}</h3>
+          <p class="job-company">${job.company || ""}</p>
+        </div>
+        <span class="job-badge">${job.type || "Job"}</span>
+      </div>
+
+      <div class="job-meta">
+        <span>📍 ${job.location || ""}</span>
+        <span>💵 ${job.pay || ""}</span>
+        <span>🚚 ${job.category || ""}</span>
+      </div>
+
+      <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
+
+      <a href="#" class="trucking-cta">Apply Now</a>
+    </div>
+  `).join("");
+  }
+  async function loadTruckingJobs() {
+  if (!jobBoardList) return;
+
+  jobBoardList.innerHTML = `
+    <div class="job-card">
+      <p style="margin:0;font-weight:800;">Loading jobs...</p>
+    </div>
+  `;
+
+  try {
+    const jobsQuery = query(
+      collection(db, "jobs"),
+      where("category", "==", "trucking"),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(jobsQuery);
+
+    const jobs = snapshot.docs.map(d => ({
+      _docId: d.id,
+      ...d.data()
+    }));
+
+    renderJobs(jobs);
+  } catch (err) {
+    console.error(err);
+    jobBoardList.innerHTML = `
+      <div class="job-card">
+        <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+      </div>
+    `;
+  }
+  }
   const search = document.getElementById("lbSearch");
   const equip = document.getElementById("lbEquip");
   const sort = document.getElementById("lbSort");
@@ -427,6 +436,7 @@ loads.unshift({
 
   try {
     await loadFirestoreLoads();
+    await loadTruckingJobs();
   } catch (err) {
     console.error(err);
     body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
