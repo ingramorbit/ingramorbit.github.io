@@ -230,12 +230,16 @@ onAuthStateChanged(auth, (user) => {
   try {
     const snapshot = await getDocs(collection(db, "jobs"));
 
-    const jobs = snapshot.docs.map(d => ({
-      _docId: d.id,
-      ...d.data()
-    }));
+    let jobs = snapshot.docs.map(d => ({
+  _docId: d.id,
+  ...d.data()
+}));
 
-    renderJobs(jobs);
+jobs = jobs
+  .filter(job => (job.category || "").toLowerCase() === "trucking")
+  .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+renderJobs(jobs);
   } catch (err) {
     console.error(err);
     jobBoardList.innerHTML = `
@@ -462,7 +466,11 @@ loads.unshift({
         alert("Load posted to board.");
       } catch (err) {
         console.error(err);
-        alert("Could not save load: " + err.message);
+        alert(
+  "Could not save load:\n" +
+  "code: " + err.code + "\n" +
+  "message: " + err.message
+);
       }
     });
   }
@@ -496,7 +504,7 @@ loads.unshift({
       alert("Job posted successfully.");
     } catch (err) {
       console.error(err);
-      alert("Could not save job: " + err.message);
+      alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
     }
   });
     }
