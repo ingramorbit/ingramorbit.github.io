@@ -180,16 +180,6 @@ let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user || null;
-
-  if (user) {
-    console.log("Logged in UID:", user.uid);
-    console.log("Email:", user.email);
-
-    alert("Logged in as:\n" + user.email + "\nUID:\n" + user.uid);
-  } else {
-    console.log("NOT logged in");
-    alert("You are NOT logged in");
-  }
 });
 
   const body = document.getElementById("lbBody");
