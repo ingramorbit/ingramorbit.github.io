@@ -228,13 +228,7 @@ onAuthStateChanged(auth, (user) => {
   `;
 
   try {
-    const jobsQuery = query(
-      collection(db, "jobs"),
-      where("category", "==", "trucking"),
-      orderBy("createdAt", "desc")
-    );
-
-    const snapshot = await getDocs(jobsQuery);
+    const snapshot = await getDocs(collection(db, "jobs"));
 
     const jobs = snapshot.docs.map(d => ({
       _docId: d.id,
