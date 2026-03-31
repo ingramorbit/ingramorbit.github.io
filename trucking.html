@@ -151,18 +151,16 @@
   </main>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  query,
-  where,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
     authDomain: "assistkingonline.firebaseapp.com",
@@ -176,125 +174,21 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const auth = getAuth(app);
-let currentUser = null;
 
-onAuthStateChanged(auth, (user) => {
-  currentUser = user || null;
-});
+  let currentUser = null;
+  let loads = [];
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user || null;
+  });
 
   const body = document.getElementById("lbBody");
   const jobBoardList = document.getElementById("jobBoardList");
-  function renderJobs(list) {
-  if (!jobBoardList) return;
 
-  if (!list.length) {
-    jobBoardList.innerHTML = `
-      <div class="job-card">
-        <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
-      </div>
-    `;
-    return;
-  }
-
-  jobBoardList.innerHTML = list.map(job => `
-    <div class="job-card">
-      <div class="job-card-top">
-        <div>
-          <h3 class="job-title">${job.title || ""}</h3>
-          <p class="job-company">${job.company || ""}</p>
-        </div>
-        <span class="job-badge">${job.type || "Job"}</span>
-      </div>
-
-      <div class="job-meta">
-        <span>📍 ${job.location || ""}</span>
-        <span>💵 ${job.pay || ""}</span>
-        <span>🚚 ${job.category || ""}</span>
-      </div>
-
-      function renderJobs(list) {
-  if (!jobBoardList) return;
-
-  if (!list.length) {
-    jobBoardList.innerHTML = `
-      <div class="job-card">
-        <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
-      </div>
-    `;
-    return;
-  }
-
-  jobBoardList.innerHTML = list.map(job => `
-    <div class="job-card">
-      <div class="job-card-top">
-        <div>
-          <h3 class="job-title">${job.title || ""}</h3>
-          <p class="job-company">${job.company || ""}</p>
-        </div>
-        <span class="job-badge">${job.type || "Job"}</span>
-      </div>
-
-      <div class="job-meta">
-        <span>📍 ${job.location || ""}</span>
-        <span>💵 ${job.pay || ""}</span>
-        <span>🚚 ${job.category || ""}</span>
-      </div>
-
-      <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
-
-      <div class="lb-actions">
-        <a href="#" class="trucking-cta">Apply Now</a>
-
-        <button
-          type="button"
-          class="lb-delete-job-btn"
-          data-jobid="${job._docId || ""}"
-          data-jobtitle="${job.title || "this job"}"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  `).join("");
-}
-    </div>
-  `).join("");
-  }
-  async function loadTruckingJobs() {
-  if (!jobBoardList) return;
-
-  jobBoardList.innerHTML = `
-    <div class="job-card">
-      <p style="margin:0;font-weight:800;">Loading jobs...</p>
-    </div>
-  `;
-
-  try {
-    const snapshot = await getDocs(collection(db, "jobs"));
-
-    let jobs = snapshot.docs.map(d => ({
-  _docId: d.id,
-  ...d.data()
-}));
-
-jobs = jobs
-  .filter(job => (job.category || "").toLowerCase() === "trucking")
-  .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-renderJobs(jobs);
-  } catch (err) {
-    console.error(err);
-    jobBoardList.innerHTML = `
-      <div class="job-card">
-        <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
-      </div>
-    `;
-  }
-}
-
-const search = document.getElementById("lbSearch");
+  const search = document.getElementById("lbSearch");
   const equip = document.getElementById("lbEquip");
   const sort = document.getElementById("lbSort");
+
   const postForm = document.getElementById("postLoadForm");
   const plId = document.getElementById("plId");
   const plPickupCity = document.getElementById("plPickupCity");
@@ -306,15 +200,15 @@ const search = document.getElementById("lbSearch");
   const plPickupDate = document.getElementById("plPickupDate");
   const plCommodity = document.getElementById("plCommodity");
   const plContact = document.getElementById("plContact");
-const postJobForm = document.getElementById("postJobForm");
-const pjTitle = document.getElementById("pjTitle");
-const pjCompany = document.getElementById("pjCompany");
-const pjLocation = document.getElementById("pjLocation");
-const pjPay = document.getElementById("pjPay");
-const pjType = document.getElementById("pjType");
-const pjCategory = document.getElementById("pjCategory");
-const pjDescription = document.getElementById("pjDescription");
-  let loads = [];
+
+  const postJobForm = document.getElementById("postJobForm");
+  const pjTitle = document.getElementById("pjTitle");
+  const pjCompany = document.getElementById("pjCompany");
+  const pjLocation = document.getElementById("pjLocation");
+  const pjPay = document.getElementById("pjPay");
+  const pjType = document.getElementById("pjType");
+  const pjCategory = document.getElementById("pjCategory");
+  const pjDescription = document.getElementById("pjDescription");
 
   function dollars(n) {
     return "$" + Number(n || 0).toLocaleString();
@@ -352,39 +246,314 @@ const pjDescription = document.getElementById("pjDescription");
       const perMile = rpm(load);
 
       return `
-  <tr>
-    <td>${load.id || ""}</td>
-    <td>${load.pickupCity || ""}</td>
-    <td>${load.dropCity || ""}</td>
-    <td><span class="lb-pill">${load.equipment || ""}</span></td>
-    <td>${load.miles || ""}</td>
-    <td class="lb-money">${dollars(load.rate)}</td>
-    <td>$${perMile.toFixed(2)}</td>
-    <td>${load.pickupDate || ""}</td>
-    <td>${load.contact || ""}</td>
-    <td>
-  <div class="lb-actions">
-    <button
-      type="button"
-      class="lb-contact-btn"
-      data-contact="${load.contact || ""}"
-    >
-      Contact
-    </button>
+        <tr>
+          <td>${load.id || ""}</td>
+          <td>${load.pickupCity || ""}</td>
+          <td>${load.dropCity || ""}</td>
+          <td><span class="lb-pill">${load.equipment || ""}</span></td>
+          <td>${load.miles || ""}</td>
+          <td class="lb-money">${dollars(load.rate)}</td>
+          <td>$${perMile.toFixed(2)}</td>
+          <td>${load.pickupDate || ""}</td>
+          <td>${load.contact || ""}</td>
+          <td>
+            <div class="lb-actions">
+              <button
+                type="button"
+                class="lb-contact-btn"
+                data-contact="${load.contact || ""}"
+              >
+                Contact
+              </button>
 
-    <button
-      type="button"
-      class="lb-delete-btn"
-      data-docid="${load._docId || ""}"
-      data-loadid="${load.id || ""}"
-    >
-      Delete
-    </button>
-  </div>
-</td>
-  </tr>
-`;
+              <button
+                type="button"
+                class="lb-delete-btn"
+                data-docid="${load._docId || ""}"
+                data-loadid="${load.id || ""}"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
     }).join("");
+  }
+
+  function renderJobs(list) {
+    if (!jobBoardList) return;
+
+    if (!list.length) {
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
+        </div>
+      `;
+      return;
+    }
+
+    jobBoardList.innerHTML = list.map(job => `
+      <div class="job-card">
+        <div class="job-card-top">
+          <div>
+            <h3 class="job-title">${job.title || ""}</h3>
+            <p class="job-company">${job.company || ""}</p>
+          </div>
+          <span class="job-badge">${job.type || "Job"}</span>
+        </div>
+
+        <div class="job-meta">
+          <span>📍 ${job.location || ""}</span>
+          <span>💵 ${job.pay || ""}</span>
+          <span>🚚 ${job.category || ""}</span>
+        </div>
+
+        <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
+
+        <div class="lb-actions">
+          <a href="#" class="trucking-cta">Apply Now</a>
+
+          <button
+            type="button"
+            class="lb-delete-job-btn"
+            data-jobid="${job._docId || ""}"
+            data-jobtitle="${job.title || "this job"}"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function loadFirestoreLoads() {
+    body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
+
+    const snapshot = await getDocs(collection(db, "loads"));
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
+    authDomain: "assistkingonline.firebaseapp.com",
+    projectId: "assistkingonline",
+    storageBucket: "assistkingonline.firebasestorage.app",
+    messagingSenderId: "924118312557",
+    appId: "1:924118312557:web:f7835e7f336e8886354164",
+    measurementId: "G-MZJG2MV47C"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  let currentUser = null;
+  let loads = [];
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user || null;
+  });
+
+  const body = document.getElementById("lbBody");
+  const jobBoardList = document.getElementById("jobBoardList");
+
+  const search = document.getElementById("lbSearch");
+  const equip = document.getElementById("lbEquip");
+  const sort = document.getElementById("lbSort");
+
+  const postForm = document.getElementById("postLoadForm");
+  const plId = document.getElementById("plId");
+  const plPickupCity = document.getElementById("plPickupCity");
+  const plDropCity = document.getElementById("plDropCity");
+  const plEquipment = document.getElementById("plEquipment");
+  const plWeight = document.getElementById("plWeight");
+  const plMiles = document.getElementById("plMiles");
+  const plRate = document.getElementById("plRate");
+  const plPickupDate = document.getElementById("plPickupDate");
+  const plCommodity = document.getElementById("plCommodity");
+  const plContact = document.getElementById("plContact");
+
+  const postJobForm = document.getElementById("postJobForm");
+  const pjTitle = document.getElementById("pjTitle");
+  const pjCompany = document.getElementById("pjCompany");
+  const pjLocation = document.getElementById("pjLocation");
+  const pjPay = document.getElementById("pjPay");
+  const pjType = document.getElementById("pjType");
+  const pjCategory = document.getElementById("pjCategory");
+  const pjDescription = document.getElementById("pjDescription");
+
+  function dollars(n) {
+    return "$" + Number(n || 0).toLocaleString();
+  }
+
+  function rpm(load) {
+    const miles = Number(load.miles) || 0;
+    const rate = Number(load.rate) || 0;
+    return miles > 0 ? rate / miles : 0;
+  }
+
+  function matches(load, q) {
+    const s = (q || "").toLowerCase().trim();
+    if (!s) return true;
+
+    const hay = [
+      load.id,
+      load.pickupCity,
+      load.dropCity,
+      load.equipment,
+      load.commodity,
+      load.contact
+    ].join(" ").toLowerCase();
+
+    return hay.includes(s);
+  }
+
+  function render(list) {
+    if (!list.length) {
+      body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = list.map(load => {
+      const perMile = rpm(load);
+
+      return `
+        <tr>
+          <td>${load.id || ""}</td>
+          <td>${load.pickupCity || ""}</td>
+          <td>${load.dropCity || ""}</td>
+          <td><span class="lb-pill">${load.equipment || ""}</span></td>
+          <td>${load.miles || ""}</td>
+          <td class="lb-money">${dollars(load.rate)}</td>
+          <td>$${perMile.toFixed(2)}</td>
+          <td>${load.pickupDate || ""}</td>
+          <td>${load.contact || ""}</td>
+          <td>
+            <div class="lb-actions">
+              <button
+                type="button"
+                class="lb-contact-btn"
+                data-contact="${load.contact || ""}"
+              >
+                Contact
+              </button>
+
+              <button
+                type="button"
+                class="lb-delete-btn"
+                data-docid="${load._docId || ""}"
+                data-loadid="${load.id || ""}"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderJobs(list) {
+    if (!jobBoardList) return;
+
+    if (!list.length) {
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
+        </div>
+      `;
+      return;
+    }
+
+    jobBoardList.innerHTML = list.map(job => `
+      <div class="job-card">
+        <div class="job-card-top">
+          <div>
+            <h3 class="job-title">${job.title || ""}</h3>
+            <p class="job-company">${job.company || ""}</p>
+          </div>
+          <span class="job-badge">${job.type || "Job"}</span>
+        </div>
+
+        <div class="job-meta">
+          <span>📍 ${job.location || ""}</span>
+          <span>💵 ${job.pay || ""}</span>
+          <span>🚚 ${job.category || ""}</span>
+        </div>
+
+        <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
+
+        <div class="lb-actions">
+          <a href="#" class="trucking-cta">Apply Now</a>
+
+          <button
+            type="button"
+            class="lb-delete-job-btn"
+            data-jobid="${job._docId || ""}"
+            data-jobtitle="${job.title || "this job"}"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  async function loadFirestoreLoads() {
+    body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
+
+    const snapshot = await getDocs(collection(db, "loads"));
+
+    loads = snapshot.docs.map(d => ({
+      _docId: d.id,
+      id: d.data().id || d.id,
+      ...d.data()
+    }));
+
+    applyFilters();
+  }
+
+  async function loadTruckingJobs() {
+    if (!jobBoardList) return;
+
+    jobBoardList.innerHTML = `
+      <div class="job-card">
+        <p style="margin:0;font-weight:800;">Loading jobs...</p>
+      </div>
+    `;
+
+    try {
+      const snapshot = await getDocs(collection(db, "jobs"));
+
+      let jobs = snapshot.docs.map(d => ({
+        _docId: d.id,
+        ...d.data()
+      }));
+
+      jobs = jobs
+        .filter(job => (job.category || "").toLowerCase() === "trucking")
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      renderJobs(jobs);
+    } catch (err) {
+      console.error(err);
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+        </div>
+      `;
+    }
   }
 
   function applyFilters() {
@@ -409,105 +578,99 @@ const pjDescription = document.getElementById("pjDescription");
     render(list);
   }
 
-  async function loadFirestoreLoads() {
-  body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
-
-  const snapshot = await getDocs(collection(db, "loads"));
-
-  loads = snapshot.docs.map(d => ({
-    _docId: d.id,
-    id: d.data().id || d.id,
-    ...d.data()
-  }));
-
-  applyFilters();
-}
-
   if (search) search.addEventListener("input", applyFilters);
   if (equip) equip.addEventListener("change", applyFilters);
   if (sort) sort.addEventListener("change", applyFilters);
-if (body) {
-  body.addEventListener("click", async (e) => {
-    const contactBtn = e.target.closest(".lb-contact-btn");
-    if (contactBtn) {
-      const contact = (contactBtn.getAttribute("data-contact") || "").trim();
 
-      if (!contact) {
-        alert("No contact info available.");
-        return;
-      }
-if (jobBoardList) {
-  jobBoardList.addEventListener("click", async (e) => {
-    const deleteBtn = e.target.closest(".lb-delete-job-btn");
-    if (!deleteBtn) return;
+  if (body) {
+    body.addEventListener("click", async (e) => {
+      const contactBtn = e.target.closest(".lb-contact-btn");
+      if (contactBtn) {
+        const contact = (contactBtn.getAttribute("data-contact") || "").trim();
 
-    const jobId = deleteBtn.getAttribute("data-jobid");
-    const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+        if (!contact) {
+          alert("No contact info available.");
+          return;
+        }
 
-    if (!jobId) {
-      alert("Could not delete this job.");
-      return;
-    }
+        const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
+        const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
 
-    const confirmed = confirm(`Delete "${jobTitle}"?`);
-    if (!confirmed) return;
+        if (phoneMatch) {
+          const phone = phoneMatch[1].replace(/[^\d+]/g, "");
+          window.location.href = "tel:" + phone;
+          return;
+        }
 
-    try {
-      await deleteDoc(doc(db, "jobs", jobId));
-      await loadTruckingJobs();
-      alert("Job deleted.");
-    } catch (err) {
-      console.error(err);
-      alert(
-        "Could not delete job:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
-    }
-  });
-}
-      const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
-      const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+        if (emailMatch) {
+          window.location.href = "mailto:" + emailMatch[0];
+          return;
+        }
 
-      if (phoneMatch) {
-        const phone = phoneMatch[1].replace(/[^\d+]/g, "");
-        window.location.href = "tel:" + phone;
+        alert("Contact: " + contact);
         return;
       }
 
-      if (emailMatch) {
-        window.location.href = "mailto:" + emailMatch[0];
+      const deleteBtn = e.target.closest(".lb-delete-btn");
+      if (deleteBtn) {
+        const docId = deleteBtn.getAttribute("data-docid");
+        const loadId = deleteBtn.getAttribute("data-loadid") || "this load";
+
+        if (!docId) {
+          alert("Could not delete this load.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete ${loadId}?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "loads", docId));
+          loads = loads.filter(load => load._docId !== docId);
+          applyFilters();
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete load:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      }
+    });
+  }
+
+  if (jobBoardList) {
+    jobBoardList.addEventListener("click", async (e) => {
+      const deleteBtn = e.target.closest(".lb-delete-job-btn");
+      if (!deleteBtn) return;
+
+      const jobId = deleteBtn.getAttribute("data-jobid");
+      const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+
+      if (!jobId) {
+        alert("Could not delete this job.");
         return;
       }
 
-      alert("Contact: " + contact);
-      return;
-    }
-
-    const deleteBtn = e.target.closest(".lb-delete-btn");
-    if (deleteBtn) {
-      const docId = deleteBtn.getAttribute("data-docid");
-      const loadId = deleteBtn.getAttribute("data-loadid") || "this load";
-
-      if (!docId) {
-        alert("Could not delete this load.");
-        return;
-      }
-
-      const confirmed = confirm(`Delete ${loadId}?`);
+      const confirmed = confirm(`Delete "${jobTitle}"?`);
       if (!confirmed) return;
 
       try {
-        await deleteDoc(doc(db, "loads", docId));
-        loads = loads.filter(load => load._docId !== docId);
-        applyFilters();
+        await deleteDoc(doc(db, "jobs", jobId));
+        await loadTruckingJobs();
+        alert("Job deleted.");
       } catch (err) {
         console.error(err);
-        alert("Could not delete load: " + err.message);
+        alert(
+          "Could not delete job:\n" +
+          "code: " + err.code + "\n" +
+          "message: " + err.message
+        );
       }
-    }
-  });
-}
+    });
+  }
+
   if (postForm) {
     postForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -528,57 +691,62 @@ if (jobBoardList) {
 
       try {
         const docRef = await addDoc(collection(db, "loads"), newLoad);
-loads.unshift({
-  _docId: docRef.id,
-  ...newLoad
-});
+        loads.unshift({
+          _docId: docRef.id,
+          ...newLoad
+        });
         applyFilters();
         postForm.reset();
         alert("Load posted to board.");
       } catch (err) {
         console.error(err);
         alert(
-  "Could not save load:\n" +
-  "code: " + err.code + "\n" +
-  "message: " + err.message
-);
+          "Could not save load:\n" +
+          "code: " + err.code + "\n" +
+          "message: " + err.message
+        );
       }
     });
   }
-    if (postJobForm) {
-  postJobForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
 
-    if (!currentUser) {
-      alert("You must be logged in to post a job.");
-      return;
-    }
+  if (postJobForm) {
+    postJobForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const newJob = {
-      title: (pjTitle.value || "").trim(),
-      company: (pjCompany.value || "").trim(),
-      location: (pjLocation.value || "").trim(),
-      pay: (pjPay.value || "").trim(),
-      type: (pjType.value || "").trim(),
-      category: (pjCategory.value || "").trim(),
-      description: (pjDescription.value || "").trim(),
-      ownerUid: currentUser.uid,
-      ownerEmail: currentUser.email || "",
-      createdAt: Date.now()
-    };
+      if (!currentUser) {
+        alert("You must be logged in to post a job.");
+        return;
+      }
 
-    try {
-      await addDoc(collection(db, "jobs"), newJob);
-      postJobForm.reset();
-      if (pjCategory) pjCategory.value = "trucking";
-      await loadTruckingJobs();
-      alert("Job posted successfully.");
-    } catch (err) {
-      console.error(err);
-      alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
-    }
-  });
-    }
+      const newJob = {
+        title: (pjTitle.value || "").trim(),
+        company: (pjCompany.value || "").trim(),
+        location: (pjLocation.value || "").trim(),
+        pay: (pjPay.value || "").trim(),
+        type: (pjType.value || "").trim(),
+        category: (pjCategory.value || "").trim(),
+        description: (pjDescription.value || "").trim(),
+        ownerUid: currentUser.uid,
+        ownerEmail: currentUser.email || "",
+        createdAt: Date.now()
+      };
+
+      try {
+        await addDoc(collection(db, "jobs"), newJob);
+        postJobForm.reset();
+        if (pjCategory) pjCategory.value = "trucking";
+        await loadTruckingJobs();
+        alert("Job posted successfully.");
+      } catch (err) {
+        console.error(err);
+        alert(
+          "Could not save job:\n" +
+          "code: " + err.code + "\n" +
+          "message: " + err.message
+        );
+      }
+    });
+  }
 
   try {
     await loadFirestoreLoads();
