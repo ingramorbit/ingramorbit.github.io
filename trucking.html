@@ -108,6 +108,31 @@
         </table>
       </div>
     </section>
+  <div class="trucking-card">
+  <strong>Post a Job</strong>
+  <p style="margin:8px 0 14px">Add a trucking job to the board.</p>
+
+  <form id="postJobForm" class="post-load-form">
+    <input id="pjTitle" placeholder="Job Title" required />
+    <input id="pjCompany" placeholder="Company Name" required />
+    <input id="pjLocation" placeholder="Location" required />
+    <input id="pjPay" placeholder="Pay (example: $1500/week)" required />
+
+    <select id="pjType" required>
+      <option value="">Select job type</option>
+      <option>Full-Time</option>
+      <option>Part-Time</option>
+      <option>Contract</option>
+      <option>Local</option>
+      <option>OTR</option>
+    </select>
+
+    <input id="pjCategory" value="trucking" readonly />
+    <input id="pjDescription" placeholder="Short job description" required />
+
+    <button type="submit" class="trucking-cta">Post Job</button>
+  </form>
+  </div>
 <section style="margin-top:24px">
   <h2 style="margin:0 0 10px;font-weight:900">Trucking Job Board</h2>
   <p style="margin:0 0 14px">Find driving, dispatch, warehouse, and logistics opportunities.</p>
@@ -126,6 +151,7 @@
   </main>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
   getFirestore,
   collection,
@@ -149,6 +175,12 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const auth = getAuth(app);
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+  currentUser = user || null;
+});
 
   const body = document.getElementById("lbBody");
   const jobBoardList = document.getElementById("jobBoardList");
@@ -218,11 +250,9 @@
       </div>
     `;
   }
-  }
   const search = document.getElementById("lbSearch");
   const equip = document.getElementById("lbEquip");
   const sort = document.getElementById("lbSort");
-
   const postForm = document.getElementById("postLoadForm");
   const plId = document.getElementById("plId");
   const plPickupCity = document.getElementById("plPickupCity");
@@ -234,7 +264,14 @@
   const plPickupDate = document.getElementById("plPickupDate");
   const plCommodity = document.getElementById("plCommodity");
   const plContact = document.getElementById("plContact");
-
+const postJobForm = document.getElementById("postJobForm");
+const pjTitle = document.getElementById("pjTitle");
+const pjCompany = document.getElementById("pjCompany");
+const pjLocation = document.getElementById("pjLocation");
+const pjPay = document.getElementById("pjPay");
+const pjType = document.getElementById("pjType");
+const pjCategory = document.getElementById("pjCategory");
+const pjDescription = document.getElementById("pjDescription");
   let loads = [];
 
   function dollars(n) {
@@ -433,6 +470,40 @@ loads.unshift({
       }
     });
   }
+    if (postJobForm) {
+  postJobForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (!currentUser) {
+      alert("You must be logged in to post a job.");
+      return;
+    }
+
+    const newJob = {
+      title: (pjTitle.value || "").trim(),
+      company: (pjCompany.value || "").trim(),
+      location: (pjLocation.value || "").trim(),
+      pay: (pjPay.value || "").trim(),
+      type: (pjType.value || "").trim(),
+      category: (pjCategory.value || "").trim(),
+      description: (pjDescription.value || "").trim(),
+      ownerUid: currentUser.uid,
+      ownerEmail: currentUser.email || "",
+      createdAt: Date.now()
+    };
+
+    try {
+      await addDoc(collection(db, "jobs"), newJob);
+      postJobForm.reset();
+      if (pjCategory) pjCategory.value = "trucking";
+      await loadTruckingJobs();
+      alert("Job posted successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Could not save job: " + err.message);
+    }
+  });
+    }
 
   try {
     await loadFirestoreLoads();
