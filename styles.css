@@ -436,4 +436,72 @@ body{
   .plans-grid{
     grid-template-columns:1fr;
   }
+  /* ===== Trucking Job Board ===== */
+.job-board-list{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+
+.job-card{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+.job-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.job-title{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+  color:#111;
+}
+
+.job-company{
+  margin:4px 0 0;
+  font-weight:800;
+  color:#555;
+}
+
+.job-badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#111;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.job-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+  font-weight:700;
+  color:#333;
+}
+
+.job-desc{
+  margin:0 0 14px;
+  color:#444;
+  font-weight:600;
+  line-height:1.45;
+}
+
+@media (max-width:700px){
+  .job-card-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 }
