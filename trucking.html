@@ -176,12 +176,27 @@
   const db = getFirestore(app);
   const auth = getAuth(app);
 
-  let currentUser = null;
-  let loads = [];
+ let currentUser = null;
+let currentUserTier = null;
+let loads = [];
 
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user || null;
-  });
+  onAuthStateChanged(auth, async (user) => {
+  currentUser = user || null;
+  currentUserTier = null;
+
+  if (!user) return;
+
+  try {
+    const usersSnapshot = await getDocs(collection(db, "users"));
+    const me = usersSnapshot.docs.find(d => d.id === user.uid);
+
+    if (me) {
+      currentUserTier = me.data().tier || null;
+    }
+  } catch (err) {
+    console.error("Could not load user tier:", err);
+  }
+});
 
   const body = document.getElementById("lbBody");
   const jobBoardList = document.getElementById("jobBoardList");
@@ -315,7 +330,7 @@
         <div class="lb-actions">
           <a href="#" class="trucking-cta">Apply Now</a>
 
-          ${job.ownerUid === currentUser?.uid ? `
+          ${(job.ownerUid === currentUser?.uid || currentUserTier === "admin") ? `
   <button
     type="button"
     class="lb-delete-job-btn"
