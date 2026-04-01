@@ -154,13 +154,14 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    deleteDoc,
-    doc
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -185,16 +186,17 @@ let loads = [];
   currentUserTier = null;
 
   if (!user) {
+    console.log("No user logged in");
     await loadTruckingJobs();
     return;
   }
 
   try {
-    const usersSnapshot = await getDocs(collection(db, "users"));
-    const me = usersSnapshot.docs.find(d => d.id === user.uid);
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-    if (me) {
-      currentUserTier = me.data().tier || null;
+    if (userSnap.exists()) {
+      currentUserTier = userSnap.data().tier || null;
     }
 
     console.log("Logged in UID:", user.uid);
