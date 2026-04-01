@@ -499,11 +499,10 @@ if (jobBoardList) {
     if (!confirmed) return;
 
     try {
-  await loadFirestoreLoads();
-} catch (err) {
-  console.error(err);
-  body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
-    }
+      await deleteDoc(doc(db, "jobs", jobId));
+      await loadTruckingJobs();
+      alert("Job deleted.");
+    } catch (err) {
       console.error(err);
       alert(
         "Could not delete job:\n" +
