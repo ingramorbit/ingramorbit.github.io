@@ -184,7 +184,10 @@ let loads = [];
   currentUser = user || null;
   currentUserTier = null;
 
-  if (!user) return;
+  if (!user) {
+    await loadTruckingJobs();
+    return;
+  }
 
   try {
     const usersSnapshot = await getDocs(collection(db, "users"));
@@ -193,9 +196,14 @@ let loads = [];
     if (me) {
       currentUserTier = me.data().tier || null;
     }
+
+    console.log("Logged in UID:", user.uid);
+    console.log("Loaded tier:", currentUserTier);
   } catch (err) {
     console.error("Could not load user tier:", err);
   }
+
+  await loadTruckingJobs();
 });
 
   const body = document.getElementById("lbBody");
@@ -491,10 +499,11 @@ if (jobBoardList) {
     if (!confirmed) return;
 
     try {
-      await deleteDoc(doc(db, "jobs", jobId));
-      await loadTruckingJobs();
-      alert("Job deleted.");
-    } catch (err) {
+  await loadFirestoreLoads();
+} catch (err) {
+  console.error(err);
+  body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
+    }
       console.error(err);
       alert(
         "Could not delete job:\n" +
