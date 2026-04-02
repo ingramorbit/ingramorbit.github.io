@@ -432,11 +432,30 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 }
 
 /* ===== AUTH RECOVERY LINKS ===== */
-.auth-links-row{
+.auth-row-between{
   display:flex;
-  justify-content:flex-end;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
   margin-top:-2px;
   margin-bottom:6px;
+}
+
+.show-password-label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:700;
+  color:#444;
+  cursor:pointer;
+}
+
+.show-password-label input{
+  margin:0;
+  width:16px;
+  height:16px;
+  accent-color:#1F68FF;
 }
 
 .auth-link-btn{
@@ -612,6 +631,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
     <!-- Panels -->
     <div class="panel active" id="panel-login" role="tabpanel">
+  <f<div class="panel active" id="panel-login" role="tabpanel">
   <form class="auth-form" id="loginForm">
     <label>Email</label>
     <input id="loginEmail" type="email" placeholder="you@example.com" required />
@@ -619,7 +639,12 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     <label>Password</label>
     <input id="loginPassword" type="password" placeholder="••••••••" required />
 
-    <div class="auth-links-row">
+    <div class="auth-row-between">
+      <label class="show-password-label">
+        <input id="showPasswordToggle" type="checkbox" />
+        <span>Show password</span>
+      </label>
+
       <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
     </div>
 
@@ -685,7 +710,10 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     });
   }
 
-  openBtn.addEventListener('click', openModal);
+  openBtn.addEventListener('click', () => {
+    if (openBtn.textContent.trim() === 'Log Out') return;
+    openModal();
+  });
   closeEls.forEach(el => el.addEventListener('click', closeModal));
   modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
   window.addEventListener('keydown', e => { if(e.key === 'Escape' && modal.classList.contains('show')) closeModal(); });
@@ -1137,12 +1165,14 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 </script>
 
 <script type="module">
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getAuth,
     signInWithEmailAndPassword,
     onAuthStateChanged,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
@@ -1162,7 +1192,15 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   const loginEmail = document.getElementById("loginEmail");
   const loginPassword = document.getElementById("loginPassword");
   const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+  const showPasswordToggle = document.getElementById("showPasswordToggle");
   const authModal = document.getElementById("authModal");
+  const openAuthBtn = document.getElementById("openAuth");
+
+  if (showPasswordToggle && loginPassword) {
+    showPasswordToggle.addEventListener("change", () => {
+      loginPassword.type = showPasswordToggle.checked ? "text" : "password";
+    });
+  }
 
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
@@ -1208,10 +1246,33 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     });
   }
 
+  if (openAuthBtn) {
+    openAuthBtn.addEventListener("click", async () => {
+      if (auth.currentUser) {
+        try {
+          await signOut(auth);
+          alert("You have been logged out.");
+        } catch (err) {
+          console.error(err);
+          alert("Logout failed: " + err.message);
+        }
+      }
+    });
+  }
+
   onAuthStateChanged(auth, (user) => {
+    if (openAuthBtn) {
+      openAuthBtn.textContent = user ? "Log Out" : "Log In / Sign Up";
+    }
+
     if (user && authModal) {
       authModal.classList.remove("show");
       authModal.setAttribute("aria-hidden", "true");
+    }
+
+    if (!user && showPasswordToggle && loginPassword) {
+      showPasswordToggle.checked = false;
+      loginPassword.type = "password";
     }
   });
 </script>
