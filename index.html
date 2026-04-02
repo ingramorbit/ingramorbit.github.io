@@ -631,7 +631,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
     <!-- Panels -->
     <div class="panel active" id="panel-login" role="tabpanel">
-  <f<div class="panel active" id="panel-login" role="tabpanel">
   <form class="auth-form" id="loginForm">
     <label>Email</label>
     <input id="loginEmail" type="email" placeholder="you@example.com" required />
@@ -866,87 +865,8 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
 })();
   </script>
-<script>
-(function(){
-  const form = document.getElementById("searchForm");
-  const input = document.getElementById("q");
-  const suggestionsEl = document.getElementById("suggestions");
-  if (!form || !input) return;
 
-  function scoreMatch(s, rules){
-    let score = 0;
-
-    for (const r of rules) {
-      // phrase match
-      if (r.phrase && s.includes(r.phrase)) score += (r.points ?? 2);
-
-      // word match (checks any of the words)
-      if (r.words && r.words.some(w => s.includes(w))) score += (r.points ?? 1);
-    }
-
-    return score;
-  }
-
-  function routeQuery(q){
-    const s = (q || "").toLowerCase().trim();
-
-    // Scoring rules (you can tune these anytime)
-    const categories = [
-      {
-        page: "auto.html",
-        min: 2,
-        rules: [
-          { phrase: "oil leak", points: 5 },
-          { words: ["oil","engine","car","vehicle","mechanic","tow","towing","brake","brakes","tire","tires","battery"], points: 2 }
-        ]
-      },
-      {
-        page: "plumbing.html",
-        min: 2,
-        rules: [
-          { phrase: "water leak", points: 5 },
-          { phrase: "pipe leak", points: 5 },
-          { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer"], points: 2 }
-        ]
-      },
-      {
-        page: "electricians.html",
-        min: 2,
-        rules: [
-          { words: ["electric","outlet","breaker","wiring","switch","panel"], points: 2 }
-        ]
-      },
-      {
-        page: "carpentry.html",
-        min: 2,
-        rules: [
-          { words: ["carp","wood","cabinet","deck","door","trim","frame"], points: 2 }
-        ]
-      },
-      {
-        page: "trucking.html",
-        min: 2,
-        rules: [
-          { words: ["truck","moving","delivery","freight","transport"], points: 2 }
-        ]
-      },
-      {
-        page: "financial-help.html",
-        min: 2,
-        rules: [
-          { phrase: "credit card", points: 5 },
-          { words: ["finance","credit","bank","loan","debt","interest"], points: 2 }
-        ]
-      },
-      {
-        page: "food2.html",
-        min: 2,
-        rules: [
-          { words: ["food","catering","chef","meal"], points: 2 }
-        ]
-      }
-    ];
-<script>
+  <script>
 (function(){
   const form = document.getElementById("searchForm");
   const input = document.getElementById("q");
@@ -1164,7 +1084,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 })();
 </script>
 
-<script type="module">
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
