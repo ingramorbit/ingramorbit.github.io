@@ -656,15 +656,22 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     </div>
 
     <div class="panel" id="panel-signup" role="tabpanel" hidden>
-      <form class="auth-form" onsubmit="event.preventDefault()">
-        <label>Full name</label>
-        <input type="text" placeholder="Your name" required />
-        <label>Email</label>
-        <input type="email" placeholder="you@example.com" required />
-        <label>Password</label>
-        <input type="password" placeholder="Create a password" required />
-        <button class="primary" type="submit">Create Account</button>
-      </form>
+  <form class="auth-form" id="signupForm">
+    <label>Full name</label>
+    <input id="signupName" type="text" placeholder="Your name" required />
+
+    <label>Email</label>
+    <input id="signupEmail" type="email" placeholder="you@example.com" required />
+
+    <label>Password</label>
+    <input id="signupPassword" type="password" placeholder="Create a password" required />
+
+    <button class="primary" type="submit">Create Account</button>
+
+    <p class="auth-help-note">
+      Create your account to save access to jobs, leads, and future features.
+    </p>
+  </form>
     </div>
 
     <p class="tiny-note">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
@@ -1087,12 +1094,14 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -1108,12 +1117,18 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   const auth = getAuth(app);
 
   const loginForm = document.getElementById("loginForm");
-  const loginEmail = document.getElementById("loginEmail");
-  const loginPassword = document.getElementById("loginPassword");
-  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
-  const showPasswordToggle = document.getElementById("showPasswordToggle");
-  const authModal = document.getElementById("authModal");
-  const openAuthBtn = document.getElementById("openAuth");
+const loginEmail = document.getElementById("loginEmail");
+const loginPassword = document.getElementById("loginPassword");
+const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+const showPasswordToggle = document.getElementById("showPasswordToggle");
+
+const signupForm = document.getElementById("signupForm");
+const signupName = document.getElementById("signupName");
+const signupEmail = document.getElementById("signupEmail");
+const signupPassword = document.getElementById("signupPassword");
+
+const authModal = document.getElementById("authModal");
+const openAuthBtn = document.getElementById("openAuth");
 
   if (showPasswordToggle && loginPassword) {
     showPasswordToggle.addEventListener("change", () => {
@@ -1164,7 +1179,45 @@ footer{background:#faf6ff;border-top:1px solid #eee}
       }
     });
   }
+if (signupForm) {
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
+    const name = (signupName?.value || "").trim();
+    const email = (signupEmail?.value || "").trim();
+    const password = signupPassword?.value || "";
+
+    if (!name || !email || !password) {
+      alert("Enter your name, email, and password.");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters.");
+      return;
+    }
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: name
+        });
+      }
+
+      signupForm.reset();
+      alert("Account created successfully.");
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Could not create account:\n" +
+        "code: " + err.code + "\n" +
+        "message: " + err.message
+      );
+    }
+  });
+}
   if (openAuthBtn) {
     openAuthBtn.addEventListener("click", async () => {
       if (auth.currentUser) {
