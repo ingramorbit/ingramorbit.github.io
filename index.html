@@ -396,7 +396,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
 .auth-form{ display:flex; flex-direction:column; gap:8px; }
 .auth-form label{ font-size:12px; color:#444; font-weight:700; }
-.auth-form input{
+.auth-form input:not([type="checkbox"]){
   padding:10px 12px;
   border-radius:10px;
   border:1px solid #e6e6e6;
@@ -404,7 +404,7 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   font-size:14px;
   background:#fff;
 }
-.auth-form input:focus{
+.auth-form input:not([type="checkbox"]):focus{
   border-color:#1E3A8A;
   box-shadow:0 0 0 3px rgba(30,58,138,.15);
 }
