@@ -429,7 +429,37 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   color:#1E3A8A;
   text-decoration:none;
   font-weight:700;
-}  </style>
+}
+
+/* ===== AUTH RECOVERY LINKS ===== */
+.auth-links-row{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:-2px;
+  margin-bottom:6px;
+}
+
+.auth-link-btn{
+  background:none;
+  border:none;
+  padding:0;
+  font-size:13px;
+  font-weight:800;
+  color:#1F68FF;
+  cursor:pointer;
+}
+
+.auth-link-btn:hover{
+  text-decoration:underline;
+}
+
+.auth-help-note{
+  margin:8px 0 0;
+  font-size:12px;
+  color:#666;
+  line-height:1.4;
+}
+  </style>
   
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -585,9 +615,19 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   <form class="auth-form" id="loginForm">
     <label>Email</label>
     <input id="loginEmail" type="email" placeholder="you@example.com" required />
+
     <label>Password</label>
     <input id="loginPassword" type="password" placeholder="••••••••" required />
+
+    <div class="auth-links-row">
+      <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
+    </div>
+
     <button class="primary" type="submit">Log In</button>
+
+    <p class="auth-help-note">
+      Trouble signing in? Enter your email above and reset your password.
+    </p>
   </form>
     </div>
 
@@ -1098,7 +1138,12 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    sendPasswordResetEmail
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -1116,12 +1161,12 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   const loginForm = document.getElementById("loginForm");
   const loginEmail = document.getElementById("loginEmail");
   const loginPassword = document.getElementById("loginPassword");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
   const authModal = document.getElementById("authModal");
 
   if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    alert("Login submit fired");
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
       const email = (loginEmail?.value || "").trim();
       const password = loginPassword?.value || "";
@@ -1140,44 +1185,35 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     });
   }
 
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  if (forgotPasswordBtn) {
+    forgotPasswordBtn.addEventListener("click", async () => {
+      const email = (loginEmail?.value || "").trim();
 
-const db = getFirestore(app);
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
-      const data = snap.data();
-
-      if (data.tier === "admin") {
-        console.log("ADMIN LOGGED IN");
-
-        // 🔥 Save admin flag globally
-        window.isAdmin = true;
-
-      } else {
-        window.isAdmin = false;
+      if (!email) {
+        alert("Enter your email address first, then tap Forgot password.");
+        return;
       }
-    }
 
-    // close modal
-    authModal.classList.remove("show");
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Password reset email sent. Check your inbox.");
+      } catch (err) {
+        console.error(err);
+        alert(
+          "Could not send password reset:\n" +
+          "code: " + err.code + "\n" +
+          "message: " + err.message
+        );
+      }
+    });
   }
-});
 
-      if (authModal) {
-        authModal.classList.remove("show");
-        authModal.setAttribute("aria-hidden", "true");
-      }
+  onAuthStateChanged(auth, (user) => {
+    if (user && authModal) {
+      authModal.classList.remove("show");
+      authModal.setAttribute("aria-hidden", "true");
     }
   });
 </script>
-
 </body>
 </html>
