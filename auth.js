@@ -287,11 +287,18 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   }
 
   if (!firebaseUser) {
-    window.AKOUser = null;
-    window.AKOReady = true;
-    resetLoginPasswordVisibility();
-    applyTierUI(null);
-    return;
+  window.AKOUser = null;
+  window.AKOReady = true;
+  resetLoginPasswordVisibility();
+  applyTierUI(null);
+
+  document.dispatchEvent(
+    new CustomEvent("ako-auth-ready", {
+      detail: { user: null }
+    })
+  );
+
+  return;
   }
 
   const userData = await loadUserDoc(firebaseUser);
