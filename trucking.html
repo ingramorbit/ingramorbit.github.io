@@ -270,25 +270,27 @@ const db = getFirestore(app);
           <td>${load.pickupDate || ""}</td>
           <td>${load.contact || ""}</td>
           <td>
-            <div class="lb-actions">
-              <button
-                type="button"
-                class="lb-contact-btn"
-                data-contact="${load.contact || ""}"
-              >
-                Contact
-              </button>
+  <div class="lb-actions">
+    <button
+      type="button"
+      class="lb-contact-btn"
+      data-contact="${load.contact || ""}"
+    >
+      Contact
+    </button>
 
-              <button
-                type="button"
-                class="lb-delete-btn"
-                data-docid="${load._docId || ""}"
-                data-loadid="${load.id || ""}"
-              >
-                Delete
-              </button>
-            </div>
-          </td>
+    ${isAdminUser() ? `
+      <button
+        type="button"
+        class="lb-delete-btn"
+        data-docid="${load._docId || ""}"
+        data-loadid="${load.id || ""}"
+      >
+        Delete
+      </button>
+    ` : ""}
+  </div>
+</td>
         </tr>
       `;
     }).join("");
