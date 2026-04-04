@@ -137,6 +137,10 @@
   <h2 style="margin:0 0 10px;font-weight:900">Trucking Job Board</h2>
   <p style="margin:0 0 14px">Find driving, dispatch, warehouse, and logistics opportunities.</p>
 
+  <button type="button" class="trucking-cta" onclick="fixMyUser()" style="margin-bottom:14px;">
+  Make Me Admin
+  </button>
+  
   <div class="trucking-card">
     <strong>Featured Jobs</strong>
 
@@ -625,5 +629,30 @@ if (jobBoardList) {
   body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
   }
 </script>
+  <script type="module">
+window.fixMyUser = async function () {
+  const user = window.AKOUser;
+
+  if (!user) {
+    alert("User not loaded yet. Refresh the page, wait 2 seconds, and try again.");
+    return;
+  }
+
+  const { getApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const { getFirestore, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+  const app = getApp();
+  const db = getFirestore(app);
+
+  await setDoc(doc(db, "users", user.uid), {
+    name: user.name || user.displayName || "John Keif",
+    email: user.email || "",
+    tier: "admin",
+    createdAt: Date.now()
+  });
+
+  alert("Admin user document created. Refresh the page now.");
+};
+  </script>
 </body>
 </html>
