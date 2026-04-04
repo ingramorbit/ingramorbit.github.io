@@ -151,17 +151,18 @@
   </main>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBuvWaUtyIlL629pDHt9TgLe7Fe6iw6THQ",
@@ -175,38 +176,33 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth(app);
 
- let currentUser = null;
-let currentUserTier = null;
-let loads = [];
+  let loads = [];
 
-  onAuthStateChanged(auth, async (user) => {
-  currentUser = user || null;
-  currentUserTier = null;
-
-  if (!user) {
-    console.log("No user logged in");
-    await loadTruckingJobs();
-    return;
+  function getCurrentUser() {
+    return window.AKOUser || null;
   }
 
-  try {
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      currentUserTier = userSnap.data().tier || null;
-    }
-
-    console.log("Logged in UID:", user.uid);
-    console.log("Loaded tier:", currentUserTier);
-  } catch (err) {
-    console.error("Could not load user tier:", err);
+  function getCurrentUserTier() {
+    return window.AKOUser?.tier || null;
   }
 
-  await loadTruckingJobs();
-});
+  function isAdminUser() {
+    return !!window.AKOUser && window.AKOUser.tier === "admin";
+  }
+
+  function waitForAKOAuth() {
+    return new Promise((resolve) => {
+      if (window.AKOReady) {
+        resolve(window.AKOUser);
+        return;
+      }
+
+      document.addEventListener("ako-auth-ready", (e) => {
+        resolve(e.detail.user);
+      }, { once: true });
+    });
+  }
 
   const body = document.getElementById("lbBody");
   const jobBoardList = document.getElementById("jobBoardList");
@@ -340,7 +336,7 @@ let loads = [];
         <div class="lb-actions">
           <a href="#" class="trucking-cta">Apply Now</a>
 
-          ${(job.ownerUid === currentUser?.uid || currentUserTier === "admin") ? `
+          ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
   <button
     type="button"
     class="lb-delete-job-btn"
@@ -556,6 +552,8 @@ if (jobBoardList) {
     postJobForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
+      const currentUser = getCurrentUser();
+
       if (!currentUser) {
         alert("You must be logged in to post a job.");
         return;
@@ -592,6 +590,7 @@ if (jobBoardList) {
   }
 
   try {
+    await waitForAKOAuth();
     await loadFirestoreLoads();
     await loadTruckingJobs();
   } catch (err) {
