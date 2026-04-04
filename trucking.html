@@ -254,6 +254,7 @@ const db = getFirestore(app);
       body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
       return;
     }
+    console.log("Rendering loads. AKOUser:", window.AKOUser, "isAdmin:", isAdminUser());
 
     body.innerHTML = list.map(load => {
       const perMile = rpm(load);
@@ -307,6 +308,7 @@ const db = getFirestore(app);
       `;
       return;
     }
+    console.log("Rendering jobs. AKOUser:", window.AKOUser, "isAdmin:", isAdminUser());
 
     jobBoardList.innerHTML = list.map(job => `
       <div class="job-card">
@@ -583,12 +585,19 @@ if (jobBoardList) {
   }
 
   try {
-    await waitForAKOAuth();
-    await loadFirestoreLoads();
-    await loadTruckingJobs();
-  } catch (err) {
-    console.error(err);
-    body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
+  const authUser = await waitForAKOAuth();
+
+  console.log("AKOReady:", window.AKOReady);
+  console.log("AKOUser:", window.AKOUser);
+  console.log("Auth user from waitForAKOAuth:", authUser);
+  console.log("Current user tier:", getCurrentUserTier());
+  console.log("Is admin user:", isAdminUser());
+
+  await loadFirestoreLoads();
+  await loadTruckingJobs();
+} catch (err) {
+  console.error(err);
+  body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
   }
 </script>
 </body>
