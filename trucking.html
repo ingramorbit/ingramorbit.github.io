@@ -148,7 +148,11 @@
   </div>
 </section>
 
-  </main>
+  <div id="adminDebugBox" style="margin:16px auto;max-width:1100px;padding:12px 14px;background:#fff3cd;border:1px solid #f0d98c;border-radius:10px;font-weight:700;color:#5c4400;">
+  Debug loading
+</div>
+
+</main>
 
 <script type="module" src="auth.js"></script>
 <script type="module">
@@ -586,6 +590,21 @@ if (jobBoardList) {
 
   try {
   const authUser = await waitForAKOAuth();
+  const debugBox = document.getElementById("adminDebugBox");
+
+  const debugLines = [
+    "AKOReady: " + String(window.AKOReady),
+    "AKOUser exists: " + String(!!window.AKOUser),
+    "AKO uid: " + (window.AKOUser?.uid || "none"),
+    "AKO email: " + (window.AKOUser?.email || "none"),
+    "AKO tier: " + (window.AKOUser?.tier || "none"),
+    "Auth user from waitForAKOAuth: " + (authUser?.email || "none"),
+    "Is admin user: " + String(isAdminUser())
+  ];
+
+  if (debugBox) {
+    debugBox.innerHTML = debugLines.join("<br>");
+  }
 
   console.log("AKOReady:", window.AKOReady);
   console.log("AKOUser:", window.AKOUser);
@@ -597,6 +616,12 @@ if (jobBoardList) {
   await loadTruckingJobs();
 } catch (err) {
   console.error(err);
+
+  const debugBox = document.getElementById("adminDebugBox");
+  if (debugBox) {
+    debugBox.innerHTML = "Debug error: " + err.message;
+  }
+
   body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
   }
 </script>
