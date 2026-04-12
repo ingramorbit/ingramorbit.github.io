@@ -249,7 +249,27 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 .foot a:hover{text-decoration:underline}
 
 /* ===== Top-left auth button ===== */
-.login-button{ position:absolute; top:16px; left:20px; z-index:110; }
+.login-button{
+  position:absolute;
+  top:16px;
+  left:20px;
+  z-index:110;
+}
+
+#authArea{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+#welcomeUser{
+  color:#fff;
+  font-weight:800;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
+  font-size:14px;
+  line-height:1;
+}
 #openAuth{
   padding:8px 20px;
   background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
@@ -488,8 +508,8 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   <!-- ===== HERO (search-first) ===== -->
 <section class="hero-wrap">
   <div class="login-button">
-    <div id="authArea" style="display:flex;align-items:center;gap:10px;">
-      <span id="welcomeUser" style="font-weight:700;"></span>
+    <div id="authArea">
+      <span id="welcomeUser"></span>
       <button id="openAuth">Log In / Sign Up</button>
     </div>
   </div>
