@@ -260,32 +260,62 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   display:flex;
   align-items:center;
   gap:10px;
-  flex-wrap:wrap;
+  background:rgba(10, 20, 40, 0.38);
+  border:1px solid rgba(255,255,255,0.16);
+  border-radius:999px;
+  padding:6px 8px 6px 12px;
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
 }
 
-#welcomeUser{
+.welcome-user{
   color:#fff;
-  font-weight:800;
-  text-shadow:0 2px 8px rgba(0,0,0,.35);
   font-size:14px;
+  font-weight:800;
   line-height:1;
+  white-space:nowrap;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
 }
-#openAuth{
-  padding:8px 20px;
+
+.auth-main-btn{
+  padding:8px 16px;
   background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
   color:#1c1c1c;
   font-weight:800;
   border:0;
-  border-radius:8px;
-  box-shadow:0 0 10px rgba(255,215,0,.4);
+  border-radius:999px;
+  box-shadow:0 0 10px rgba(255,215,0,.28);
   cursor:pointer;
   transition:transform .15s ease, box-shadow .15s ease;
 }
-#openAuth:hover{
-  transform:translateY(-1px);
-  box-shadow:0 0 14px rgba(255,255,255,.5);
-}
 
+.auth-main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 0 14px rgba(255,255,255,.35);
+}
+@media (max-width: 640px){
+  .login-button{
+    top:12px;
+    left:12px;
+  }
+
+  #authArea{
+    gap:8px;
+    padding:5px 7px 5px 10px;
+  }
+
+  .welcome-user{
+    font-size:12px;
+    max-width:110px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .auth-main-btn{
+    padding:7px 12px;
+    font-size:12px;
+  }
+}
 /* ===== Hamburger ===== */
 .menu-button{
   position:absolute;
@@ -509,8 +539,8 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 <section class="hero-wrap">
   <div class="login-button">
     <div id="authArea">
-      <span id="welcomeUser"></span>
-      <button id="openAuth">Log In / Sign Up</button>
+  <span id="welcomeUser" class="welcome-user"></span>
+  <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
   </div>
 
