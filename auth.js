@@ -313,7 +313,7 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   if (welcomeUser) {
     const name = userData.name || firebaseUser.displayName || "";
     const firstName = name.trim().split(" ")[0] || "User";
-    welcomeUser.textContent = "Welcome " + firstName;
+    welcomeUser.textContent = "Hi, " + firstName;
   }
 
   console.log("AKO user loaded:", window.AKOUser);
