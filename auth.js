@@ -40,7 +40,7 @@ window.AKOReady = false;
 // ===== DOM Lookups =====
 const authModal = document.getElementById("authModal");
 const openAuthBtn = document.getElementById("openAuth");
-
+const welcomeUser = document.getElementById("welcomeUser");
 const loginForm = document.getElementById("loginForm");
 const loginEmail = document.getElementById("loginEmail");
 const loginPassword = document.getElementById("loginPassword");
@@ -287,24 +287,34 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   }
 
   if (!firebaseUser) {
-  window.AKOUser = null;
-  window.AKOReady = true;
-  resetLoginPasswordVisibility();
-  applyTierUI(null);
+    window.AKOUser = null;
+    window.AKOReady = true;
+    resetLoginPasswordVisibility();
+    applyTierUI(null);
 
-  document.dispatchEvent(
-    new CustomEvent("ako-auth-ready", {
-      detail: { user: null }
-    })
-  );
+    if (welcomeUser) {
+      welcomeUser.textContent = "";
+    }
 
-  return;
+    document.dispatchEvent(
+      new CustomEvent("ako-auth-ready", {
+        detail: { user: null }
+      })
+    );
+
+    return;
   }
 
   const userData = await loadUserDoc(firebaseUser);
 
   window.AKOUser = userData;
   window.AKOReady = true;
+
+  if (welcomeUser) {
+    const name = userData.name || firebaseUser.displayName || "";
+    const firstName = name.trim().split(" ")[0] || "User";
+    welcomeUser.textContent = "Welcome " + firstName;
+  }
 
   console.log("AKO user loaded:", window.AKOUser);
 
