@@ -162,6 +162,7 @@ body{
 }
 /* ===== Trucking Page ===== */
 .trucking-hero{
+  position:relative;
   background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
   color:#fff;
   padding:24px 0 16px;
@@ -521,4 +522,84 @@ body{
 
 .lb-delete-job-btn:active{
   transform:translateY(1px);
+}
+  /* =========================
+   Shared Auth/Header Styles
+========================= */
+.login-button{
+  position:absolute;
+  top:16px;
+  left:20px;
+  z-index:110;
+}
+
+#authArea{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(8, 18, 38, 0.55);
+  border:1px solid rgba(255,255,255,0.22);
+  border-radius:999px;
+  padding:6px 8px 6px 12px;
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+}
+
+.welcome-user{
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  line-height:1;
+  white-space:nowrap;
+  text-shadow:0 2px 8px rgba(0,0,0,.35);
+}
+
+.auth-main-btn{
+  padding:8px 16px;
+  background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
+  color:#1c1c1c;
+  font-weight:800;
+  border:0;
+  border-radius:999px;
+  box-shadow:0 0 10px rgba(255,215,0,.28);
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.auth-main-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 0 14px rgba(255,255,255,.35);
+}
+
+@media (max-width: 640px){
+  .login-button{
+    top:12px;
+    left:12px;
+    max-width:calc(100% - 70px);
+  }
+
+  #authArea{
+    gap:8px;
+    padding:5px 7px 5px 10px;
+    max-width:100%;
+  }
+
+  .welcome-user{
+    font-size:12px;
+    max-width:90px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .auth-main-btn{
+    padding:7px 10px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+
+  .menu-button{
+    top:12px;
+    right:12px;
+  }
 }
