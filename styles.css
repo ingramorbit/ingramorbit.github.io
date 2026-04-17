@@ -164,6 +164,22 @@ body{
 .trucking-hero{
   position:relative;
   .trucking-hero .container{
+  padding-top: 110px;
+}
+
+.trucking-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.trucking-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+  .trucking-hero .container{
   padding-top: 96px;
   }
   background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
