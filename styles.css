@@ -575,19 +575,230 @@ body{
 .auth-main-btn{
   padding:8px 16px;
   background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
-  color:#1c1c1c;
-  font-weight:800;
-  border:0;
-  border-radius:999px;
-  box-shadow:0 0 10px rgba(255,215,0,.28);
-  cursor:pointer;
-  transition:transform .15s ease, box-shadow .15s ease;
+@media (max-width:700px){
+  .lb-filters{
+    grid-template-columns:1fr;
+  }
 }
 
-.auth-main-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 0 14px rgba(255,255,255,.35);
+/* ===== Post a Load Form ===== */
+.post-load-form{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
+  margin-top:12px;
 }
+
+.post-load-form input,
+.post-load-form select{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.post-load-form input:focus,
+.post-load-form select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.post-load-form button{
+  border:0;
+  cursor:pointer;
+}
+
+@media (max-width:700px){
+  .post-load-form{
+    grid-template-columns:1fr;
+  }
+}
+
+.lb-contact-btn{
+  border:0;
+  background:var(--royal);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lb-contact-btn:hover{
+  opacity:.92;
+}
+
+.lb-contact-btn:active{
+  transform:translateY(1px);
+}
+
+.lb-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.lb-delete-btn{
+  border:0;
+  background:#b2331c;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lb-delete-btn:hover{
+  opacity:.92;
+}
+
+.lb-delete-btn:active{
+  transform:translateY(1px);
+}
+
+/* ===== Plans Page ===== */
+.plans-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+
+.plan-card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:18px;
+  text-align:left;
+}
+
+.plan-card h2{
+  margin:0 0 8px;
+}
+
+.plan-price{
+  font-weight:900;
+  margin-bottom:12px;
+}
+
+.plan-card ul{
+  padding-left:18px;
+  margin:0 0 12px;
+}
+
+.plan-card li{
+  margin-bottom:6px;
+  font-weight:700;
+}
+
+.plan-note{
+  font-size:14px;
+  opacity:.7;
+}
+
+.plan-card.bronze{ border-top:6px solid #cd7f32; }
+.plan-card.silver{ border-top:6px solid #c0c0c0; }
+.plan-card.gold{ border-top:6px solid var(--gold); }
+
+@media (max-width:800px){
+  .plans-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ===== Trucking Job Board ===== */
+.job-board-list{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+
+.job-card{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+.job-card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.job-title{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+  color:#111;
+}
+
+.job-company{
+  margin:4px 0 0;
+  font-weight:800;
+  color:#555;
+}
+
+.job-badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#111;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.job-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+  font-weight:700;
+  color:#333;
+}
+
+.job-desc{
+  margin:0 0 14px;
+  color:#444;
+  font-weight:600;
+  line-height:1.45;
+}
+
+@media (max-width:700px){
+  .job-card-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+.lb-delete-job-btn{
+  border:0;
+  background:#b2331c;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lb-delete-job-btn:hover{
+  opacity:.92;
+}
+
+.lb-delete-job-btn:active{
+  transform:translateY(1px);
+}
+
 /* =========================
    Shared Auth/Header Styles
 ========================= */
@@ -635,7 +846,8 @@ body{
   transform:translateY(-1px);
   box-shadow:0 0 14px rgba(255,255,255,.35);
 }
-@media (max-width@media (max-width: 640px){
+
+@media (max-width:640px){
   .login-button{
     top:12px;
     left:12px;
@@ -667,11 +879,7 @@ body{
     right:12px;
   }
 
- .trucking-hero .container{
-  padding-top:48px;
- @media (max-width: 640px){
   .trucking-hero .container{
-    padding-top: 36px !important;
+    padding-top:36px !important;
   }
-}
 }
