@@ -831,12 +831,17 @@ body{
 }
 
 .auth-main-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   padding:8px 16px;
   background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
   color:#1c1c1c;
   font-weight:800;
   border:0;
-  border-radius:999px;
+  border-radius:999px !important;
+  -webkit-appearance:none;
+  appearance:none;
   box-shadow:0 0 10px rgba(255,215,0,.28);
   cursor:pointer;
   transition:transform .15s ease, box-shadow .15s ease;
