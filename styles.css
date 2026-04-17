@@ -669,5 +669,9 @@ body{
 
  .trucking-hero .container{
   padding-top:48px;
- }
+ @media (max-width: 640px){
+  .trucking-hero .container{
+    padding-top: 36px !important;
+  }
+}
 }
