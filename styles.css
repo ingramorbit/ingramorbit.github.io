@@ -163,6 +163,9 @@ body{
 /* ===== Trucking Page ===== */
 .trucking-hero{
   position:relative;
+  .trucking-hero .container{
+  padding-top: 96px;
+  }
   background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
   color:#fff;
   padding:24px 0 16px;
@@ -572,6 +575,9 @@ body{
 }
 
 @media (max-width: 640px){
+  .trucking-hero .container{
+  padding-top: 110px;
+  }
   .login-button{
     top:12px;
     left:12px;
