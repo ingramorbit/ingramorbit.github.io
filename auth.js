@@ -53,14 +53,25 @@ const signupEmail = document.getElementById("signupEmail");
 const signupPassword = document.getElementById("signupPassword");
 
 const plansBtn = document.getElementById("plansBtn");
-
+const authUrlParams = new URLSearchParams(window.location.search);
+const shouldOpenAuthFromUrl = authUrlParams.get("auth") === "1";
+const returnToPage = authUrlParams.get("return");
 // ===== Helpers =====
 function closeAuthModal() {
   if (!authModal) return;
   authModal.classList.remove("show");
   authModal.setAttribute("aria-hidden", "true");
 }
+function openAuthModal() {
+  if (!authModal) return;
+  authModal.classList.add("show");
+  authModal.setAttribute("aria-hidden", "false");
+}
 
+function isHomePage() {
+  const path = window.location.pathname;
+  return path.endsWith("/") || path.endsWith("/index.html") || path === "/index.html";
+}
 function resetLoginPasswordVisibility() {
   if (showPasswordToggle) showPasswordToggle.checked = false;
   if (loginPassword) loginPassword.type = "password";
@@ -276,7 +287,16 @@ if (openAuthBtn) {
           "message: " + err.message
         );
       }
+      return;
     }
+
+    if (isHomePage()) {
+      openAuthModal();
+      return;
+    }
+
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+    window.location.href = `index.html?auth=1&return=${encodeURIComponent(currentPage)}`;
   });
 }
 
@@ -287,22 +307,26 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   }
 
   if (!firebaseUser) {
-    window.AKOUser = null;
-    window.AKOReady = true;
-    resetLoginPasswordVisibility();
-    applyTierUI(null);
+  window.AKOUser = null;
+  window.AKOReady = true;
+  resetLoginPasswordVisibility();
+  applyTierUI(null);
 
-    if (welcomeUser) {
-      welcomeUser.textContent = "";
-    }
+  if (welcomeUser) {
+    welcomeUser.textContent = "";
+  }
 
-    document.dispatchEvent(
-      new CustomEvent("ako-auth-ready", {
-        detail: { user: null }
-      })
-    );
+  if (shouldOpenAuthFromUrl && isHomePage()) {
+    openAuthModal();
+  }
 
-    return;
+  document.dispatchEvent(
+    new CustomEvent("ako-auth-ready", {
+      detail: { user: null }
+    })
+  );
+
+  return;
   }
 
   const userData = await loadUserDoc(firebaseUser);
@@ -318,12 +342,17 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   console.log("AKO user loaded:", window.AKOUser);
 
-  closeAuthModal();
-  applyTierUI(userData);
+closeAuthModal();
+applyTierUI(userData);
 
-  document.dispatchEvent(
-    new CustomEvent("ako-auth-ready", {
-      detail: { user: userData }
-    })
-  );
+if (isHomePage() && returnToPage && returnToPage !== "index.html") {
+  window.location.href = returnToPage;
+  return;
+}
+
+document.dispatchEvent(
+  new CustomEvent("ako-auth-ready", {
+    detail: { user: userData }
+  })
+);
 });
