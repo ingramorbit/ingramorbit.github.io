@@ -274,7 +274,9 @@ if (signupForm) {
 
 // ===== Top Left Login / Logout Button =====
 if (openAuthBtn) {
-  openAuthBtn.addEventListener("click", async () => {
+  openAuthBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
     if (auth.currentUser) {
       try {
         await signOut(auth);
@@ -290,13 +292,14 @@ if (openAuthBtn) {
       return;
     }
 
-    if (isHomePage()) {
+    const currentPage = window.location.pathname.split("/").pop() || "index.html";
+
+    if (authModal) {
       openAuthModal();
       return;
     }
 
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
-    window.location.href = `index.html?auth=1&return=${encodeURIComponent(currentPage)}`;
+    window.location.assign(`index.html?auth=1&return=${encodeURIComponent(currentPage)}`);
   });
 }
 
