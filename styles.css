@@ -641,6 +641,104 @@ body{
     padding-top:36px !important;
   }
 }
+/* ===== HVAC Page ===== */
+.hvac-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.hvac-hero .container{
+  padding-top:110px;
+}
+
+.hvac-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.hvac-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.hvac-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.hvac-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.hvac-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.hvac-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.hvac-wrap{
+  padding:18px 0;
+}
+
+.hvac-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.hvac-pill{
+  display:inline-block;
+  background:var(--gold);
+  color:#111;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:800;
+  margin:6px 8px 0 0;
+}
+
+.hvac-cta{
+  display:inline-block;
+  margin-top:10px;
+  background:var(--royal);
+  color:#fff;
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+}
+
+@media (max-width:640px){
+  .hvac-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .hvac-hero .container{
+    padding-top:36px !important;
+  }
+}
 /* ===== Freight Load Board ===== */
 .lb-filters{
   display:grid;
