@@ -1,41 +1,51 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>AssistKingOnline — HVAC</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — HVAC</title>
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 
-<section class="trucking-hero">
-  <div class="container">
-    <div class="trucking-topbar">
-      <div class="trucking-brand">AssistKingOnline</div>
-      <a class="trucking-back" href="index.html">← Back to Home</a>
+  <section class="hvac-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
     </div>
-    <h1 class="trucking-title">❄️ HVAC</h1>
-    <p>Heating, cooling, ventilation, and air quality services.</p>
-  </div>
-</section>
 
-<main class="container trucking-wrap">
-  <div class="trucking-card">
-    <strong>Popular requests</strong>
-    <div>
-      <span class="trucking-pill">AC repair</span>
-      <span class="trucking-pill">Furnace install</span>
-      <span class="trucking-pill">Duct cleaning</span>
-      <span class="trucking-pill">Thermostat install</span>
+    <a class="hvac-back hvac-back-floating" href="index.html">← Back to Home</a>
+
+    <div class="container">
+      <div class="hvac-hero-content">
+        <div class="hvac-brand">AssistKingOnline</div>
+        <h1 class="hvac-title">❄️ HVAC</h1>
+        <p>Heating, cooling, ventilation, and air quality services.</p>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="trucking-card">
-    <strong>Get matched</strong>
-    <p style="margin:8px 0 0">Tell us your issue and get HVAC professionals.</p>
-    <a class="trucking-cta" href="#">Start HVAC request</a>
-  </div>
-</main>
+  <main class="container hvac-wrap">
+    <div class="hvac-card">
+      <strong>Popular requests</strong>
+      <div>
+        <span class="hvac-pill">AC repair</span>
+        <span class="hvac-pill">Furnace install</span>
+        <span class="hvac-pill">Duct cleaning</span>
+        <span class="hvac-pill">Thermostat install</span>
+      </div>
+    </div>
 
+    <div class="hvac-card">
+      <strong>Get matched</strong>
+      <p style="margin:8px 0 0">Tell us your issue and get HVAC professionals.</p>
+      <a class="hvac-cta" href="#">Start HVAC request</a>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
