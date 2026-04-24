@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Request Service</title>
+  <link rel="stylesheet" href="styles.css?v=12">
+</head>
+<body>
+  <section class="request-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="request-back request-back-floating" href="index.html">← Back to Home</a>
+
+    <div class="container">
+      <div class="request-hero-content">
+        <div class="request-brand">AssistKingOnline</div>
+        <h1 class="request-title">📋 Request Service</h1>
+        <p>Tell us what you need and we’ll help match you with the right provider.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container request-wrap">
+    <div class="request-card">
+      <strong>Service Request Form</strong>
+      <p style="margin:8px 0 14px">Fill out the details below to submit your request.</p>
+
+      <form id="serviceRequestForm" class="request-form">
+        <input id="reqCategory" placeholder="Category" readonly />
+        <input id="reqServiceType" placeholder="Service type (example: AC repair)" required />
+        <input id="reqName" placeholder="Full name" required />
+        <input id="reqEmail" type="email" placeholder="Email" required />
+        <input id="reqPhone" type="tel" placeholder="Phone number" required />
+        <input id="reqCity" placeholder="City" required />
+
+        <select id="reqUrgency" required>
+          <option value="">Select urgency</option>
+          <option>Emergency</option>
+          <option>Urgent</option>
+          <option>Within 3 days</option>
+          <option>Within a week</option>
+          <option>Flexible</option>
+        </select>
+
+        <textarea id="reqDescription" placeholder="Describe what you need..." required></textarea>
+
+        <button type="submit" class="request-cta">Submit Request</button>
+      </form>
+
+      <p id="requestStatus" class="request-status" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js"></script>
+
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const category = (params.get("category") || "").trim();
+
+    const form = document.getElementById("serviceRequestForm");
+    const reqCategory = document.getElementById("reqCategory");
+    const reqServiceType = document.getElementById("reqServiceType");
+    const reqName = document.getElementById("reqName");
+    const reqEmail = document.getElementById("reqEmail");
+    const reqPhone = document.getElementById("reqPhone");
+    const reqCity = document.getElementById("reqCity");
+    const reqUrgency = document.getElementById("reqUrgency");
+    const reqDescription = document.getElementById("reqDescription");
+    const requestStatus = document.getElementById("requestStatus");
+
+    function formatCategory(value) {
+      if (!value) return "";
+      return value
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (m) => m.toUpperCase());
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    reqCategory.value = formatCategory(category);
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        const returnUrl = `request-service.html?category=${encodeURIComponent(category)}`;
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
+        return;
+      }
+
+      const payload = {
+        category: category || "",
+        categoryLabel: reqCategory.value || "",
+        serviceType: reqServiceType.value.trim(),
+        name: reqName.value.trim(),
+        email: reqEmail.value.trim(),
+        phone: reqPhone.value.trim(),
+        city: reqCity.value.trim(),
+        urgency: reqUrgency.value.trim(),
+        description: reqDescription.value.trim(),
+        ownerUid: currentUser.uid,
+        ownerEmail: currentUser.email || "",
+        createdAt: Date.now(),
+        status: "new"
+      };
+
+      if (
+        !payload.categoryLabel ||
+        !payload.serviceType ||
+        !payload.name ||
+        !payload.email ||
+        !payload.phone ||
+        !payload.city ||
+        !payload.urgency ||
+        !payload.description
+      ) {
+        requestStatus.textContent = "Please complete all fields.";
+        return;
+      }
+
+      try {
+        requestStatus.textContent = "Submitting request...";
+        await addDoc(collection(db, "serviceRequests"), payload);
+        form.reset();
+        reqCategory.value = formatCategory(category);
+        requestStatus.textContent = "Request submitted successfully.";
+      } catch (err) {
+        console.error(err);
+        requestStatus.textContent = `Could not submit request: ${err.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
