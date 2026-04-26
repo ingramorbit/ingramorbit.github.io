@@ -45,13 +45,14 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      query,
-      where,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     const app = getApp();
     const db = getFirestore(app);
 
@@ -98,33 +99,52 @@
         return;
       }
 
-      requestsList.innerHTML = items.map(item => `
-        <div class="request-item">
-          <div class="request-item-top">
-            <div>
-              <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
-              <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
-            </div>
-            <span class="request-status-pill status-${escapeHtml((item.status || "new").toLowerCase())}">
-              ${escapeHtml(item.status || "new")}
-            </span>
-          </div>
+      requestsList.innerHTML = items.map(item => {
+  const rawStatus = String(item.status || "new").toLowerCase();
+  const statusClass = rawStatus.replace(/\s+/g, "-");
+  const canCancel = rawStatus !== "cancelled" && rawStatus !== "closed";
 
-          <div class="request-meta">
-            <span>📍 ${escapeHtml(item.city || "—")}</span>
-            <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-            <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-          </div>
-
-          <p class="request-desc">${escapeHtml(item.description || "")}</p>
-
-          <div class="request-contact">
-            <span>👤 ${escapeHtml(item.name || "—")}</span>
-            <span>✉️ ${escapeHtml(item.email || "—")}</span>
-            <span>📞 ${escapeHtml(item.phone || "—")}</span>
-          </div>
+  return `
+    <div class="request-item">
+      <div class="request-item-top">
+        <div>
+          <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
+          <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
         </div>
-      `).join("");
+        <span class="request-status-pill status-${escapeHtml(statusClass)}">
+          ${escapeHtml(item.status || "new")}
+        </span>
+      </div>
+
+      <div class="request-meta">
+        <span>📍 ${escapeHtml(item.city || "—")}</span>
+        <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+        <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+      </div>
+
+      <p class="request-desc">${escapeHtml(item.description || "")}</p>
+
+      <div class="request-contact">
+        <span>👤 ${escapeHtml(item.name || "—")}</span>
+        <span>✉️ ${escapeHtml(item.email || "—")}</span>
+        <span>📞 ${escapeHtml(item.phone || "—")}</span>
+      </div>
+
+      <div class="request-actions">
+        ${canCancel ? `
+          <button
+            type="button"
+            class="request-cancel-btn"
+            data-requestid="${escapeHtml(item._docId || "")}"
+            data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+          >
+            Cancel Request
+          </button>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}).join("");
     }
 
     async function loadMyRequests() {
@@ -160,7 +180,37 @@
         `;
       }
     }
+requestsList.addEventListener("click", async (e) => {
+  const cancelBtn = e.target.closest(".request-cancel-btn");
+  if (!cancelBtn) return;
 
+  const requestId = cancelBtn.getAttribute("data-requestid");
+  const serviceType = cancelBtn.getAttribute("data-servicetype") || "this request";
+
+  if (!requestId) {
+    alert("Could not cancel this request.");
+    return;
+  }
+
+  const confirmed = confirm(`Cancel "${serviceType}"?`);
+  if (!confirmed) return;
+
+  try {
+    await updateDoc(doc(db, "serviceRequests", requestId), {
+      status: "cancelled",
+      cancelledAt: Date.now()
+    });
+
+    await loadMyRequests();
+    alert("Request cancelled.");
+  } catch (err) {
+    console.error(err);
+    alert(
+      "Could not cancel request:\n" +
+      "message: " + err.message
+    );
+  }
+});
     loadMyRequests();
   </script>
 </body>
