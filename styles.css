@@ -1264,6 +1264,180 @@ body{
     padding-top:36px !important;
   }
 }
+/* ===== My Requests Page ===== */
+.requests-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.requests-hero .container{
+  padding-top:110px;
+}
+
+.requests-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.requests-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.requests-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.requests-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.requests-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.requests-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.requests-wrap{
+  padding:18px 0;
+}
+
+.requests-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.requests-list{
+  display:grid;
+  gap:14px;
+  margin-top:14px;
+}
+
+.request-item{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+.request-item-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.request-item-title{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+  color:#111;
+}
+
+.request-item-subtitle{
+  margin:4px 0 0;
+  font-weight:800;
+  color:#555;
+}
+
+.request-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:12px;
+  font-weight:700;
+  color:#333;
+}
+
+.request-desc{
+  margin:0 0 14px;
+  color:#444;
+  font-weight:600;
+  line-height:1.45;
+}
+
+.request-contact{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  font-weight:700;
+  color:#333;
+}
+
+.request-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+  background:#f2f2f2;
+  color:#222;
+}
+
+.request-status-pill.status-new{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.request-status-pill.status-in-progress{
+  background:#dbeafe;
+  color:#1e40af;
+}
+
+.request-status-pill.status-matched{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.request-status-pill.status-closed{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+@media (max-width:700px){
+  .request-item-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+@media (max-width:640px){
+  .requests-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .requests-hero .container{
+    padding-top:36px !important;
+  }
+}
 /* ===== Freight Load Board ===== */
 .lb-filters{
   display:grid;
