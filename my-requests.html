@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — My Requests</title>
+  <link rel="stylesheet" href="styles.css?v=13">
+</head>
+<body>
+  <section class="requests-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="requests-back requests-back-floating" href="index.html">← Back to Home</a>
+
+    <div class="container">
+      <div class="requests-hero-content">
+        <div class="requests-brand">AssistKingOnline</div>
+        <h1 class="requests-title">🧾 My Requests</h1>
+        <p>Review the service requests you’ve submitted.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container requests-wrap">
+    <div class="requests-card">
+      <strong>Your submitted requests</strong>
+      <p style="margin:8px 0 14px">This page shows requests tied to your account.</p>
+
+      <div id="requestsList" class="requests-list">
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">Loading your requests...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js"></script>
+
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const requestsList = document.getElementById("requestsList");
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderRequests(items) {
+      if (!items.length) {
+        requestsList.innerHTML = `
+          <div class="request-item">
+            <p style="margin:0;font-weight:800;">You have not submitted any requests yet.</p>
+          </div>
+        `;
+        return;
+      }
+
+      requestsList.innerHTML = items.map(item => `
+        <div class="request-item">
+          <div class="request-item-top">
+            <div>
+              <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
+              <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+            </div>
+            <span class="request-status-pill status-${escapeHtml((item.status || "new").toLowerCase())}">
+              ${escapeHtml(item.status || "new")}
+            </span>
+          </div>
+
+          <div class="request-meta">
+            <span>📍 ${escapeHtml(item.city || "—")}</span>
+            <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+            <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+          </div>
+
+          <p class="request-desc">${escapeHtml(item.description || "")}</p>
+
+          <div class="request-contact">
+            <span>👤 ${escapeHtml(item.name || "—")}</span>
+            <span>✉️ ${escapeHtml(item.email || "—")}</span>
+            <span>📞 ${escapeHtml(item.phone || "—")}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function loadMyRequests() {
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("my-requests.html")}`;
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "serviceRequests"),
+          where("ownerUid", "==", currentUser.uid)
+        );
+
+        const snapshot = await getDocs(q);
+
+        const items = snapshot.docs
+          .map(doc => ({
+            _docId: doc.id,
+            ...doc.data()
+          }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        renderRequests(items);
+      } catch (err) {
+        console.error(err);
+        requestsList.innerHTML = `
+          <div class="request-item">
+            <p style="margin:0;font-weight:800;">Could not load your requests: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+
+    loadMyRequests();
+  </script>
+</body>
+</html>
