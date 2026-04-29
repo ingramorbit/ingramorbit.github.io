@@ -29,14 +29,43 @@
 
   <main class="container all-requests-wrap">
     <div class="all-requests-card">
-      <strong>Submitted requests</strong>
-      <p style="margin:8px 0 14px">This page is for admins only.</p>
+  <strong>Submitted requests</strong>
+  <p style="margin:8px 0 14px">This page is for admins only.</p>
 
-      <div id="allRequestsList" class="requests-list">
-        <div class="request-item">
-          <p style="margin:0;font-weight:800;">Loading all requests...</p>
-        </div>
-      </div>
+  <div class="all-requests-filters">
+    <input
+      id="allRequestsSearch"
+      class="all-requests-filter-input"
+      type="text"
+      placeholder="Search service, customer, email, city..."
+    />
+
+    <select id="allRequestsStatus" class="all-requests-filter-select">
+      <option value="">All statuses</option>
+      <option value="new">new</option>
+      <option value="matched">matched</option>
+      <option value="in-progress">in-progress</option>
+      <option value="closed">closed</option>
+      <option value="cancelled">cancelled</option>
+    </select>
+
+    <select id="allRequestsCategory" class="all-requests-filter-select">
+      <option value="">All categories</option>
+    </select>
+
+    <select id="allRequestsSort" class="all-requests-filter-select">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+    </select>
+  </div>
+
+  <p id="allRequestsSummary" class="all-requests-summary">Loading all requests...</p>
+
+  <div id="allRequestsList" class="requests-list">
+    <div class="request-item">
+      <p style="margin:0;font-weight:800;">Loading all requests...</p>
+    </div>
+  </div>
     </div>
   </main>
 
@@ -55,6 +84,13 @@
     const db = getFirestore(app);
 
     const allRequestsList = document.getElementById("allRequestsList");
+const allRequestsSearch = document.getElementById("allRequestsSearch");
+const allRequestsStatus = document.getElementById("allRequestsStatus");
+const allRequestsCategory = document.getElementById("allRequestsCategory");
+const allRequestsSort = document.getElementById("allRequestsSort");
+const allRequestsSummary = document.getElementById("allRequestsSummary");
+
+let allRequests = [];
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -94,6 +130,96 @@
         </div>
       `;
     }
+    
+    function populateCategoryFilter(items) {
+  if (!allRequestsCategory) return;
+
+  const categories = [...new Set(
+    items
+      .map(item => String(item.categoryLabel || item.category || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+
+  allRequestsCategory.innerHTML = `
+    <option value="">All categories</option>
+    ${categories.map(category => `
+      <option value="${escapeHtml(category)}">${escapeHtml(category)}</option>
+    `).join("")}
+  `;
+}
+
+function getFilteredRequests() {
+  const searchValue = (allRequestsSearch?.value || "").trim().toLowerCase();
+  const statusValue = (allRequestsStatus?.value || "").trim().toLowerCase();
+  const categoryValue = (allRequestsCategory?.value || "").trim().toLowerCase();
+  const sortValue = (allRequestsSort?.value || "newest").trim().toLowerCase();
+
+  let items = [...allRequests];
+
+  if (searchValue) {
+    items = items.filter(item => {
+      const haystack = [
+        item.serviceType,
+        item.categoryLabel,
+        item.category,
+        item.name,
+        item.email,
+        item.phone,
+        item.city,
+        item.urgency,
+        item.description,
+        item.status
+      ].join(" ").toLowerCase();
+
+      return haystack.includes(searchValue);
+    });
+  }
+
+  if (statusValue) {
+    items = items.filter(item => String(item.status || "new").toLowerCase() === statusValue);
+  }
+
+  if (categoryValue) {
+    items = items.filter(item =>
+      String(item.categoryLabel || item.category || "").toLowerCase() === categoryValue
+    );
+  }
+
+  items.sort((a, b) => {
+    const aTime = Number(a.createdAt || 0);
+    const bTime = Number(b.createdAt || 0);
+
+    if (sortValue === "oldest") return aTime - bTime;
+    return bTime - aTime;
+  });
+
+  return items;
+}
+
+function updateSummary(items) {
+  if (!allRequestsSummary) return;
+
+  const total = allRequests.length;
+  const visible = items.length;
+
+  if (!total) {
+    allRequestsSummary.textContent = "No service requests found.";
+    return;
+  }
+
+  if (visible === total) {
+    allRequestsSummary.textContent = `Showing all ${total} request${total === 1 ? "" : "s"}.`;
+    return;
+  }
+
+  allRequestsSummary.textContent = `Showing ${visible} of ${total} request${total === 1 ? "" : "s"}.`;
+}
+
+function applyAdminFilters() {
+  const items = getFilteredRequests();
+  updateSummary(items);
+  renderRequests(items);
+}
 
     function renderRequests(items) {
       if (!items.length) {
@@ -172,16 +298,16 @@
       }
 
       try {
+  
         const snapshot = await getDocs(collection(db, "serviceRequests"));
 
-        const items = snapshot.docs
-          .map(doc => ({
-            _docId: doc.id,
-            ...doc.data()
-          }))
-          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+allRequests = snapshot.docs.map(doc => ({
+  _docId: doc.id,
+  ...doc.data()
+}));
 
-        renderRequests(items);
+populateCategoryFilter(allRequests);
+applyAdminFilters();
       } catch (err) {
         console.error(err);
         allRequestsList.innerHTML = `
@@ -243,6 +369,21 @@ allRequestsList.addEventListener("click", async (e) => {
     );
   }
 });
+    if (allRequestsSearch) {
+  allRequestsSearch.addEventListener("input", applyAdminFilters);
+}
+
+if (allRequestsStatus) {
+  allRequestsStatus.addEventListener("change", applyAdminFilters);
+}
+
+if (allRequestsCategory) {
+  allRequestsCategory.addEventListener("change", applyAdminFilters);
+}
+
+if (allRequestsSort) {
+  allRequestsSort.addEventListener("change", applyAdminFilters);
+}
     loadAllRequests();
   </script>
 </body>
