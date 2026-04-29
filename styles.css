@@ -1389,6 +1389,47 @@ body{
   font-weight:700;
   color:#333;
 }
+
+.admin-request-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.request-status-select{
+  min-width:170px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:800;
+  background:#fff;
+  outline:0;
+}
+
+.request-status-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.request-update-btn{
+  border:0;
+  background:var(--royal);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.request-update-btn:hover{
+  opacity:.92;
+}
+
+.request-update-btn:active{
+  transform:translateY(1px);
+}
 .request-actions{
   margin-top:14px;
 }
