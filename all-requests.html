@@ -44,10 +44,12 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  collection,
+  getDocs,
+  updateDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = getApp();
     const db = getFirestore(app);
@@ -104,37 +106,56 @@
       }
 
       allRequestsList.innerHTML = items.map(item => {
-        const rawStatus = String(item.status || "new").toLowerCase();
-        const statusClass = rawStatus.replace(/\s+/g, "-");
+  const rawStatus = String(item.status || "new").toLowerCase();
+  const statusClass = rawStatus.replace(/\s+/g, "-");
 
-        return `
-          <div class="request-item">
-            <div class="request-item-top">
-              <div>
-                <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
-                <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
-              </div>
-              <span class="request-status-pill status-${escapeHtml(statusClass)}">
-                ${escapeHtml(item.status || "new")}
-              </span>
-            </div>
+  return `
+    <div class="request-item">
+      <div class="request-item-top">
+        <div>
+          <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
+          <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+        </div>
+        <span class="request-status-pill status-${escapeHtml(statusClass)}">
+          ${escapeHtml(item.status || "new")}
+        </span>
+      </div>
 
-            <div class="request-meta">
-              <span>📍 ${escapeHtml(item.city || "—")}</span>
-              <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-              <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-            </div>
+      <div class="request-meta">
+        <span>📍 ${escapeHtml(item.city || "—")}</span>
+        <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+        <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+      </div>
 
-            <p class="request-desc">${escapeHtml(item.description || "")}</p>
+      <p class="request-desc">${escapeHtml(item.description || "")}</p>
 
-            <div class="request-contact">
-              <span>👤 ${escapeHtml(item.name || "—")}</span>
-              <span>✉️ ${escapeHtml(item.email || "—")}</span>
-              <span>📞 ${escapeHtml(item.phone || "—")}</span>
-            </div>
-          </div>
-        `;
-      }).join("");
+      <div class="request-contact">
+        <span>👤 ${escapeHtml(item.name || "—")}</span>
+        <span>✉️ ${escapeHtml(item.email || "—")}</span>
+        <span>📞 ${escapeHtml(item.phone || "—")}</span>
+      </div>
+
+      <div class="admin-request-actions">
+        <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
+          <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
+          <option value="matched" ${rawStatus === "matched" ? "selected" : ""}>matched</option>
+          <option value="in-progress" ${rawStatus === "in-progress" ? "selected" : ""}>in-progress</option>
+          <option value="closed" ${rawStatus === "closed" ? "selected" : ""}>closed</option>
+          <option value="cancelled" ${rawStatus === "cancelled" ? "selected" : ""}>cancelled</option>
+        </select>
+
+        <button
+          type="button"
+          class="request-update-btn"
+          data-requestid="${escapeHtml(item._docId || "")}"
+          data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+        >
+          Update Status
+        </button>
+      </div>
+    </div>
+  `;
+}).join("");
     }
 
     async function loadAllRequests() {
@@ -170,7 +191,58 @@
         `;
       }
     }
+allRequestsList.addEventListener("click", async (e) => {
+  const updateBtn = e.target.closest(".request-update-btn");
+  if (!updateBtn) return;
 
+  const requestId = updateBtn.getAttribute("data-requestid");
+  const serviceType = updateBtn.getAttribute("data-servicetype") || "this request";
+
+  if (!requestId) {
+    alert("Could not update this request.");
+    return;
+  }
+
+  const select = allRequestsList.querySelector(`.request-status-select[data-requestid="${CSS.escape(requestId)}"]`);
+  if (!select) {
+    alert("Could not find the status selector.");
+    return;
+  }
+
+  const nextStatus = (select.value || "").trim();
+  if (!nextStatus) {
+    alert("Select a status first.");
+    return;
+  }
+
+  const confirmed = confirm(`Update "${serviceType}" to "${nextStatus}"?`);
+  if (!confirmed) return;
+
+  const updatePayload = {
+    status: nextStatus,
+    updatedAt: Date.now()
+  };
+
+  if (nextStatus === "closed") {
+    updatePayload.closedAt = Date.now();
+  }
+
+  if (nextStatus === "cancelled") {
+    updatePayload.cancelledAt = Date.now();
+  }
+
+  try {
+    await updateDoc(doc(db, "serviceRequests", requestId), updatePayload);
+    await loadAllRequests();
+    alert("Status updated.");
+  } catch (err) {
+    console.error(err);
+    alert(
+      "Could not update status:\n" +
+      "message: " + err.message
+    );
+  }
+});
     loadAllRequests();
   </script>
 </body>
