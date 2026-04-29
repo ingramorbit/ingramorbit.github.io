@@ -1389,6 +1389,28 @@ body{
   font-weight:700;
   color:#333;
 }
+.request-actions{
+  margin-top:14px;
+}
+
+.request-cancel-btn{
+  border:0;
+  background:#b2331c;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.request-cancel-btn:hover{
+  opacity:.92;
+}
+
+.request-cancel-btn:active{
+  transform:translateY(1px);
+}
 
 .request-status-pill{
   display:inline-block;
@@ -1419,6 +1441,10 @@ body{
 .request-status-pill.status-closed{
   background:#e5e7eb;
   color:#374151;
+}
+.request-status-pill.status-cancelled{
+  background:#fee2e2;
+  color:#991b1b;
 }
 
 @media (max-width:700px){
