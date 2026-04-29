@@ -99,9 +99,9 @@ function applyTierUI(user) {
   }
 
   if (user.tier === "admin") {
-    plansBtn.textContent = "Admin Panel";
-    plansBtn.href = "plans.html";
-    return;
+  plansBtn.textContent = "Admin Panel";
+  plansBtn.href = "all-requests.html";
+  return;
   }
 
   plansBtn.textContent = "View Plans";
