@@ -1389,6 +1389,60 @@ body{
   margin-top:14px;
 }
 
+.request-assignment{
+  margin-top:14px;
+}
+
+.assignment-note{
+  margin:0 0 10px;
+  font-weight:800;
+  color:#333;
+}
+
+.assignment-note-muted{
+  color:#666;
+}
+
+.assignment-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.assign-contractor-select{
+  min-width:260px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:800;
+  background:#fff;
+  outline:0;
+}
+
+.assign-contractor-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.request-assign-btn{
+  border:0;
+  background:#005f73;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.request-assign-btn:hover{
+  opacity:.92;
+}
+
+.request-assign-btn:active{
+  transform:translateY(1px);
+}
+
 .request-contact-btn{
   display:inline-flex;
   align-items:center;
