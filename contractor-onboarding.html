@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Contractor Onboarding</title>
+  <link rel="stylesheet" href="styles.css?v=17">
+</head>
+<body>
+  <section class="contractor-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="contractor-back contractor-back-floating" href="trucking.html">← Back to Trucking</a>
+
+    <div class="container">
+      <div class="contractor-hero-content">
+        <div class="contractor-brand">AssistKingOnline</div>
+        <h1 class="contractor-title">🚚 Contractor Onboarding</h1>
+        <p>Set up your contractor profile so you can start receiving leads.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container contractor-wrap">
+    <div class="contractor-card">
+      <strong>Contractor Profile</strong>
+      <p style="margin:8px 0 14px">For now, we are focusing this onboarding flow on trucking contractors.</p>
+
+      <form id="contractorOnboardingForm" class="contractor-form">
+        <input id="coCategory" value="Trucking" readonly />
+        <input id="coCompanyName" placeholder="Company name" required />
+        <input id="coContactName" placeholder="Primary contact name" required />
+        <input id="coEmail" type="email" placeholder="Business email" required />
+        <input id="coPhone" type="tel" placeholder="Business phone" required />
+        <input id="coCity" placeholder="Primary city" required />
+        <input id="coState" placeholder="State" required />
+        <input id="coRadius" type="number" placeholder="Service radius (miles)" required />
+
+        <select id="coBusinessType" required>
+          <option value="">Select business type</option>
+          <option>Owner-Operator</option>
+          <option>Carrier</option>
+          <option>Dispatcher</option>
+          <option>Hotshot</option>
+          <option>Broker</option>
+        </select>
+
+        <input id="coMcDot" placeholder="MC / DOT number (optional)" />
+
+        <div class="contractor-checkbox-group">
+          <label><input type="checkbox" name="equipment" value="Dry Van"> Dry Van</label>
+          <label><input type="checkbox" name="equipment" value="Reefer"> Reefer</label>
+          <label><input type="checkbox" name="equipment" value="Flatbed"> Flatbed</label>
+          <label><input type="checkbox" name="equipment" value="Power Only"> Power Only</label>
+          <label><input type="checkbox" name="equipment" value="Hotshot"> Hotshot</label>
+        </div>
+
+        <textarea id="coNotes" placeholder="Tell us about your operation, lanes, availability, or anything else useful."></textarea>
+
+        <button type="submit" class="contractor-cta">Save Contractor Profile</button>
+      </form>
+
+      <p id="contractorStatus" class="contractor-status" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=16"></script>
+
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const form = document.getElementById("contractorOnboardingForm");
+    const coCategory = document.getElementById("coCategory");
+    const coCompanyName = document.getElementById("coCompanyName");
+    const coContactName = document.getElementById("coContactName");
+    const coEmail = document.getElementById("coEmail");
+    const coPhone = document.getElementById("coPhone");
+    const coCity = document.getElementById("coCity");
+    const coState = document.getElementById("coState");
+    const coRadius = document.getElementById("coRadius");
+    const coBusinessType = document.getElementById("coBusinessType");
+    const coMcDot = document.getElementById("coMcDot");
+    const coNotes = document.getElementById("coNotes");
+    const contractorStatus = document.getElementById("contractorStatus");
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function getSelectedEquipment() {
+      return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
+    }
+
+    async function loadProfile() {
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
+        return null;
+      }
+
+      const ref = doc(db, "contractors", currentUser.uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const data = snap.data();
+
+        coCompanyName.value = data.companyName || "";
+        coContactName.value = data.contactName || currentUser.name || "";
+        coEmail.value = data.email || currentUser.email || "";
+        coPhone.value = data.phone || "";
+        coCity.value = data.city || "";
+        coState.value = data.state || "";
+        coRadius.value = data.serviceRadiusMiles || "";
+        coBusinessType.value = data.businessType || "";
+        coMcDot.value = data.mcDotNumber || "";
+        coNotes.value = data.notes || "";
+
+        const equipmentTypes = data.equipmentTypes || [];
+        document.querySelectorAll('input[name="equipment"]').forEach(el => {
+          el.checked = equipmentTypes.includes(el.value);
+        });
+
+        contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+      } else {
+        coContactName.value = currentUser.name || "";
+        coEmail.value = currentUser.email || "";
+      }
+
+      return currentUser;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
+        return;
+      }
+
+      const equipmentTypes = getSelectedEquipment();
+
+      const contractorRef = doc(db, "contractors", currentUser.uid);
+      const existingSnap = await getDoc(contractorRef);
+      const existingData = existingSnap.exists() ? existingSnap.data() : null;
+
+      const payload = {
+        ownerUid: currentUser.uid,
+        email: coEmail.value.trim(),
+        category: "trucking",
+        categoryLabel: coCategory.value.trim(),
+        companyName: coCompanyName.value.trim(),
+        contactName: coContactName.value.trim(),
+        phone: coPhone.value.trim(),
+        city: coCity.value.trim(),
+        state: coState.value.trim(),
+        serviceRadiusMiles: Number(coRadius.value || 0),
+        businessType: coBusinessType.value.trim(),
+        mcDotNumber: coMcDot.value.trim(),
+        equipmentTypes,
+        notes: coNotes.value.trim(),
+        status: existingData?.status || "pending",
+        createdAt: existingData?.createdAt || Date.now(),
+        updatedAt: Date.now()
+      };
+
+      if (
+        !payload.companyName ||
+        !payload.contactName ||
+        !payload.email ||
+        !payload.phone ||
+        !payload.city ||
+        !payload.state ||
+        !payload.serviceRadiusMiles ||
+        !payload.businessType
+      ) {
+        contractorStatus.textContent = "Please complete all required fields.";
+        return;
+      }
+
+      try {
+        contractorStatus.textContent = "Saving contractor profile...";
+        await setDoc(contractorRef, payload, { merge: true });
+        contractorStatus.textContent = "Contractor profile saved. You can now open My Leads.";
+      } catch (err) {
+        console.error(err);
+        contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
+      }
+    });
+
+    loadProfile();
+  </script>
+</body>
+</html>
