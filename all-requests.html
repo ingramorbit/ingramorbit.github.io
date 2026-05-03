@@ -77,6 +77,7 @@
   collection,
   getDocs,
   updateDoc,
+  setDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -91,6 +92,7 @@ const allRequestsSort = document.getElementById("allRequestsSort");
 const allRequestsSummary = document.getElementById("allRequestsSummary");
 
 let allRequests = [];
+let allContractors = [];
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -249,6 +251,60 @@ function applyAdminFilters() {
   renderRequests(items);
 }
 
+    function isTruckingRequest(item) {
+  const raw = String(item.category || item.categoryLabel || "").toLowerCase();
+  return raw.includes("trucking");
+}
+
+function getMatchingContractorsForRequest(item) {
+  if (!isTruckingRequest(item)) return [];
+
+  return allContractors
+    .filter(contractor => String(contractor.category || "").toLowerCase() === "trucking")
+    .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
+}
+
+function getAssignedContractorLabel(item) {
+  if (item.assignedContractorCompanyName) {
+    return item.assignedContractorCompanyName;
+  }
+  if (item.assignedContractorContactName) {
+    return item.assignedContractorContactName;
+  }
+  return "";
+}
+
+function renderContractorOptions(item) {
+  const contractors = getMatchingContractorsForRequest(item);
+
+  if (!contractors.length) {
+    return `<option value="">No trucking contractors available</option>`;
+  }
+
+  return [
+    `<option value="">Select trucking contractor</option>`,
+    ...contractors.map(contractor => `
+      <option
+        value="${escapeHtml(contractor._docId || "")}"
+        ${item.assignedContractorUid === contractor._docId ? "selected" : ""}
+      >
+        ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
+        ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
+        ${contractor.businessType ? ` — ${escapeHtml(contractor.businessType)}` : ""}
+      </option>
+    `)
+  ].join("");
+}
+
+async function loadContractors() {
+  const snapshot = await getDocs(collection(db, "contractors"));
+
+  allContractors = snapshot.docs.map(docSnap => ({
+    _docId: docSnap.id,
+    ...docSnap.data()
+  }));
+}
+
     function renderRequests(items) {
       if (!items.length) {
         allRequestsList.innerHTML = `
@@ -329,6 +385,51 @@ function applyAdminFilters() {
   ` : ""}
 </div>
 
+<div class="request-assignment">
+  ${
+    isTruckingRequest(item)
+      ? `
+        <p class="assignment-note">
+          Assigned contractor:
+          <strong>${escapeHtml(getAssignedContractorLabel(item) || "None yet")}</strong>
+        </p>
+
+        ${
+          rawStatus === "closed" || rawStatus === "cancelled"
+            ? `
+              <p class="assignment-note assignment-note-muted">
+                This request is ${escapeHtml(rawStatus)} and cannot be reassigned right now.
+              </p>
+            `
+            : `
+              <div class="assignment-controls">
+                <select
+                  class="assign-contractor-select"
+                  data-requestid="${escapeHtml(item._docId || "")}"
+                >
+                  ${renderContractorOptions(item)}
+                </select>
+
+                <button
+                  type="button"
+                  class="request-assign-btn"
+                  data-requestid="${escapeHtml(item._docId || "")}"
+                  data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+                >
+                  Assign Lead
+                </button>
+              </div>
+            `
+        }
+      `
+      : `
+        <p class="assignment-note assignment-note-muted">
+          Contractor assignment rollout starts with trucking.
+        </p>
+      `
+  }
+</div>
+
 <div class="admin-request-actions">
   <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
     <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
@@ -366,17 +467,18 @@ function applyAdminFilters() {
       }
 
       try {
-  
-        const snapshot = await getDocs(collection(db, "serviceRequests"));
+  await loadContractors();
 
-allRequests = snapshot.docs.map(doc => ({
-  _docId: doc.id,
-  ...doc.data()
-}));
+  const snapshot = await getDocs(collection(db, "serviceRequests"));
 
-populateCategoryFilter(allRequests);
-applyAdminFilters();
-      } catch (err) {
+  allRequests = snapshot.docs.map(doc => ({
+    _docId: doc.id,
+    ...doc.data()
+  }));
+
+  populateCategoryFilter(allRequests);
+  applyAdminFilters();
+} catch (err) {
         console.error(err);
         allRequestsList.innerHTML = `
           <div class="request-item">
@@ -399,6 +501,91 @@ allRequestsList.addEventListener("click", async (e) => {
     const email = copyEmailBtn.getAttribute("data-email") || "";
     const ok = await copyText(email);
     alert(ok ? "Email copied." : "Could not copy email.");
+    return;
+  }
+
+  const assignBtn = e.target.closest(".request-assign-btn");
+  if (assignBtn) {
+    const requestId = assignBtn.getAttribute("data-requestid");
+    const serviceType = assignBtn.getAttribute("data-servicetype") || "this request";
+
+    if (!requestId) {
+      alert("Could not assign this request.");
+      return;
+    }
+
+    const requestItem = allRequests.find(item => item._docId === requestId);
+    if (!requestItem) {
+      alert("Could not find the request data.");
+      return;
+    }
+
+    const contractorSelect = allRequestsList.querySelector(`.assign-contractor-select[data-requestid="${CSS.escape(requestId)}"]`);
+    if (!contractorSelect) {
+      alert("Could not find the contractor selector.");
+      return;
+    }
+
+    const contractorUid = (contractorSelect.value || "").trim();
+    if (!contractorUid) {
+      alert("Select a trucking contractor first.");
+      return;
+    }
+
+    const contractor = allContractors.find(item => item._docId === contractorUid);
+    if (!contractor) {
+      alert("Could not find the selected contractor.");
+      return;
+    }
+
+    const confirmed = confirm(`Assign "${serviceType}" to "${contractor.companyName || contractor.contactName || "selected contractor"}"?`);
+    if (!confirmed) return;
+
+    const now = Date.now();
+
+    const leadPayload = {
+      requestId: requestId,
+      contractorUid: contractorUid,
+      contractorCompanyName: contractor.companyName || "",
+      contractorContactName: contractor.contactName || "",
+      contractorEmail: contractor.email || "",
+      contractorPhone: contractor.phone || "",
+      category: requestItem.category || "",
+      categoryLabel: requestItem.categoryLabel || "",
+      serviceType: requestItem.serviceType || "",
+      customerName: requestItem.name || "",
+      customerEmail: requestItem.email || "",
+      customerPhone: requestItem.phone || "",
+      city: requestItem.city || "",
+      urgency: requestItem.urgency || "",
+      description: requestItem.description || "",
+      createdAt: requestItem.createdAt || now,
+      assignedAt: now,
+      updatedAt: now,
+      leadStatus: "offered"
+    };
+
+    try {
+      await setDoc(doc(db, "contractorLeads", requestId), leadPayload, { merge: true });
+
+      await updateDoc(doc(db, "serviceRequests", requestId), {
+        status: "matched",
+        assignedContractorUid: contractorUid,
+        assignedContractorCompanyName: contractor.companyName || "",
+        assignedContractorContactName: contractor.contactName || "",
+        assignedAt: now,
+        updatedAt: now
+      });
+
+      await loadAllRequests();
+      alert("Lead assigned.");
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Could not assign lead:\n" +
+        "message: " + err.message
+      );
+    }
     return;
   }
 
