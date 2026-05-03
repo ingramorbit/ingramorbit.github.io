@@ -123,6 +123,12 @@ let allRequests = [];
         .replaceAll("'", "&#39;");
     }
 
+    function makePhoneHref(value) {
+  const raw = String(value || "").trim();
+  const cleaned = raw.replace(/[^\d+]/g, "");
+  return cleaned || raw;
+    }
+
     function renderAccessDenied() {
       allRequestsList.innerHTML = `
         <div class="request-item">
@@ -215,6 +221,28 @@ function updateSummary(items) {
   allRequestsSummary.textContent = `Showing ${visible} of ${total} request${total === 1 ? "" : "s"}.`;
 }
 
+    async function copyText(value) {
+  const text = String(value || "").trim();
+  if (!text) return false;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const temp = document.createElement("textarea");
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      document.body.removeChild(temp);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+    }
+
 function applyAdminFilters() {
   const items = getFilteredRequests();
   updateSummary(items);
@@ -256,29 +284,69 @@ function applyAdminFilters() {
       <p class="request-desc">${escapeHtml(item.description || "")}</p>
 
       <div class="request-contact">
-        <span>👤 ${escapeHtml(item.name || "—")}</span>
-        <span>✉️ ${escapeHtml(item.email || "—")}</span>
-        <span>📞 ${escapeHtml(item.phone || "—")}</span>
-      </div>
+  <span>👤 ${escapeHtml(item.name || "—")}</span>
+  <span>✉️ ${escapeHtml(item.email || "—")}</span>
+  <span>📞 ${escapeHtml(item.phone || "—")}</span>
+</div>
 
-      <div class="admin-request-actions">
-        <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
-          <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
-          <option value="matched" ${rawStatus === "matched" ? "selected" : ""}>matched</option>
-          <option value="in-progress" ${rawStatus === "in-progress" ? "selected" : ""}>in-progress</option>
-          <option value="closed" ${rawStatus === "closed" ? "selected" : ""}>closed</option>
-          <option value="cancelled" ${rawStatus === "cancelled" ? "selected" : ""}>cancelled</option>
-        </select>
+<div class="request-quick-actions">
+  ${item.phone ? `
+    <a
+      href="tel:${escapeHtml(makePhoneHref(item.phone))}"
+      class="request-contact-btn contact-call-btn"
+    >
+      Call
+    </a>
+  ` : ""}
 
-        <button
-          type="button"
-          class="request-update-btn"
-          data-requestid="${escapeHtml(item._docId || "")}"
-          data-servicetype="${escapeHtml(item.serviceType || "this request")}"
-        >
-          Update Status
-        </button>
-      </div>
+  ${item.email ? `
+    <a
+      href="mailto:${escapeHtml(item.email)}"
+      class="request-contact-btn contact-email-btn"
+    >
+      Email
+    </a>
+  ` : ""}
+
+  ${item.phone ? `
+    <button
+      type="button"
+      class="request-contact-btn contact-copy-btn request-copy-phone-btn"
+      data-phone="${escapeHtml(item.phone)}"
+    >
+      Copy Phone
+    </button>
+  ` : ""}
+
+  ${item.email ? `
+    <button
+      type="button"
+      class="request-contact-btn contact-copy-btn request-copy-email-btn"
+      data-email="${escapeHtml(item.email)}"
+    >
+      Copy Email
+    </button>
+  ` : ""}
+</div>
+
+<div class="admin-request-actions">
+  <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
+    <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
+    <option value="matched" ${rawStatus === "matched" ? "selected" : ""}>matched</option>
+    <option value="in-progress" ${rawStatus === "in-progress" ? "selected" : ""}>in-progress</option>
+    <option value="closed" ${rawStatus === "closed" ? "selected" : ""}>closed</option>
+    <option value="cancelled" ${rawStatus === "cancelled" ? "selected" : ""}>cancelled</option>
+  </select>
+
+  <button
+    type="button"
+    class="request-update-btn"
+    data-requestid="${escapeHtml(item._docId || "")}"
+    data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+  >
+    Update Status
+  </button>
+</div>
     </div>
   `;
 }).join("");
@@ -318,6 +386,22 @@ applyAdminFilters();
       }
     }
 allRequestsList.addEventListener("click", async (e) => {
+  const copyPhoneBtn = e.target.closest(".request-copy-phone-btn");
+  if (copyPhoneBtn) {
+    const phone = copyPhoneBtn.getAttribute("data-phone") || "";
+    const ok = await copyText(phone);
+    alert(ok ? "Phone copied." : "Could not copy phone.");
+    return;
+  }
+
+  const copyEmailBtn = e.target.closest(".request-copy-email-btn");
+  if (copyEmailBtn) {
+    const email = copyEmailBtn.getAttribute("data-email") || "";
+    const ok = await copyText(email);
+    alert(ok ? "Email copied." : "Could not copy email.");
+    return;
+  }
+
   const updateBtn = e.target.closest(".request-update-btn");
   if (!updateBtn) return;
 
