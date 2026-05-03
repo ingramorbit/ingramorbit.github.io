@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — My Leads</title>
+  <link rel="stylesheet" href="styles.css?v=18">
+</head>
+<body>
+  <section class="contractor-leads-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="contractor-leads-back contractor-leads-back-floating" href="trucking.html">← Back to Trucking</a>
+
+    <div class="container">
+      <div class="contractor-leads-hero-content">
+        <div class="contractor-leads-brand">AssistKingOnline</div>
+        <h1 class="contractor-leads-title">📦 My Leads</h1>
+        <p>Review and respond to leads assigned to your contractor profile.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container contractor-leads-wrap">
+    <div class="contractor-leads-card">
+      <strong>Your assigned leads</strong>
+      <p style="margin:8px 0 14px">This is where assigned trucking leads will appear.</p>
+
+      <p id="contractorLeadProfileStatus" class="contractor-status"></p>
+
+      <div id="contractorLeadsList" class="requests-list">
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">Loading your leads...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=16"></script>
+
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      getDoc,
+      updateDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const contractorLeadsList = document.getElementById("contractorLeadsList");
+    const contractorLeadProfileStatus = document.getElementById("contractorLeadProfileStatus");
+
+    let contractorProfile = null;
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderEmpty(message) {
+      contractorLeadsList.innerHTML = `
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">${escapeHtml(message)}</p>
+        </div>
+      `;
+    }
+
+    function renderLeads(items) {
+      if (!items.length) {
+        renderEmpty("No leads have been assigned to you yet.");
+        return;
+      }
+
+      contractorLeadsList.innerHTML = items.map(item => {
+        const rawStatus = String(item.leadStatus || "offered").toLowerCase();
+        const statusClass = rawStatus.replace(/\s+/g, "-");
+        const canRespond = rawStatus === "offered";
+
+        return `
+          <div class="request-item">
+            <div class="request-item-top">
+              <div>
+                <h3 class="request-item-title">${escapeHtml(item.serviceType || "Lead")}</h3>
+                <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+              </div>
+              <span class="request-status-pill status-${escapeHtml(statusClass)}">
+                ${escapeHtml(item.leadStatus || "offered")}
+              </span>
+            </div>
+
+            <div class="request-meta">
+              <span>📍 ${escapeHtml(item.city || "—")}</span>
+              <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+              <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+            </div>
+
+            <p class="request-desc">${escapeHtml(item.description || "")}</p>
+
+            <div class="request-contact">
+              <span>👤 ${escapeHtml(item.customerName || "—")}</span>
+              <span>✉️ ${escapeHtml(item.customerEmail || "—")}</span>
+              <span>📞 ${escapeHtml(item.customerPhone || "—")}</span>
+            </div>
+
+            <div class="request-quick-actions">
+              ${item.customerPhone ? `
+                <a href="tel:${escapeHtml(String(item.customerPhone).replace(/[^\d+]/g, ""))}" class="request-contact-btn contact-call-btn">
+                  Call
+                </a>
+              ` : ""}
+              ${item.customerEmail ? `
+                <a href="mailto:${escapeHtml(item.customerEmail)}" class="request-contact-btn contact-email-btn">
+                  Email
+                </a>
+              ` : ""}
+            </div>
+
+            <div class="lead-response-actions">
+              ${canRespond ? `
+                <button
+                  type="button"
+                  class="lead-accept-btn"
+                  data-leadid="${escapeHtml(item._docId || "")}"
+                >
+                  Accept Lead
+                </button>
+
+                <button
+                  type="button"
+                  class="lead-decline-btn"
+                  data-leadid="${escapeHtml(item._docId || "")}"
+                >
+                  Decline Lead
+                </button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadContractorProfile(currentUser) {
+      const ref = doc(db, "contractors", currentUser.uid);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) {
+        contractorProfile = null;
+        contractorLeadProfileStatus.textContent = "You do not have a contractor profile yet. Complete onboarding first.";
+        renderEmpty("Complete contractor onboarding before you can receive leads.");
+        return false;
+      }
+
+      contractorProfile = snap.data();
+      contractorLeadProfileStatus.textContent = `Profile status: ${contractorProfile.status || "pending"}`;
+
+      return true;
+    }
+
+    async function loadMyLeads() {
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("my-leads.html")}`;
+        return;
+      }
+
+      const hasProfile = await loadContractorProfile(currentUser);
+      if (!hasProfile) return;
+
+      try {
+        const q = query(
+          collection(db, "contractorLeads"),
+          where("contractorUid", "==", currentUser.uid)
+        );
+
+        const snapshot = await getDocs(q);
+
+        const items = snapshot.docs
+          .map(doc => ({
+            _docId: doc.id,
+            ...doc.data()
+          }))
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+        renderLeads(items);
+      } catch (err) {
+        console.error(err);
+        renderEmpty(`Could not load your leads: ${err.message}`);
+      }
+    }
+
+    contractorLeadsList.addEventListener("click", async (e) => {
+      const acceptBtn = e.target.closest(".lead-accept-btn");
+      if (acceptBtn) {
+        const leadId = acceptBtn.getAttribute("data-leadid");
+        if (!leadId) return;
+
+        const confirmed = confirm("Accept this lead?");
+        if (!confirmed) return;
+
+        try {
+          await updateDoc(doc(db, "contractorLeads", leadId), {
+            leadStatus: "accepted",
+            respondedAt: Date.now()
+          });
+
+          await loadMyLeads();
+          alert("Lead accepted.");
+        } catch (err) {
+          console.error(err);
+          alert(`Could not accept lead: ${err.message}`);
+        }
+        return;
+      }
+
+      const declineBtn = e.target.closest(".lead-decline-btn");
+      if (declineBtn) {
+        const leadId = declineBtn.getAttribute("data-leadid");
+        if (!leadId) return;
+
+        const confirmed = confirm("Decline this lead?");
+        if (!confirmed) return;
+
+        try {
+          await updateDoc(doc(db, "contractorLeads", leadId), {
+            leadStatus: "declined",
+            respondedAt: Date.now()
+          });
+
+          await loadMyLeads();
+          alert("Lead declined.");
+        } catch (err) {
+          console.error(err);
+          alert(`Could not decline lead: ${err.message}`);
+        }
+      }
+    });
+
+    loadMyLeads();
+  </script>
+</body>
+</html>
