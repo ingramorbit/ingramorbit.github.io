@@ -1810,6 +1810,138 @@ body{
   }
 }
 
+/* ===== Contractor Leads Page ===== */
+.contractor-leads-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.contractor-leads-hero .container{
+  padding-top:110px;
+}
+
+.contractor-leads-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.contractor-leads-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.contractor-leads-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.contractor-leads-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.contractor-leads-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.contractor-leads-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.contractor-leads-wrap{
+  padding:18px 0;
+}
+
+.contractor-leads-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.lead-response-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.lead-accept-btn{
+  border:0;
+  background:#166534;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lead-decline-btn{
+  border:0;
+  background:#b2331c;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lead-accept-btn:hover,
+.lead-decline-btn:hover{
+  opacity:.92;
+}
+
+.lead-accept-btn:active,
+.lead-decline-btn:active{
+  transform:translateY(1px);
+}
+
+.request-status-pill.status-offered{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.request-status-pill.status-accepted{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.request-status-pill.status-declined{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+@media (max-width:640px){
+  .contractor-leads-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .contractor-leads-hero .container{
+    padding-top:36px !important;
+  }
+}
+
 /* ===== Freight Load Board ===== */
 .lb-filters{
   display:grid;
