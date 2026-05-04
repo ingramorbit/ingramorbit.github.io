@@ -1416,6 +1416,10 @@ body{
   color:#666;
 }
 
+.assignment-note-suggested{
+  color:#0f4c5c;
+}
+
 .assignment-controls{
   display:flex;
   flex-wrap:wrap;
