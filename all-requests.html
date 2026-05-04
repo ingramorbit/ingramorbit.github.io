@@ -276,7 +276,6 @@ function getAssignedContractorLabel(item) {
 }
 
 function renderContractorOptions(item) {
-function renderContractorOptions(item) {
   const contractors = getMatchingContractorsForRequest(item);
   const selectedUid = getDefaultContractorSelection(item);
 
@@ -634,7 +633,6 @@ allRequestsList.addEventListener("click", async (e) => {
 
     const now = Date.now();
 
-    const leadPayload = {
     const leadPayload = {
   requestId: requestId,
   contractorUid: contractorUid,
