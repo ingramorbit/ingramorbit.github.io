@@ -276,7 +276,9 @@ function getAssignedContractorLabel(item) {
 }
 
 function renderContractorOptions(item) {
+function renderContractorOptions(item) {
   const contractors = getMatchingContractorsForRequest(item);
+  const selectedUid = getDefaultContractorSelection(item);
 
   if (!contractors.length) {
     return `<option value="">No trucking contractors available</option>`;
@@ -287,7 +289,7 @@ function renderContractorOptions(item) {
     ...contractors.map(contractor => `
       <option
         value="${escapeHtml(contractor._docId || "")}"
-        ${item.assignedContractorUid === contractor._docId ? "selected" : ""}
+        ${selectedUid === contractor._docId ? "selected" : ""}
       >
         ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
         ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
@@ -330,6 +332,29 @@ function getLeadResponseDate(item) {
   return formatDate(lead.respondedAt);
 }
 
+    function getSuggestedReplacementContractor(item) {
+  if (!isTruckingRequest(item)) return null;
+  if (getLeadResponseLabel(item) !== "declined") return null;
+
+  const currentUid = String(item.assignedContractorUid || "").trim();
+
+  const candidates = getMatchingContractorsForRequest(item).filter(contractor => {
+    return String(contractor._docId || "").trim() !== currentUid;
+  });
+
+  return candidates[0] || null;
+}
+
+function getDefaultContractorSelection(item) {
+  const suggested = getSuggestedReplacementContractor(item);
+  if (suggested) return suggested._docId || "";
+  return String(item.assignedContractorUid || "").trim();
+}
+
+function getAssignmentButtonLabel(item) {
+  return getLeadResponseLabel(item) === "declined" ? "Reassign Lead" : "Assign Lead";
+}
+
     function renderRequests(items) {
       if (!items.length) {
         allRequestsList.innerHTML = `
@@ -342,7 +367,11 @@ function getLeadResponseDate(item) {
 
       allRequestsList.innerHTML = items.map(item => {
   const rawStatus = String(item.status || "new").toLowerCase();
-  const statusClass = rawStatus.replace(/\s+/g, "-");
+const statusClass = rawStatus.replace(/\s+/g, "-");
+const leadResponseLabel = getLeadResponseLabel(item);
+const leadResponseDate = getLeadResponseDate(item);
+const suggestedReplacement = getSuggestedReplacementContractor(item);
+const assignmentButtonLabel = getAssignmentButtonLabel(item);
 
   return `
     <div class="request-item">
@@ -423,14 +452,14 @@ function getLeadResponseDate(item) {
           getLeadForRequest(item)
             ? `
               <div class="lead-response-summary">
-                <span class="request-status-pill status-${escapeHtml(getLeadResponseLabel(item) || "offered")}">
-                  ${escapeHtml(getLeadResponseLabel(item) || "offered")}
+                <span class="request-status-pill status-${escapeHtml(leadResponseLabel || "offered")}">
+                  ${escapeHtml(leadResponseLabel || "offered")}
                 </span>
                 <span class="lead-response-text">
                   Contractor response
                   ${
-                    getLeadResponseDate(item)
-                      ? `on ${escapeHtml(getLeadResponseDate(item))}`
+                    leadResponseDate
+                      ? `on ${escapeHtml(leadResponseDate)}`
                       : "not yet received"
                   }
                 </span>
@@ -442,6 +471,17 @@ function getLeadResponseDate(item) {
                 <span class="lead-response-text">No contractor lead has been created yet.</span>
               </div>
             `
+        }
+
+        ${
+          suggestedReplacement
+            ? `
+              <p class="assignment-note assignment-note-suggested">
+                Suggested reassignment:
+                <strong>${escapeHtml(suggestedReplacement.companyName || suggestedReplacement.contactName || "Suggested contractor")}</strong>
+              </p>
+            `
+            : ""
         }
 
         ${
@@ -466,7 +506,7 @@ function getLeadResponseDate(item) {
                   data-requestid="${escapeHtml(item._docId || "")}"
                   data-servicetype="${escapeHtml(item.serviceType || "this request")}"
                 >
-                  Assign Lead
+                  ${escapeHtml(assignmentButtonLabel)}
                 </button>
               </div>
             `
@@ -595,30 +635,32 @@ allRequestsList.addEventListener("click", async (e) => {
     const now = Date.now();
 
     const leadPayload = {
-      requestId: requestId,
-      contractorUid: contractorUid,
-      contractorCompanyName: contractor.companyName || "",
-      contractorContactName: contractor.contactName || "",
-      contractorEmail: contractor.email || "",
-      contractorPhone: contractor.phone || "",
-      category: requestItem.category || "",
-      categoryLabel: requestItem.categoryLabel || "",
-      serviceType: requestItem.serviceType || "",
-      customerName: requestItem.name || "",
-      customerEmail: requestItem.email || "",
-      customerPhone: requestItem.phone || "",
-      city: requestItem.city || "",
-      urgency: requestItem.urgency || "",
-      description: requestItem.description || "",
-      createdAt: requestItem.createdAt || now,
-      assignedAt: now,
-      updatedAt: now,
-      leadStatus: "offered"
-    };
+    const leadPayload = {
+  requestId: requestId,
+  contractorUid: contractorUid,
+  contractorCompanyName: contractor.companyName || "",
+  contractorContactName: contractor.contactName || "",
+  contractorEmail: contractor.email || "",
+  contractorPhone: contractor.phone || "",
+  category: requestItem.category || "",
+  categoryLabel: requestItem.categoryLabel || "",
+  serviceType: requestItem.serviceType || "",
+  customerName: requestItem.name || "",
+  customerEmail: requestItem.email || "",
+  customerPhone: requestItem.phone || "",
+  city: requestItem.city || "",
+  urgency: requestItem.urgency || "",
+  description: requestItem.description || "",
+  createdAt: requestItem.createdAt || now,
+  assignedAt: now,
+  offeredAt: now,
+  updatedAt: now,
+  leadStatus: "offered",
+  respondedAt: null
+};
 
     try {
-      await setDoc(doc(db, "contractorLeads", requestId), leadPayload, { merge: true });
-
+      await setDoc(doc(db, "contractorLeads", requestId), leadPayload);
       await updateDoc(doc(db, "serviceRequests", requestId), {
         status: "matched",
         assignedContractorUid: contractorUid,
