@@ -93,6 +93,7 @@ const allRequestsSummary = document.getElementById("allRequestsSummary");
 
 let allRequests = [];
 let allContractors = [];
+let allContractorLeads = [];
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -305,6 +306,30 @@ async function loadContractors() {
   }));
 }
 
+    async function loadContractorLeads() {
+  const snapshot = await getDocs(collection(db, "contractorLeads"));
+
+  allContractorLeads = snapshot.docs.map(docSnap => ({
+    _docId: docSnap.id,
+    ...docSnap.data()
+  }));
+}
+
+function getLeadForRequest(item) {
+  return allContractorLeads.find(lead => lead.requestId === item._docId) || null;
+}
+
+function getLeadResponseLabel(item) {
+  const lead = getLeadForRequest(item);
+  return lead ? String(lead.leadStatus || "offered").toLowerCase() : "";
+}
+
+function getLeadResponseDate(item) {
+  const lead = getLeadForRequest(item);
+  if (!lead || !lead.respondedAt) return "";
+  return formatDate(lead.respondedAt);
+}
+
     function renderRequests(items) {
       if (!items.length) {
         allRequestsList.innerHTML = `
@@ -395,6 +420,31 @@ async function loadContractors() {
         </p>
 
         ${
+          getLeadForRequest(item)
+            ? `
+              <div class="lead-response-summary">
+                <span class="request-status-pill status-${escapeHtml(getLeadResponseLabel(item) || "offered")}">
+                  ${escapeHtml(getLeadResponseLabel(item) || "offered")}
+                </span>
+                <span class="lead-response-text">
+                  Contractor response
+                  ${
+                    getLeadResponseDate(item)
+                      ? `on ${escapeHtml(getLeadResponseDate(item))}`
+                      : "not yet received"
+                  }
+                </span>
+              </div>
+            `
+            : `
+              <div class="lead-response-summary">
+                <span class="request-status-pill status-offered">not sent</span>
+                <span class="lead-response-text">No contractor lead has been created yet.</span>
+              </div>
+            `
+        }
+
+        ${
           rawStatus === "closed" || rawStatus === "cancelled"
             ? `
               <p class="assignment-note assignment-note-muted">
@@ -468,6 +518,7 @@ async function loadContractors() {
 
       try {
   await loadContractors();
+  await loadContractorLeads();
 
   const snapshot = await getDocs(collection(db, "serviceRequests"));
 
