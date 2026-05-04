@@ -1393,6 +1393,19 @@ body{
   margin-top:14px;
 }
 
+.lead-response-summary{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  margin:0 0 12px;
+}
+
+.lead-response-text{
+  font-weight:800;
+  color:#444;
+}
+
 .assignment-note{
   margin:0 0 10px;
   font-weight:800;
