@@ -71,682 +71,827 @@
 
   <script type="module" src="auth.js?v=16"></script>
   <script type="module">
-    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-  getFirestore,
-  collection,
-  getDocs,
-  updateDoc,
-  setDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    updateDoc,
+    setDoc,
+    addDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const app = getApp();
-    const db = getFirestore(app);
+  const app = getApp();
+  const db = getFirestore(app);
 
-    const allRequestsList = document.getElementById("allRequestsList");
-const allRequestsSearch = document.getElementById("allRequestsSearch");
-const allRequestsStatus = document.getElementById("allRequestsStatus");
-const allRequestsCategory = document.getElementById("allRequestsCategory");
-const allRequestsSort = document.getElementById("allRequestsSort");
-const allRequestsSummary = document.getElementById("allRequestsSummary");
+  const allRequestsList = document.getElementById("allRequestsList");
+  const allRequestsSearch = document.getElementById("allRequestsSearch");
+  const allRequestsStatus = document.getElementById("allRequestsStatus");
+  const allRequestsCategory = document.getElementById("allRequestsCategory");
+  const allRequestsSort = document.getElementById("allRequestsSort");
+  const allRequestsSummary = document.getElementById("allRequestsSummary");
 
-let allRequests = [];
-let allContractors = [];
-let allContractorLeads = [];
+  let allRequests = [];
+  let allContractors = [];
+  let allContractorLeads = [];
+  let allRequestActivity = [];
 
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
-    function formatDate(value) {
-      if (!value) return "—";
-      try {
-        return new Date(value).toLocaleString();
-      } catch {
-        return "—";
+  function waitForAKOAuth() {
+    return new Promise((resolve) => {
+      if (window.AKOReady) {
+        resolve(window.AKOUser);
+        return;
       }
-    }
 
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
-    function makePhoneHref(value) {
-  const raw = String(value || "").trim();
-  const cleaned = raw.replace(/[^\d+]/g, "");
-  return cleaned || raw;
-    }
-
-    function renderAccessDenied() {
-      allRequestsList.innerHTML = `
-        <div class="request-item">
-          <p style="margin:0;font-weight:800;">Admin access is required.</p>
-        </div>
-      `;
-    }
-    
-    function populateCategoryFilter(items) {
-  if (!allRequestsCategory) return;
-
-  const categories = [...new Set(
-    items
-      .map(item => String(item.categoryLabel || item.category || "").trim())
-      .filter(Boolean)
-  )].sort((a, b) => a.localeCompare(b));
-
-  allRequestsCategory.innerHTML = `
-    <option value="">All categories</option>
-    ${categories.map(category => `
-      <option value="${escapeHtml(category)}">${escapeHtml(category)}</option>
-    `).join("")}
-  `;
-}
-
-function getFilteredRequests() {
-  const searchValue = (allRequestsSearch?.value || "").trim().toLowerCase();
-  const statusValue = (allRequestsStatus?.value || "").trim().toLowerCase();
-  const categoryValue = (allRequestsCategory?.value || "").trim().toLowerCase();
-  const sortValue = (allRequestsSort?.value || "newest").trim().toLowerCase();
-
-  let items = [...allRequests];
-
-  if (searchValue) {
-    items = items.filter(item => {
-      const haystack = [
-        item.serviceType,
-        item.categoryLabel,
-        item.category,
-        item.name,
-        item.email,
-        item.phone,
-        item.city,
-        item.urgency,
-        item.description,
-        item.status
-      ].join(" ").toLowerCase();
-
-      return haystack.includes(searchValue);
+      document.addEventListener("ako-auth-ready", (e) => {
+        resolve(e.detail.user);
+      }, { once: true });
     });
   }
 
-  if (statusValue) {
-    items = items.filter(item => String(item.status || "new").toLowerCase() === statusValue);
-  }
-
-  if (categoryValue) {
-    items = items.filter(item =>
-      String(item.categoryLabel || item.category || "").toLowerCase() === categoryValue
-    );
-  }
-
-  items.sort((a, b) => {
-    const aTime = Number(a.createdAt || 0);
-    const bTime = Number(b.createdAt || 0);
-
-    if (sortValue === "oldest") return aTime - bTime;
-    return bTime - aTime;
-  });
-
-  return items;
-}
-
-function updateSummary(items) {
-  if (!allRequestsSummary) return;
-
-  const total = allRequests.length;
-  const visible = items.length;
-
-  if (!total) {
-    allRequestsSummary.textContent = "No service requests found.";
-    return;
-  }
-
-  if (visible === total) {
-    allRequestsSummary.textContent = `Showing all ${total} request${total === 1 ? "" : "s"}.`;
-    return;
-  }
-
-  allRequestsSummary.textContent = `Showing ${visible} of ${total} request${total === 1 ? "" : "s"}.`;
-}
-
-    async function copyText(value) {
-  const text = String(value || "").trim();
-  if (!text) return false;
-
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
+  function formatDate(value) {
+    if (!value) return "—";
     try {
-      const temp = document.createElement("textarea");
-      temp.value = text;
-      document.body.appendChild(temp);
-      temp.select();
-      document.execCommand("copy");
-      document.body.removeChild(temp);
+      return new Date(value).toLocaleString();
+    } catch {
+      return "—";
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function makePhoneHref(value) {
+    const raw = String(value || "").trim();
+    const cleaned = raw.replace(/[^\d+]/g, "");
+    return cleaned || raw;
+  }
+
+  function renderAccessDenied() {
+    allRequestsList.innerHTML = `
+      <div class="request-item">
+        <p style="margin:0;font-weight:800;">Admin access is required.</p>
+      </div>
+    `;
+    if (allRequestsSummary) {
+      allRequestsSummary.textContent = "Admin access is required.";
+    }
+  }
+
+  function populateCategoryFilter(items) {
+    if (!allRequestsCategory) return;
+
+    const currentValue = allRequestsCategory.value || "";
+
+    const categories = [...new Set(
+      items
+        .map(item => String(item.categoryLabel || item.category || "").trim())
+        .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    allRequestsCategory.innerHTML = `
+      <option value="">All categories</option>
+      ${categories.map(category => `
+        <option value="${escapeHtml(category)}">${escapeHtml(category)}</option>
+      `).join("")}
+    `;
+
+    if (categories.includes(currentValue)) {
+      allRequestsCategory.value = currentValue;
+    }
+  }
+
+  function getFilteredRequests() {
+    const searchValue = (allRequestsSearch?.value || "").trim().toLowerCase();
+    const statusValue = (allRequestsStatus?.value || "").trim().toLowerCase();
+    const categoryValue = (allRequestsCategory?.value || "").trim().toLowerCase();
+    const sortValue = (allRequestsSort?.value || "newest").trim().toLowerCase();
+
+    let items = [...allRequests];
+
+    if (searchValue) {
+      items = items.filter(item => {
+        const haystack = [
+          item.serviceType,
+          item.categoryLabel,
+          item.category,
+          item.name,
+          item.email,
+          item.phone,
+          item.city,
+          item.urgency,
+          item.description,
+          item.status,
+          item.assignedContractorCompanyName,
+          item.assignedContractorContactName
+        ].join(" ").toLowerCase();
+
+        return haystack.includes(searchValue);
+      });
+    }
+
+    if (statusValue) {
+      items = items.filter(item => String(item.status || "new").toLowerCase() === statusValue);
+    }
+
+    if (categoryValue) {
+      items = items.filter(item =>
+        String(item.categoryLabel || item.category || "").toLowerCase() === categoryValue
+      );
+    }
+
+    items.sort((a, b) => {
+      const aTime = Number(a.createdAt || 0);
+      const bTime = Number(b.createdAt || 0);
+
+      if (sortValue === "oldest") return aTime - bTime;
+      return bTime - aTime;
+    });
+
+    return items;
+  }
+
+  function updateSummary(items) {
+    if (!allRequestsSummary) return;
+
+    const total = allRequests.length;
+    const visible = items.length;
+
+    if (!total) {
+      allRequestsSummary.textContent = "No service requests found.";
+      return;
+    }
+
+    if (visible === total) {
+      allRequestsSummary.textContent = `Showing all ${total} request${total === 1 ? "" : "s"}.`;
+      return;
+    }
+
+    allRequestsSummary.textContent = `Showing ${visible} of ${total} request${total === 1 ? "" : "s"}.`;
+  }
+
+  async function copyText(value) {
+    const text = String(value || "").trim();
+    if (!text) return false;
+
+    try {
+      await navigator.clipboard.writeText(text);
       return true;
     } catch {
-      return false;
-    }
-  }
-    }
-
-function applyAdminFilters() {
-  const items = getFilteredRequests();
-  updateSummary(items);
-  renderRequests(items);
-}
-
-    function isTruckingRequest(item) {
-  const raw = String(item.category || item.categoryLabel || "").toLowerCase();
-  return raw.includes("trucking");
-}
-
-function getMatchingContractorsForRequest(item) {
-  if (!isTruckingRequest(item)) return [];
-
-  return allContractors
-    .filter(contractor => String(contractor.category || "").toLowerCase() === "trucking")
-    .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
-}
-
-function getAssignedContractorLabel(item) {
-  if (item.assignedContractorCompanyName) {
-    return item.assignedContractorCompanyName;
-  }
-  if (item.assignedContractorContactName) {
-    return item.assignedContractorContactName;
-  }
-  return "";
-}
-
-function renderContractorOptions(item) {
-  const contractors = getMatchingContractorsForRequest(item);
-  const selectedUid = getDefaultContractorSelection(item);
-
-  if (!contractors.length) {
-    return `<option value="">No trucking contractors available</option>`;
-  }
-
-  return [
-    `<option value="">Select trucking contractor</option>`,
-    ...contractors.map(contractor => `
-      <option
-        value="${escapeHtml(contractor._docId || "")}"
-        ${selectedUid === contractor._docId ? "selected" : ""}
-      >
-        ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
-        ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
-        ${contractor.businessType ? ` — ${escapeHtml(contractor.businessType)}` : ""}
-      </option>
-    `)
-  ].join("");
-}
-
-async function loadContractors() {
-  const snapshot = await getDocs(collection(db, "contractors"));
-
-  allContractors = snapshot.docs.map(docSnap => ({
-    _docId: docSnap.id,
-    ...docSnap.data()
-  }));
-}
-
-    async function loadContractorLeads() {
-  const snapshot = await getDocs(collection(db, "contractorLeads"));
-
-  allContractorLeads = snapshot.docs.map(docSnap => ({
-    _docId: docSnap.id,
-    ...docSnap.data()
-  }));
-}
-
-function getLeadForRequest(item) {
-  return allContractorLeads.find(lead => lead.requestId === item._docId) || null;
-}
-
-function getLeadResponseLabel(item) {
-  const lead = getLeadForRequest(item);
-  return lead ? String(lead.leadStatus || "offered").toLowerCase() : "";
-}
-
-function getLeadResponseDate(item) {
-  const lead = getLeadForRequest(item);
-  if (!lead || !lead.respondedAt) return "";
-  return formatDate(lead.respondedAt);
-}
-
-    function getSuggestedReplacementContractor(item) {
-  if (!isTruckingRequest(item)) return null;
-  if (getLeadResponseLabel(item) !== "declined") return null;
-
-  const currentUid = String(item.assignedContractorUid || "").trim();
-
-  const candidates = getMatchingContractorsForRequest(item).filter(contractor => {
-    return String(contractor._docId || "").trim() !== currentUid;
-  });
-
-  return candidates[0] || null;
-}
-
-function getDefaultContractorSelection(item) {
-  const suggested = getSuggestedReplacementContractor(item);
-  if (suggested) return suggested._docId || "";
-  return String(item.assignedContractorUid || "").trim();
-}
-
-function getAssignmentButtonLabel(item) {
-  return getLeadResponseLabel(item) === "declined" ? "Reassign Lead" : "Assign Lead";
-}
-
-    function renderRequests(items) {
-      if (!items.length) {
-        allRequestsList.innerHTML = `
-          <div class="request-item">
-            <p style="margin:0;font-weight:800;">No service requests found.</p>
-          </div>
-        `;
-        return;
+      try {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+        return true;
+      } catch {
+        return false;
       }
+    }
+  }
 
-      allRequestsList.innerHTML = items.map(item => {
-  const rawStatus = String(item.status || "new").toLowerCase();
-const statusClass = rawStatus.replace(/\s+/g, "-");
-const leadResponseLabel = getLeadResponseLabel(item);
-const leadResponseDate = getLeadResponseDate(item);
-const suggestedReplacement = getSuggestedReplacementContractor(item);
-const assignmentButtonLabel = getAssignmentButtonLabel(item);
+  function isTruckingRequest(item) {
+    const raw = String(item.category || item.categoryLabel || "").toLowerCase();
+    return raw.includes("trucking");
+  }
 
-  return `
-    <div class="request-item">
-      <div class="request-item-top">
-        <div>
-          <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
-          <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+  function getMatchingContractorsForRequest(item) {
+    if (!isTruckingRequest(item)) return [];
+
+    return allContractors
+      .filter(contractor => String(contractor.category || "").toLowerCase() === "trucking")
+      .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
+  }
+
+  function getAssignedContractorLabel(item) {
+    if (item.assignedContractorCompanyName) return item.assignedContractorCompanyName;
+    if (item.assignedContractorContactName) return item.assignedContractorContactName;
+    return "";
+  }
+
+  async function loadContractors() {
+    const snapshot = await getDocs(collection(db, "contractors"));
+
+    allContractors = snapshot.docs.map(docSnap => ({
+      _docId: docSnap.id,
+      ...docSnap.data()
+    }));
+  }
+
+  async function loadContractorLeads() {
+    const snapshot = await getDocs(collection(db, "contractorLeads"));
+
+    allContractorLeads = snapshot.docs.map(docSnap => ({
+      _docId: docSnap.id,
+      ...docSnap.data()
+    }));
+  }
+
+  async function loadRequestActivity() {
+    const snapshot = await getDocs(collection(db, "requestActivity"));
+
+    allRequestActivity = snapshot.docs.map(docSnap => ({
+      _docId: docSnap.id,
+      ...docSnap.data()
+    }));
+  }
+
+  function getLeadForRequest(item) {
+    return allContractorLeads.find(lead => lead.requestId === item._docId) || null;
+  }
+
+  function getLeadResponseLabel(item) {
+    const lead = getLeadForRequest(item);
+    return lead ? String(lead.leadStatus || "offered").toLowerCase() : "";
+  }
+
+  function getLeadResponseDate(item) {
+    const lead = getLeadForRequest(item);
+    if (!lead || !lead.respondedAt) return "";
+    return formatDate(lead.respondedAt);
+  }
+
+  function getSuggestedReplacementContractor(item) {
+    if (!isTruckingRequest(item)) return null;
+    if (getLeadResponseLabel(item) !== "declined") return null;
+
+    const currentUid = String(item.assignedContractorUid || "").trim();
+
+    const candidates = getMatchingContractorsForRequest(item).filter(contractor => {
+      return String(contractor._docId || "").trim() !== currentUid;
+    });
+
+    return candidates[0] || null;
+  }
+
+  function getDefaultContractorSelection(item) {
+    const suggested = getSuggestedReplacementContractor(item);
+    if (suggested) return suggested._docId || "";
+    return String(item.assignedContractorUid || "").trim();
+  }
+
+  function getAssignmentButtonLabel(item) {
+    return getLeadResponseLabel(item) === "declined" ? "Reassign Lead" : "Assign Lead";
+  }
+
+  function renderContractorOptions(item) {
+    const contractors = getMatchingContractorsForRequest(item);
+    const selectedUid = getDefaultContractorSelection(item);
+
+    if (!contractors.length) {
+      return `<option value="">No trucking contractors available</option>`;
+    }
+
+    return [
+      `<option value="">Select trucking contractor</option>`,
+      ...contractors.map(contractor => `
+        <option
+          value="${escapeHtml(contractor._docId || "")}"
+          ${selectedUid === contractor._docId ? "selected" : ""}
+        >
+          ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
+          ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
+          ${contractor.businessType ? ` — ${escapeHtml(contractor.businessType)}` : ""}
+        </option>
+      `)
+    ].join("");
+  }
+
+  function getActivitiesForRequest(item) {
+    return allRequestActivity
+      .filter(activity => activity.requestId === item._docId)
+      .sort((a, b) => (Number(b.createdAt || 0) - Number(a.createdAt || 0)));
+  }
+
+  function getActivityText(activity) {
+    const contractorName =
+      activity.contractorCompanyName ||
+      activity.contractorContactName ||
+      "contractor";
+
+    switch (String(activity.actionType || "").toLowerCase()) {
+      case "assigned":
+        return `Lead assigned to ${contractorName}`;
+      case "reassigned":
+        return `Lead reassigned to ${contractorName}`;
+      case "accepted":
+        return "Contractor accepted lead";
+      case "declined":
+        return "Contractor declined lead";
+      case "status-updated":
+        return `Status changed from ${activity.previousStatus || "—"} to ${activity.nextStatus || "—"}`;
+      default:
+        return activity.message || "Activity recorded";
+    }
+  }
+
+  function getActivityActorLabel(activity) {
+    const name = String(activity.actorName || "").trim();
+    const role = String(activity.actorRole || "").trim();
+
+    if (name && role) return `${name} · ${role}`;
+    return name || role || "System";
+  }
+
+  function renderActivityLog(item) {
+    const activities = getActivitiesForRequest(item).slice(0, 6);
+
+    if (!activities.length) {
+      return `
+        <div class="request-activity">
+          <div class="request-activity-title">Activity</div>
+          <p class="assignment-note assignment-note-muted">No activity yet.</p>
         </div>
-        <span class="request-status-pill status-${escapeHtml(statusClass)}">
-          ${escapeHtml(item.status || "new")}
-        </span>
-      </div>
-
-      <div class="request-meta">
-        <span>📍 ${escapeHtml(item.city || "—")}</span>
-        <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-        <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-      </div>
-
-      <p class="request-desc">${escapeHtml(item.description || "")}</p>
-
-      <div class="request-contact">
-  <span>👤 ${escapeHtml(item.name || "—")}</span>
-  <span>✉️ ${escapeHtml(item.email || "—")}</span>
-  <span>📞 ${escapeHtml(item.phone || "—")}</span>
-</div>
-
-<div class="request-quick-actions">
-  ${item.phone ? `
-    <a
-      href="tel:${escapeHtml(makePhoneHref(item.phone))}"
-      class="request-contact-btn contact-call-btn"
-    >
-      Call
-    </a>
-  ` : ""}
-
-  ${item.email ? `
-    <a
-      href="mailto:${escapeHtml(item.email)}"
-      class="request-contact-btn contact-email-btn"
-    >
-      Email
-    </a>
-  ` : ""}
-
-  ${item.phone ? `
-    <button
-      type="button"
-      class="request-contact-btn contact-copy-btn request-copy-phone-btn"
-      data-phone="${escapeHtml(item.phone)}"
-    >
-      Copy Phone
-    </button>
-  ` : ""}
-
-  ${item.email ? `
-    <button
-      type="button"
-      class="request-contact-btn contact-copy-btn request-copy-email-btn"
-      data-email="${escapeHtml(item.email)}"
-    >
-      Copy Email
-    </button>
-  ` : ""}
-</div>
-
-<div class="request-assignment">
-  ${
-    isTruckingRequest(item)
-      ? `
-        <p class="assignment-note">
-          Assigned contractor:
-          <strong>${escapeHtml(getAssignedContractorLabel(item) || "None yet")}</strong>
-        </p>
-
-        ${
-          getLeadForRequest(item)
-            ? `
-              <div class="lead-response-summary">
-                <span class="request-status-pill status-${escapeHtml(leadResponseLabel || "offered")}">
-                  ${escapeHtml(leadResponseLabel || "offered")}
-                </span>
-                <span class="lead-response-text">
-                  Contractor response
-                  ${
-                    leadResponseDate
-                      ? `on ${escapeHtml(leadResponseDate)}`
-                      : "not yet received"
-                  }
-                </span>
-              </div>
-            `
-            : `
-              <div class="lead-response-summary">
-                <span class="request-status-pill status-offered">not sent</span>
-                <span class="lead-response-text">No contractor lead has been created yet.</span>
-              </div>
-            `
-        }
-
-        ${
-          suggestedReplacement
-            ? `
-              <p class="assignment-note assignment-note-suggested">
-                Suggested reassignment:
-                <strong>${escapeHtml(suggestedReplacement.companyName || suggestedReplacement.contactName || "Suggested contractor")}</strong>
-              </p>
-            `
-            : ""
-        }
-
-        ${
-          rawStatus === "closed" || rawStatus === "cancelled"
-            ? `
-              <p class="assignment-note assignment-note-muted">
-                This request is ${escapeHtml(rawStatus)} and cannot be reassigned right now.
-              </p>
-            `
-            : `
-              <div class="assignment-controls">
-                <select
-                  class="assign-contractor-select"
-                  data-requestid="${escapeHtml(item._docId || "")}"
-                >
-                  ${renderContractorOptions(item)}
-                </select>
-
-                <button
-                  type="button"
-                  class="request-assign-btn"
-                  data-requestid="${escapeHtml(item._docId || "")}"
-                  data-servicetype="${escapeHtml(item.serviceType || "this request")}"
-                >
-                  ${escapeHtml(assignmentButtonLabel)}
-                </button>
-              </div>
-            `
-        }
-      `
-      : `
-        <p class="assignment-note assignment-note-muted">
-          Contractor assignment rollout starts with trucking.
-        </p>
-      `
-  }
-</div>
-
-<div class="admin-request-actions">
-  <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
-    <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
-    <option value="matched" ${rawStatus === "matched" ? "selected" : ""}>matched</option>
-    <option value="in-progress" ${rawStatus === "in-progress" ? "selected" : ""}>in-progress</option>
-    <option value="closed" ${rawStatus === "closed" ? "selected" : ""}>closed</option>
-    <option value="cancelled" ${rawStatus === "cancelled" ? "selected" : ""}>cancelled</option>
-  </select>
-
-  <button
-    type="button"
-    class="request-update-btn"
-    data-requestid="${escapeHtml(item._docId || "")}"
-    data-servicetype="${escapeHtml(item.serviceType || "this request")}"
-  >
-    Update Status
-  </button>
-</div>
-    </div>
-  `;
-}).join("");
+      `;
     }
 
-    async function loadAllRequests() {
+    return `
+      <div class="request-activity">
+        <div class="request-activity-title">Activity</div>
+        <div class="activity-list">
+          ${activities.map(activity => `
+            <div class="activity-item">
+              <div class="activity-item-top">
+                <span class="activity-item-action">${escapeHtml(getActivityText(activity))}</span>
+                <span class="activity-item-time">${escapeHtml(formatDate(activity.createdAt))}</span>
+              </div>
+              <div class="activity-item-meta">${escapeHtml(getActivityActorLabel(activity))}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderRequests(items) {
+    if (!items.length) {
+      allRequestsList.innerHTML = `
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">No service requests found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    allRequestsList.innerHTML = items.map(item => {
+      const rawStatus = String(item.status || "new").toLowerCase();
+      const statusClass = rawStatus.replace(/\s+/g, "-");
+      const leadResponseLabel = getLeadResponseLabel(item);
+      const leadResponseDate = getLeadResponseDate(item);
+      const suggestedReplacement = getSuggestedReplacementContractor(item);
+      const assignmentButtonLabel = getAssignmentButtonLabel(item);
+
+      return `
+        <div class="request-item">
+          <div class="request-item-top">
+            <div>
+              <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
+              <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+            </div>
+            <span class="request-status-pill status-${escapeHtml(statusClass)}">
+              ${escapeHtml(item.status || "new")}
+            </span>
+          </div>
+
+          <div class="request-meta">
+            <span>📍 ${escapeHtml(item.city || "—")}</span>
+            <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+            <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+          </div>
+
+          <p class="request-desc">${escapeHtml(item.description || "")}</p>
+
+          <div class="request-contact">
+            <span>👤 ${escapeHtml(item.name || "—")}</span>
+            <span>✉️ ${escapeHtml(item.email || "—")}</span>
+            <span>📞 ${escapeHtml(item.phone || "—")}</span>
+          </div>
+
+          <div class="request-quick-actions">
+            ${item.phone ? `
+              <a
+                href="tel:${escapeHtml(makePhoneHref(item.phone))}"
+                class="request-contact-btn contact-call-btn"
+              >
+                Call
+              </a>
+            ` : ""}
+
+            ${item.email ? `
+              <a
+                href="mailto:${escapeHtml(item.email)}"
+                class="request-contact-btn contact-email-btn"
+              >
+                Email
+              </a>
+            ` : ""}
+
+            ${item.phone ? `
+              <button
+                type="button"
+                class="request-contact-btn contact-copy-btn request-copy-phone-btn"
+                data-phone="${escapeHtml(item.phone)}"
+              >
+                Copy Phone
+              </button>
+            ` : ""}
+
+            ${item.email ? `
+              <button
+                type="button"
+                class="request-contact-btn contact-copy-btn request-copy-email-btn"
+                data-email="${escapeHtml(item.email)}"
+              >
+                Copy Email
+              </button>
+            ` : ""}
+          </div>
+
+          <div class="request-assignment">
+            ${
+              isTruckingRequest(item)
+                ? `
+                  <p class="assignment-note">
+                    Assigned contractor:
+                    <strong>${escapeHtml(getAssignedContractorLabel(item) || "None yet")}</strong>
+                  </p>
+
+                  ${
+                    getLeadForRequest(item)
+                      ? `
+                        <div class="lead-response-summary">
+                          <span class="request-status-pill status-${escapeHtml(leadResponseLabel || "offered")}">
+                            ${escapeHtml(leadResponseLabel || "offered")}
+                          </span>
+                          <span class="lead-response-text">
+                            Contractor response
+                            ${leadResponseDate ? `on ${escapeHtml(leadResponseDate)}` : "not yet received"}
+                          </span>
+                        </div>
+                      `
+                      : `
+                        <div class="lead-response-summary">
+                          <span class="request-status-pill status-offered">not sent</span>
+                          <span class="lead-response-text">No contractor lead has been created yet.</span>
+                        </div>
+                      `
+                  }
+
+                  ${
+                    suggestedReplacement
+                      ? `
+                        <p class="assignment-note assignment-note-suggested">
+                          Suggested reassignment:
+                          <strong>${escapeHtml(suggestedReplacement.companyName || suggestedReplacement.contactName || "Suggested contractor")}</strong>
+                        </p>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    rawStatus === "closed" || rawStatus === "cancelled"
+                      ? `
+                        <p class="assignment-note assignment-note-muted">
+                          This request is ${escapeHtml(rawStatus)} and cannot be reassigned right now.
+                        </p>
+                      `
+                      : `
+                        <div class="assignment-controls">
+                          <select
+                            class="assign-contractor-select"
+                            data-requestid="${escapeHtml(item._docId || "")}"
+                          >
+                            ${renderContractorOptions(item)}
+                          </select>
+
+                          <button
+                            type="button"
+                            class="request-assign-btn"
+                            data-requestid="${escapeHtml(item._docId || "")}"
+                            data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+                          >
+                            ${escapeHtml(assignmentButtonLabel)}
+                          </button>
+                        </div>
+                      `
+                  }
+                `
+                : `
+                  <p class="assignment-note assignment-note-muted">
+                    Contractor assignment rollout starts with trucking.
+                  </p>
+                `
+            }
+          </div>
+
+          <div class="admin-request-actions">
+            <select class="request-status-select" data-requestid="${escapeHtml(item._docId || "")}">
+              <option value="new" ${rawStatus === "new" ? "selected" : ""}>new</option>
+              <option value="matched" ${rawStatus === "matched" ? "selected" : ""}>matched</option>
+              <option value="in-progress" ${rawStatus === "in-progress" ? "selected" : ""}>in-progress</option>
+              <option value="closed" ${rawStatus === "closed" ? "selected" : ""}>closed</option>
+              <option value="cancelled" ${rawStatus === "cancelled" ? "selected" : ""}>cancelled</option>
+            </select>
+
+            <button
+              type="button"
+              class="request-update-btn"
+              data-requestid="${escapeHtml(item._docId || "")}"
+              data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+            >
+              Update Status
+            </button>
+          </div>
+
+          ${renderActivityLog(item)}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function applyAdminFilters() {
+    const items = getFilteredRequests();
+    updateSummary(items);
+    renderRequests(items);
+  }
+
+  async function loadAllRequests() {
+    const currentUser = await waitForAKOAuth();
+
+    if (!currentUser) {
+      window.location.href = `index.html?auth=1&return=${encodeURIComponent("all-requests.html")}`;
+      return;
+    }
+
+    if (currentUser.tier !== "admin") {
+      renderAccessDenied();
+      return;
+    }
+
+    try {
+      await loadContractors();
+      await loadContractorLeads();
+      await loadRequestActivity();
+
+      const snapshot = await getDocs(collection(db, "serviceRequests"));
+
+      allRequests = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      populateCategoryFilter(allRequests);
+      applyAdminFilters();
+    } catch (err) {
+      console.error(err);
+      allRequestsList.innerHTML = `
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">Could not load requests: ${escapeHtml(err.message)}</p>
+        </div>
+      `;
+      if (allRequestsSummary) {
+        allRequestsSummary.textContent = "Could not load requests.";
+      }
+    }
+  }
+
+  if (allRequestsSearch) {
+    allRequestsSearch.addEventListener("input", applyAdminFilters);
+  }
+
+  if (allRequestsStatus) {
+    allRequestsStatus.addEventListener("change", applyAdminFilters);
+  }
+
+  if (allRequestsCategory) {
+    allRequestsCategory.addEventListener("change", applyAdminFilters);
+  }
+
+  if (allRequestsSort) {
+    allRequestsSort.addEventListener("change", applyAdminFilters);
+  }
+
+  allRequestsList.addEventListener("click", async (e) => {
+    const copyPhoneBtn = e.target.closest(".request-copy-phone-btn");
+    if (copyPhoneBtn) {
+      const phone = copyPhoneBtn.getAttribute("data-phone") || "";
+      const ok = await copyText(phone);
+      alert(ok ? "Phone copied." : "Could not copy phone.");
+      return;
+    }
+
+    const copyEmailBtn = e.target.closest(".request-copy-email-btn");
+    if (copyEmailBtn) {
+      const email = copyEmailBtn.getAttribute("data-email") || "";
+      const ok = await copyText(email);
+      alert(ok ? "Email copied." : "Could not copy email.");
+      return;
+    }
+
+    const assignBtn = e.target.closest(".request-assign-btn");
+    if (assignBtn) {
       const currentUser = await waitForAKOAuth();
+      const requestId = assignBtn.getAttribute("data-requestid");
+      const serviceType = assignBtn.getAttribute("data-servicetype") || "this request";
 
-      if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("all-requests.html")}`;
+      if (!requestId) {
+        alert("Could not assign this request.");
         return;
       }
 
-      if (currentUser.tier !== "admin") {
-        renderAccessDenied();
+      const requestItem = allRequests.find(item => item._docId === requestId);
+      if (!requestItem) {
+        alert("Could not find the request data.");
         return;
       }
+
+      const contractorSelect = [...allRequestsList.querySelectorAll(".assign-contractor-select")]
+        .find(el => el.getAttribute("data-requestid") === requestId);
+
+      if (!contractorSelect) {
+        alert("Could not find the contractor selector.");
+        return;
+      }
+
+      const contractorUid = (contractorSelect.value || "").trim();
+      if (!contractorUid) {
+        alert("Select a trucking contractor first.");
+        return;
+      }
+
+      const contractor = allContractors.find(item => item._docId === contractorUid);
+      if (!contractor) {
+        alert("Could not find the selected contractor.");
+        return;
+      }
+
+      const actionLabel = getAssignmentButtonLabel(requestItem);
+      const isReassignment = actionLabel === "Reassign Lead";
+
+      const confirmed = confirm(`${actionLabel} "${serviceType}" to "${contractor.companyName || contractor.contactName || "selected contractor"}"?`);
+      if (!confirmed) return;
+
+      const now = Date.now();
+
+      const leadPayload = {
+        requestId: requestId,
+        ownerUid: requestItem.ownerUid || "",
+        contractorUid: contractorUid,
+        contractorCompanyName: contractor.companyName || "",
+        contractorContactName: contractor.contactName || "",
+        contractorEmail: contractor.email || "",
+        contractorPhone: contractor.phone || "",
+        category: requestItem.category || "",
+        categoryLabel: requestItem.categoryLabel || "",
+        serviceType: requestItem.serviceType || "",
+        customerName: requestItem.name || "",
+        customerEmail: requestItem.email || "",
+        customerPhone: requestItem.phone || "",
+        city: requestItem.city || "",
+        urgency: requestItem.urgency || "",
+        description: requestItem.description || "",
+        createdAt: requestItem.createdAt || now,
+        assignedAt: now,
+        offeredAt: now,
+        updatedAt: now,
+        leadStatus: "offered",
+        respondedAt: null
+      };
 
       try {
-  await loadContractors();
-  await loadContractorLeads();
+        await setDoc(doc(db, "contractorLeads", requestId), leadPayload);
 
-  const snapshot = await getDocs(collection(db, "serviceRequests"));
+        await updateDoc(doc(db, "serviceRequests", requestId), {
+          status: "matched",
+          assignedContractorUid: contractorUid,
+          assignedContractorCompanyName: contractor.companyName || "",
+          assignedContractorContactName: contractor.contactName || "",
+          assignedAt: now,
+          updatedAt: now
+        });
 
-  allRequests = snapshot.docs.map(doc => ({
-    _docId: doc.id,
-    ...doc.data()
-  }));
+        try {
+          await addDoc(collection(db, "requestActivity"), {
+            requestId: requestId,
+            ownerUid: requestItem.ownerUid || "",
+            contractorUid: contractorUid,
+            actorUid: currentUser?.uid || "",
+            actorName: currentUser?.name || currentUser?.email || "Admin",
+            actorRole: "admin",
+            actionType: isReassignment ? "reassigned" : "assigned",
+            serviceType: requestItem.serviceType || "",
+            category: requestItem.category || "",
+            contractorCompanyName: contractor.companyName || "",
+            contractorContactName: contractor.contactName || "",
+            createdAt: now
+          });
+        } catch (activityErr) {
+          console.warn("Activity log write failed:", activityErr);
+        }
 
-  populateCategoryFilter(allRequests);
-  applyAdminFilters();
-} catch (err) {
+        await loadAllRequests();
+        alert(isReassignment ? "Lead reassigned." : "Lead assigned.");
+      } catch (err) {
         console.error(err);
-        allRequestsList.innerHTML = `
-          <div class="request-item">
-            <p style="margin:0;font-weight:800;">Could not load requests: ${escapeHtml(err.message)}</p>
-          </div>
-        `;
+        alert(
+          "Could not assign lead:\n" +
+          "message: " + err.message
+        );
       }
+      return;
     }
-allRequestsList.addEventListener("click", async (e) => {
-  const copyPhoneBtn = e.target.closest(".request-copy-phone-btn");
-  if (copyPhoneBtn) {
-    const phone = copyPhoneBtn.getAttribute("data-phone") || "";
-    const ok = await copyText(phone);
-    alert(ok ? "Phone copied." : "Could not copy phone.");
-    return;
-  }
 
-  const copyEmailBtn = e.target.closest(".request-copy-email-btn");
-  if (copyEmailBtn) {
-    const email = copyEmailBtn.getAttribute("data-email") || "";
-    const ok = await copyText(email);
-    alert(ok ? "Email copied." : "Could not copy email.");
-    return;
-  }
+    const updateBtn = e.target.closest(".request-update-btn");
+    if (!updateBtn) return;
 
-  const assignBtn = e.target.closest(".request-assign-btn");
-  if (assignBtn) {
-    const requestId = assignBtn.getAttribute("data-requestid");
-    const serviceType = assignBtn.getAttribute("data-servicetype") || "this request";
+    const currentUser = await waitForAKOAuth();
+    const requestId = updateBtn.getAttribute("data-requestid");
+    const serviceType = updateBtn.getAttribute("data-servicetype") || "this request";
 
     if (!requestId) {
-      alert("Could not assign this request.");
+      alert("Could not update this request.");
       return;
     }
 
     const requestItem = allRequests.find(item => item._docId === requestId);
-    if (!requestItem) {
-      alert("Could not find the request data.");
+
+    const select = [...allRequestsList.querySelectorAll(".request-status-select")]
+      .find(el => el.getAttribute("data-requestid") === requestId);
+
+    if (!select) {
+      alert("Could not find the status selector.");
       return;
     }
 
-    const contractorSelect = allRequestsList.querySelector(`.assign-contractor-select[data-requestid="${CSS.escape(requestId)}"]`);
-    if (!contractorSelect) {
-      alert("Could not find the contractor selector.");
+    const nextStatus = (select.value || "").trim();
+    if (!nextStatus) {
+      alert("Select a status first.");
       return;
     }
 
-    const contractorUid = (contractorSelect.value || "").trim();
-    if (!contractorUid) {
-      alert("Select a trucking contractor first.");
-      return;
-    }
-
-    const contractor = allContractors.find(item => item._docId === contractorUid);
-    if (!contractor) {
-      alert("Could not find the selected contractor.");
-      return;
-    }
-
-    const confirmed = confirm(`Assign "${serviceType}" to "${contractor.companyName || contractor.contactName || "selected contractor"}"?`);
+    const confirmed = confirm(`Update "${serviceType}" to "${nextStatus}"?`);
     if (!confirmed) return;
 
     const now = Date.now();
 
-    const leadPayload = {
-  requestId: requestId,
-  contractorUid: contractorUid,
-  contractorCompanyName: contractor.companyName || "",
-  contractorContactName: contractor.contactName || "",
-  contractorEmail: contractor.email || "",
-  contractorPhone: contractor.phone || "",
-  category: requestItem.category || "",
-  categoryLabel: requestItem.categoryLabel || "",
-  serviceType: requestItem.serviceType || "",
-  customerName: requestItem.name || "",
-  customerEmail: requestItem.email || "",
-  customerPhone: requestItem.phone || "",
-  city: requestItem.city || "",
-  urgency: requestItem.urgency || "",
-  description: requestItem.description || "",
-  createdAt: requestItem.createdAt || now,
-  assignedAt: now,
-  offeredAt: now,
-  updatedAt: now,
-  leadStatus: "offered",
-  respondedAt: null
-};
+    const updatePayload = {
+      status: nextStatus,
+      updatedAt: now
+    };
+
+    if (nextStatus === "closed") {
+      updatePayload.closedAt = now;
+    }
+
+    if (nextStatus === "cancelled") {
+      updatePayload.cancelledAt = now;
+    }
 
     try {
-      await setDoc(doc(db, "contractorLeads", requestId), leadPayload);
-      await updateDoc(doc(db, "serviceRequests", requestId), {
-        status: "matched",
-        assignedContractorUid: contractorUid,
-        assignedContractorCompanyName: contractor.companyName || "",
-        assignedContractorContactName: contractor.contactName || "",
-        assignedAt: now,
-        updatedAt: now
-      });
+      await updateDoc(doc(db, "serviceRequests", requestId), updatePayload);
+
+      try {
+        await addDoc(collection(db, "requestActivity"), {
+          requestId: requestId,
+          ownerUid: requestItem?.ownerUid || "",
+          contractorUid: requestItem?.assignedContractorUid || "",
+          actorUid: currentUser?.uid || "",
+          actorName: currentUser?.name || currentUser?.email || "Admin",
+          actorRole: "admin",
+          actionType: "status-updated",
+          previousStatus: requestItem?.status || "new",
+          nextStatus: nextStatus,
+          serviceType: requestItem?.serviceType || "",
+          category: requestItem?.category || "",
+          contractorCompanyName: requestItem?.assignedContractorCompanyName || "",
+          contractorContactName: requestItem?.assignedContractorContactName || "",
+          createdAt: now
+        });
+      } catch (activityErr) {
+        console.warn("Activity log write failed:", activityErr);
+      }
 
       await loadAllRequests();
-      alert("Lead assigned.");
+      alert("Status updated.");
     } catch (err) {
       console.error(err);
       alert(
-        "Could not assign lead:\n" +
+        "Could not update status:\n" +
         "message: " + err.message
       );
     }
-    return;
-  }
+  });
 
-  const updateBtn = e.target.closest(".request-update-btn");
-  if (!updateBtn) return;
-
-  const requestId = updateBtn.getAttribute("data-requestid");
-  const serviceType = updateBtn.getAttribute("data-servicetype") || "this request";
-
-  if (!requestId) {
-    alert("Could not update this request.");
-    return;
-  }
-
-  const select = allRequestsList.querySelector(`.request-status-select[data-requestid="${CSS.escape(requestId)}"]`);
-  if (!select) {
-    alert("Could not find the status selector.");
-    return;
-  }
-
-  const nextStatus = (select.value || "").trim();
-  if (!nextStatus) {
-    alert("Select a status first.");
-    return;
-  }
-
-  const confirmed = confirm(`Update "${serviceType}" to "${nextStatus}"?`);
-  if (!confirmed) return;
-
-  const updatePayload = {
-    status: nextStatus,
-    updatedAt: Date.now()
-  };
-
-  if (nextStatus === "closed") {
-    updatePayload.closedAt = Date.now();
-  }
-
-  if (nextStatus === "cancelled") {
-    updatePayload.cancelledAt = Date.now();
-  }
-
-  try {
-    await updateDoc(doc(db, "serviceRequests", requestId), updatePayload);
-    await loadAllRequests();
-    alert("Status updated.");
-  } catch (err) {
-    console.error(err);
-    alert(
-      "Could not update status:\n" +
-      "message: " + err.message
-    );
-  }
-});
-    if (allRequestsSearch) {
-  allRequestsSearch.addEventListener("input", applyAdminFilters);
-}
-
-if (allRequestsStatus) {
-  allRequestsStatus.addEventListener("change", applyAdminFilters);
-}
-
-if (allRequestsCategory) {
-  allRequestsCategory.addEventListener("change", applyAdminFilters);
-}
-
-if (allRequestsSort) {
-  allRequestsSort.addEventListener("change", applyAdminFilters);
-}
-    loadAllRequests();
-  </script>
+  loadAllRequests();
+</script>
 </body>
 </html>
