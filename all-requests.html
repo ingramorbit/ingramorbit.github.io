@@ -95,9 +95,10 @@
   const allRequestsSummary = document.getElementById("allRequestsSummary");
 
   let allRequests = [];
-  let allContractors = [];
-  let allContractorLeads = [];
-  let allRequestActivity = [];
+let allContractors = [];
+let allContractorLeads = [];
+let allRequestActivity = [];
+let allInternalNotes = [];
 
   function waitForAKOAuth() {
     return new Promise((resolve) => {
@@ -316,6 +317,67 @@
       ...docSnap.data()
     }));
   }
+
+    async function loadInternalNotes() {
+  const snapshot = await getDocs(collection(db, "requestInternalNotes"));
+
+  allInternalNotes = snapshot.docs.map(docSnap => ({
+    _docId: docSnap.id,
+    ...docSnap.data()
+  }));
+}
+
+function getInternalNotesForRequest(item) {
+  return allInternalNotes
+    .filter(note => note.requestId === item._docId)
+    .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+}
+
+function renderInternalNotes(item) {
+  const notes = getInternalNotesForRequest(item).slice(0, 5);
+
+  return `
+    <div class="request-internal-notes">
+      <div class="request-internal-notes-title">Internal admin notes</div>
+
+      ${
+        notes.length
+          ? `
+            <div class="internal-notes-list">
+              ${notes.map(note => `
+                <div class="internal-note-item">
+                  <div class="internal-note-text">${escapeHtml(note.noteText || "")}</div>
+                  <div class="internal-note-meta">
+                    ${escapeHtml(note.actorName || "Admin")} · ${escapeHtml(note.actorRole || "admin")} · ${escapeHtml(formatDate(note.createdAt))}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `
+            <p class="assignment-note assignment-note-muted">No internal notes yet.</p>
+          `
+      }
+
+      <div class="internal-note-form">
+        <textarea
+          class="internal-note-input"
+          data-requestid="${escapeHtml(item._docId || "")}"
+          placeholder="Add an internal admin note..."
+        ></textarea>
+
+        <button
+          type="button"
+          class="internal-note-save-btn"
+          data-requestid="${escapeHtml(item._docId || "")}"
+          data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+        >
+          Save Note
+        </button>
+      </div>
+    </div>
+  `;
+}
 
   function getLeadForRequest(item) {
     return allContractorLeads.find(lead => lead.requestId === item._docId) || null;
@@ -655,6 +717,7 @@ const latestActivityDisplay = getLatestActivityDisplay(item);
           </div>
 
           ${renderActivityLog(item)}
+${renderInternalNotes(item)}
         </div>
       `;
     }).join("");
@@ -680,11 +743,12 @@ const latestActivityDisplay = getLatestActivityDisplay(item);
     }
 
     try {
-      await loadContractors();
-      await loadContractorLeads();
-      await loadRequestActivity();
+  await loadContractors();
+  await loadContractorLeads();
+  await loadRequestActivity();
+  await loadInternalNotes();
 
-      const snapshot = await getDocs(collection(db, "serviceRequests"));
+  const snapshot = await getDocs(collection(db, "serviceRequests"));
 
       allRequests = snapshot.docs.map(docSnap => ({
         _docId: docSnap.id,
@@ -723,6 +787,64 @@ const latestActivityDisplay = getLatestActivityDisplay(item);
   }
 
   allRequestsList.addEventListener("click", async (e) => {
+    const saveNoteBtn = e.target.closest(".internal-note-save-btn");
+  if (saveNoteBtn) {
+    const currentUser = await waitForAKOAuth();
+    const requestId = saveNoteBtn.getAttribute("data-requestid");
+    const serviceType = saveNoteBtn.getAttribute("data-servicetype") || "this request";
+
+    if (!requestId) {
+      alert("Could not save note for this request.");
+      return;
+    }
+
+    const requestItem = allRequests.find(item => item._docId === requestId);
+    if (!requestItem) {
+      alert("Could not find the request data.");
+      return;
+    }
+
+    const noteInput = [...allRequestsList.querySelectorAll(".internal-note-input")]
+      .find(el => el.getAttribute("data-requestid") === requestId);
+
+    if (!noteInput) {
+      alert("Could not find the note box.");
+      return;
+    }
+
+    const noteText = (noteInput.value || "").trim();
+    if (!noteText) {
+      alert("Enter a note first.");
+      return;
+    }
+
+    const now = Date.now();
+
+    try {
+      await addDoc(collection(db, "requestInternalNotes"), {
+        requestId: requestId,
+        ownerUid: requestItem.ownerUid || "",
+        contractorUid: requestItem.assignedContractorUid || "",
+        actorUid: currentUser?.uid || "",
+        actorName: currentUser?.name || currentUser?.email || "Admin",
+        actorRole: "admin",
+        serviceType: requestItem.serviceType || "",
+        category: requestItem.category || "",
+        noteText: noteText,
+        createdAt: now
+      });
+
+      await loadAllRequests();
+      alert(`Internal note saved for "${serviceType}".`);
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Could not save internal note:\n" +
+        "message: " + err.message
+      );
+    }
+    return;
+  }
     const copyPhoneBtn = e.target.closest(".request-copy-phone-btn");
     if (copyPhoneBtn) {
       const phone = copyPhoneBtn.getAttribute("data-phone") || "";
