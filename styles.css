@@ -1554,6 +1554,21 @@ body{
   color:#333;
 }
 
+.request-latest-activity{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin:8px 0 0;
+  font-weight:800;
+  color:#444;
+}
+
+.request-latest-activity-time{
+  color:#666;
+  font-weight:700;
+}
+
 .admin-request-actions{
   display:flex;
   flex-wrap:wrap;
