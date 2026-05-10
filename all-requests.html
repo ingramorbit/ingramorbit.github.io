@@ -54,8 +54,10 @@
     </select>
 
     <select id="allRequestsSort" class="all-requests-filter-select">
-      <option value="newest">Newest first</option>
-      <option value="oldest">Oldest first</option>
+  <option value="newest">Newest first</option>
+  <option value="oldest">Oldest first</option>
+  <option value="activityDesc">Latest activity first</option>
+  <option value="activityAsc">Oldest activity first</option>
     </select>
   </div>
 
@@ -169,53 +171,63 @@
   }
 
   function getFilteredRequests() {
-    const searchValue = (allRequestsSearch?.value || "").trim().toLowerCase();
-    const statusValue = (allRequestsStatus?.value || "").trim().toLowerCase();
-    const categoryValue = (allRequestsCategory?.value || "").trim().toLowerCase();
-    const sortValue = (allRequestsSort?.value || "newest").trim().toLowerCase();
+  const searchValue = (allRequestsSearch?.value || "").trim().toLowerCase();
+  const statusValue = (allRequestsStatus?.value || "").trim().toLowerCase();
+  const categoryValue = (allRequestsCategory?.value || "").trim().toLowerCase();
+  const sortValue = (allRequestsSort?.value || "newest").trim().toLowerCase();
 
-    let items = [...allRequests];
+  let items = [...allRequests];
 
-    if (searchValue) {
-      items = items.filter(item => {
-        const haystack = [
-          item.serviceType,
-          item.categoryLabel,
-          item.category,
-          item.name,
-          item.email,
-          item.phone,
-          item.city,
-          item.urgency,
-          item.description,
-          item.status,
-          item.assignedContractorCompanyName,
-          item.assignedContractorContactName
-        ].join(" ").toLowerCase();
+  if (searchValue) {
+    items = items.filter(item => {
+      const latestActivity = getLatestActivityForRequest(item);
 
-        return haystack.includes(searchValue);
-      });
-    }
+      const haystack = [
+        item.serviceType,
+        item.categoryLabel,
+        item.category,
+        item.name,
+        item.email,
+        item.phone,
+        item.city,
+        item.urgency,
+        item.description,
+        item.status,
+        item.assignedContractorCompanyName,
+        item.assignedContractorContactName,
+        latestActivity ? getActivityText(latestActivity) : "",
+        latestActivity ? getActivityActorLabel(latestActivity) : "",
+        latestActivity ? formatDate(latestActivity.createdAt) : ""
+      ].join(" ").toLowerCase();
 
-    if (statusValue) {
-      items = items.filter(item => String(item.status || "new").toLowerCase() === statusValue);
-    }
-
-    if (categoryValue) {
-      items = items.filter(item =>
-        String(item.categoryLabel || item.category || "").toLowerCase() === categoryValue
-      );
-    }
-
-    items.sort((a, b) => {
-      const aTime = Number(a.createdAt || 0);
-      const bTime = Number(b.createdAt || 0);
-
-      if (sortValue === "oldest") return aTime - bTime;
-      return bTime - aTime;
+      return haystack.includes(searchValue);
     });
+  }
 
-    return items;
+  if (statusValue) {
+    items = items.filter(item => String(item.status || "new").toLowerCase() === statusValue);
+  }
+
+  if (categoryValue) {
+    items = items.filter(item =>
+      String(item.categoryLabel || item.category || "").toLowerCase() === categoryValue
+    );
+  }
+
+  items.sort((a, b) => {
+    const aCreated = Number(a.createdAt || 0);
+    const bCreated = Number(b.createdAt || 0);
+    const aActivity = getLatestActivityTimestamp(a);
+    const bActivity = getLatestActivityTimestamp(b);
+
+    if (sortValue === "oldest") return aCreated - bCreated;
+    if (sortValue === "activitydesc") return bActivity - aActivity;
+    if (sortValue === "activityasc") return aActivity - bActivity;
+
+    return bCreated - aCreated;
+  });
+
+  return items;
   }
 
   function updateSummary(items) {
@@ -402,6 +414,28 @@
     return name || role || "System";
   }
 
+    function getLatestActivityForRequest(item) {
+  const activities = getActivitiesForRequest(item);
+  return activities.length ? activities[0] : null;
+}
+
+function getLatestActivityTimestamp(item) {
+  const latest = getLatestActivityForRequest(item);
+  return Number(latest?.createdAt || item.updatedAt || item.createdAt || 0);
+}
+
+function getLatestActivityLabel(item) {
+  const latest = getLatestActivityForRequest(item);
+  if (!latest) return "No activity yet";
+  return getActivityText(latest);
+}
+
+function getLatestActivityDisplay(item) {
+  const latest = getLatestActivityForRequest(item);
+  if (!latest) return "No activity yet";
+  return formatDate(latest.createdAt);
+}
+
   function renderActivityLog(item) {
     const activities = getActivitiesForRequest(item).slice(0, 6);
 
@@ -444,11 +478,13 @@
 
     allRequestsList.innerHTML = items.map(item => {
       const rawStatus = String(item.status || "new").toLowerCase();
-      const statusClass = rawStatus.replace(/\s+/g, "-");
-      const leadResponseLabel = getLeadResponseLabel(item);
-      const leadResponseDate = getLeadResponseDate(item);
-      const suggestedReplacement = getSuggestedReplacementContractor(item);
-      const assignmentButtonLabel = getAssignmentButtonLabel(item);
+const statusClass = rawStatus.replace(/\s+/g, "-");
+const leadResponseLabel = getLeadResponseLabel(item);
+const leadResponseDate = getLeadResponseDate(item);
+const suggestedReplacement = getSuggestedReplacementContractor(item);
+const assignmentButtonLabel = getAssignmentButtonLabel(item);
+const latestActivityLabel = getLatestActivityLabel(item);
+const latestActivityDisplay = getLatestActivityDisplay(item);
 
       return `
         <div class="request-item">
@@ -463,10 +499,16 @@
           </div>
 
           <div class="request-meta">
-            <span>📍 ${escapeHtml(item.city || "—")}</span>
-            <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-            <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-          </div>
+  <span>📍 ${escapeHtml(item.city || "—")}</span>
+  <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+  <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+</div>
+
+<div class="request-latest-activity">
+  <span>🕒 Latest activity:</span>
+  <strong>${escapeHtml(latestActivityLabel)}</strong>
+  <span class="request-latest-activity-time">${escapeHtml(latestActivityDisplay)}</span>
+</div>
 
           <p class="request-desc">${escapeHtml(item.description || "")}</p>
 
