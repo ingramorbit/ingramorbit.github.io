@@ -1550,6 +1550,52 @@ body{
   color:#0f4c5c;
 }
 
+.assignment-recommendations{
+  margin:0 0 12px;
+}
+
+.assignment-recommendations-title{
+  margin:0 0 10px;
+  font-weight:900;
+  color:#111;
+}
+
+.assignment-recommendations-list{
+  display:grid;
+  gap:8px;
+}
+
+.assignment-recommendation-item{
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+  border-radius:12px;
+  padding:10px 12px;
+}
+
+.assignment-recommendation-item.is-top{
+  background:#eef6ff;
+  border-color:rgba(30,58,138,.18);
+}
+
+.assignment-recommendation-name{
+  font-weight:900;
+  color:#111;
+}
+
+.assignment-recommendation-meta{
+  margin-top:4px;
+  font-size:12px;
+  font-weight:700;
+  color:#555;
+}
+
+.assignment-recommendation-reasons{
+  margin-top:4px;
+  font-size:12px;
+  font-weight:800;
+  color:#1E3A8A;
+}
+
 .assignment-controls{
   display:flex;
   flex-wrap:wrap;
