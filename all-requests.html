@@ -395,16 +395,16 @@ function renderInternalNotes(item) {
   }
 
   function getSuggestedReplacementContractor(item) {
-    if (!isTruckingRequest(item)) return null;
-    if (getLeadResponseLabel(item) !== "declined") return null;
+  if (!isTruckingRequest(item)) return null;
+  if (getLeadResponseLabel(item) !== "declined") return null;
 
-    const currentUid = String(item.assignedContractorUid || "").trim();
+  const currentUid = String(item.assignedContractorUid || "").trim();
 
-    const candidates = getMatchingContractorsForRequest(item).filter(contractor => {
-      return String(contractor._docId || "").trim() !== currentUid;
-    });
+  const candidates = getRankedContractorsForRequest(item).filter(contractor => {
+    return String(contractor._docId || "").trim() !== currentUid;
+  });
 
-    return candidates[0] || null;
+  return candidates[0] || null;
   }
 
   function getDefaultContractorSelection(item) {
@@ -417,27 +417,195 @@ function renderInternalNotes(item) {
     return getLeadResponseLabel(item) === "declined" ? "Reassign Lead" : "Assign Lead";
   }
 
+    function normalizeMatchText(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function getRequestMatchText(item) {
+  return [
+    item.serviceType,
+    item.description,
+    item.city,
+    item.urgency,
+    item.categoryLabel,
+    item.category
+  ].join(" ").toLowerCase();
+}
+
+function getRequestedEquipmentKeywords(item) {
+  const text = getRequestMatchText(item);
+
+  const equipmentMap = [
+    { key: "dry van", label: "Dry Van" },
+    { key: "reefer", label: "Reefer" },
+    { key: "flatbed", label: "Flatbed" },
+    { key: "power only", label: "Power Only" },
+    { key: "hotshot", label: "Hotshot" }
+  ];
+
+  return equipmentMap
+    .filter(entry => text.includes(entry.key))
+    .map(entry => entry.label);
+}
+
+function getRequestedBusinessTypeKeywords(item) {
+  const text = getRequestMatchText(item);
+
+  const businessTypeMap = [
+    { key: "owner-operator", label: "Owner-Operator" },
+    { key: "owner operator", label: "Owner-Operator" },
+    { key: "carrier", label: "Carrier" },
+    { key: "dispatcher", label: "Dispatcher" },
+    { key: "broker", label: "Broker" },
+    { key: "hotshot", label: "Hotshot" }
+  ];
+
+  return [...new Set(
+    businessTypeMap
+      .filter(entry => text.includes(entry.key))
+      .map(entry => entry.label)
+  )];
+}
+
+function scoreContractorForRequest(item, contractor) {
+  let score = 0;
+  const reasons = [];
+
+  const requestCity = normalizeMatchText(item.city);
+  const contractorCity = normalizeMatchText(contractor.city);
+  const contractorStatus = normalizeMatchText(contractor.status);
+  const contractorBusinessType = normalizeMatchText(contractor.businessType);
+
+  const contractorEquipment = Array.isArray(contractor.equipmentTypes)
+    ? contractor.equipmentTypes.map(value => normalizeMatchText(value))
+    : [];
+
+  const requestedEquipment = getRequestedEquipmentKeywords(item);
+  const requestedBusinessTypes = getRequestedBusinessTypeKeywords(item).map(value => normalizeMatchText(value));
+
+  if (requestCity && contractorCity && requestCity === contractorCity) {
+    score += 60;
+    reasons.push("Same city");
+  }
+
+  const matchedEquipment = requestedEquipment.filter(label =>
+    contractorEquipment.includes(normalizeMatchText(label))
+  );
+
+  if (matchedEquipment.length) {
+    score += 30 + ((matchedEquipment.length - 1) * 10);
+    reasons.push(`${matchedEquipment[0]} match`);
+  }
+
+  if (
+    requestedBusinessTypes.length &&
+    contractorBusinessType &&
+    requestedBusinessTypes.includes(contractorBusinessType)
+  ) {
+    score += 20;
+    reasons.push(`${contractor.businessType} match`);
+  }
+
+  if (contractorStatus === "approved") {
+    score += 10;
+    reasons.push("Approved");
+  }
+
+  if (!reasons.length && Number(contractor.serviceRadiusMiles || 0) > 0) {
+    reasons.push("Coverage available");
+  }
+
+  if (!reasons.length) {
+    reasons.push("General trucking fit");
+  }
+
+  return {
+    score,
+    reasons: reasons.slice(0, 2)
+  };
+}
+
+function getRankedContractorsForRequest(item) {
+  return getMatchingContractorsForRequest(item)
+    .map(contractor => ({
+      ...contractor,
+      _match: scoreContractorForRequest(item, contractor)
+    }))
+    .sort((a, b) => {
+      const scoreDiff = Number(b._match?.score || 0) - Number(a._match?.score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+
+      return String(a.companyName || a.contactName || "").localeCompare(
+        String(b.companyName || b.contactName || "")
+      );
+    });
+}
+
+function renderTopRecommendations(item) {
+  const ranked = getRankedContractorsForRequest(item).slice(0, 3);
+
+  if (!ranked.length) {
+    return `
+      <p class="assignment-note assignment-note-muted">
+        No trucking contractors available yet.
+      </p>
+    `;
+  }
+
+  return `
+    <div class="assignment-recommendations">
+      <div class="assignment-recommendations-title">Recommended contractors</div>
+      <div class="assignment-recommendations-list">
+        ${ranked.map((contractor, index) => `
+          <div class="assignment-recommendation-item ${index === 0 ? "is-top" : ""}">
+            <div class="assignment-recommendation-name">
+              ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
+            </div>
+
+            <div class="assignment-recommendation-meta">
+              ${contractor.city ? `${escapeHtml(contractor.city)}` : "City not set"}
+              ${contractor.businessType ? ` · ${escapeHtml(contractor.businessType)}` : ""}
+            </div>
+
+            <div class="assignment-recommendation-reasons">
+              ${escapeHtml(
+                index === 0
+                  ? `Best match · ${(contractor._match?.reasons || []).join(" · ")}`
+                  : (contractor._match?.reasons || []).join(" · ")
+              )}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
   function renderContractorOptions(item) {
-    const contractors = getMatchingContractorsForRequest(item);
-    const selectedUid = getDefaultContractorSelection(item);
+  const contractors = getRankedContractorsForRequest(item);
+  const selectedUid = getDefaultContractorSelection(item);
 
-    if (!contractors.length) {
-      return `<option value="">No trucking contractors available</option>`;
-    }
+  if (!contractors.length) {
+    return `<option value="">No trucking contractors available</option>`;
+  }
 
-    return [
-      `<option value="">Select trucking contractor</option>`,
-      ...contractors.map(contractor => `
+  return [
+    `<option value="">Select trucking contractor</option>`,
+    ...contractors.map((contractor, index) => {
+      const reasonText = (contractor._match?.reasons || []).join(" · ");
+
+      return `
         <option
           value="${escapeHtml(contractor._docId || "")}"
           ${selectedUid === contractor._docId ? "selected" : ""}
         >
           ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
           ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
-          ${contractor.businessType ? ` — ${escapeHtml(contractor.businessType)}` : ""}
+          ${reasonText ? ` — ${escapeHtml(index === 0 ? `Best match · ${reasonText}` : reasonText)}` : ""}
         </option>
-      `)
-    ].join("");
+      `;
+    })
+  ].join("");
   }
 
   function getActivitiesForRequest(item) {
@@ -649,6 +817,8 @@ const latestActivityDisplay = getLatestActivityDisplay(item);
                         </div>
                       `
                   }
+
+                  ${renderTopRecommendations(item)}
 
                   ${
                     suggestedReplacement
