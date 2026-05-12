@@ -2597,3 +2597,368 @@ body{
     padding-top:36px !important;
   }
 }
+
+/* ===== Shared Contractor Approval Status Box ===== */
+.contractor-review-status-box{
+  margin:0 0 16px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.08);
+  background:#f8fafc;
+}
+
+.contractor-review-status-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.contractor-review-status-label{
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-review-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.contractor-review-status-pill.status-not-submitted{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+.contractor-review-status-pill.status-pending{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.contractor-review-status-pill.status-approved{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-review-status-pill.status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-review-status-message{
+  margin:10px 0 0;
+  font-weight:800;
+  color:#333;
+}
+
+.contractor-review-status-meta{
+  margin:6px 0 0;
+  font-size:12px;
+  font-weight:700;
+  color:#666;
+}
+
+/* ===== Contractor Admin Page ===== */
+.contractors-admin-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.contractors-admin-hero .container{
+  padding-top:110px;
+}
+
+.contractors-admin-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.contractors-admin-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.contractors-admin-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.contractors-admin-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.contractors-admin-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.contractors-admin-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.contractors-admin-wrap{
+  padding:18px 0;
+}
+
+.contractors-admin-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.contractors-admin-filters{
+  display:grid;
+  grid-template-columns:1.5fr .9fr;
+  gap:10px;
+  margin:12px 0 12px;
+}
+
+.contractors-admin-filter-input,
+.contractors-admin-filter-select{
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.contractors-admin-filter-input:focus,
+.contractors-admin-filter-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractors-admin-summary{
+  margin:10px 0 14px;
+  font-weight:800;
+  color:#555;
+}
+
+.contractors-admin-list{
+  display:grid;
+  gap:14px;
+}
+
+.contractor-admin-item{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+.contractor-admin-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.contractor-admin-title-text{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-admin-subtitle{
+  margin:4px 0 0;
+  font-weight:800;
+  color:#555;
+}
+
+.contractor-admin-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.contractor-admin-status-pill.status-pending{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.contractor-admin-status-pill.status-approved{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-admin-status-pill.status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-admin-meta,
+.contractor-admin-contact{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:10px;
+  font-weight:700;
+  color:#333;
+}
+
+.contractor-admin-equipment,
+.contractor-admin-dates,
+.contractor-admin-notes{
+  margin:8px 0 0;
+  color:#444;
+  font-weight:700;
+}
+
+.contractor-checklist{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-checklist-title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.contractor-checklist-title{
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-checklist-progress{
+  font-size:12px;
+  font-weight:800;
+  color:#1E3A8A;
+}
+
+.contractor-checklist-items{
+  display:grid;
+  gap:8px;
+}
+
+.contractor-checklist-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-weight:800;
+  color:#333;
+}
+
+.contractor-checklist-item input{
+  margin-top:2px;
+}
+
+.contractor-admin-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.contractor-admin-btn{
+  border:0;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.contractor-admin-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.approve-btn{
+  background:#166534;
+}
+
+.pending-btn{
+  background:#6b7280;
+}
+
+.reject-btn{
+  background:#b2331c;
+}
+
+.checklist-save-btn{
+  margin-top:12px;
+  background:#1E3A8A;
+}
+
+.admin-quick-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:0 0 14px;
+}
+
+.admin-quick-link-btn{
+  display:inline-block;
+  background:#1E3A8A;
+  color:#fff;
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.admin-quick-link-btn:hover{
+  opacity:.92;
+}
+
+@media (max-width:700px){
+  .contractors-admin-filters{
+    grid-template-columns:1fr;
+  }
+
+  .contractor-admin-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+@media (max-width:640px){
+  .contractors-admin-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .contractors-admin-hero .container{
+    padding-top:36px !important;
+  }
+}
