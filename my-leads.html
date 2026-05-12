@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=18">
+  <link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -32,7 +32,16 @@
       <strong>Your assigned leads</strong>
       <p style="margin:8px 0 14px">This is where assigned trucking leads will appear.</p>
 
-      <p id="contractorLeadProfileStatus" class="contractor-status"></p>
+      <div id="contractorLeadReviewStatusBox" class="contractor-review-status-box">
+  <div class="contractor-review-status-top">
+    <span class="contractor-review-status-label">Approval status</span>
+    <span id="contractorLeadReviewStatusPill" class="contractor-review-status-pill status-not-submitted">not submitted</span>
+  </div>
+  <p id="contractorLeadReviewStatusMessage" class="contractor-review-status-message">
+    Complete your profile and save it for review.
+  </p>
+  <p id="contractorLeadReviewStatusMeta" class="contractor-review-status-meta"></p>
+      </div>
 
       <div id="contractorLeadsList" class="requests-list">
         <div class="request-item">
@@ -62,7 +71,9 @@
   const db = getFirestore(app);
 
   const contractorLeadsList = document.getElementById("contractorLeadsList");
-  const contractorLeadProfileStatus = document.getElementById("contractorLeadProfileStatus");
+const contractorLeadReviewStatusPill = document.getElementById("contractorLeadReviewStatusPill");
+const contractorLeadReviewStatusMessage = document.getElementById("contractorLeadReviewStatusMessage");
+const contractorLeadReviewStatusMeta = document.getElementById("contractorLeadReviewStatusMeta");
 
   let contractorProfile = null;
   let contractorLeads = [];
@@ -105,6 +116,49 @@
       </div>
     `;
   }
+
+    function getApprovalMessage(status) {
+  if (status === "approved") {
+    return "Your contractor profile is approved. You are eligible for new lead assignment.";
+  }
+
+  if (status === "rejected") {
+    return "Your contractor profile is not approved right now. You may not receive new leads until this is resolved.";
+  }
+
+  if (status === "pending") {
+    return "Your contractor profile is under review. You may not receive new leads until approved.";
+  }
+
+  return "Complete your profile and save it for review.";
+}
+
+function renderApprovalStatus(profileData) {
+  const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
+  const safeStatus = rawStatus || "not-submitted";
+
+  if (contractorLeadReviewStatusPill) {
+    contractorLeadReviewStatusPill.textContent = safeStatus;
+    contractorLeadReviewStatusPill.className = `contractor-review-status-pill status-${safeStatus.replace(/\s+/g, "-")}`;
+  }
+
+  if (contractorLeadReviewStatusMessage) {
+    contractorLeadReviewStatusMessage.textContent = getApprovalMessage(safeStatus);
+  }
+
+  if (contractorLeadReviewStatusMeta) {
+    if (!profileData) {
+      contractorLeadReviewStatusMeta.textContent = "";
+      return;
+    }
+
+    const updatedText = profileData.updatedAt
+      ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
+      : "";
+
+    contractorLeadReviewStatusMeta.textContent = updatedText;
+  }
+}
 
   function renderLeads(items) {
     if (!items.length) {
@@ -185,17 +239,16 @@
     const snap = await getDoc(ref);
 
     if (!snap.exists()) {
-      contractorProfile = null;
-      contractorLeadProfileStatus.textContent = "You do not have a contractor profile yet. Complete onboarding first.";
-      renderEmpty("Complete contractor onboarding before you can receive leads.");
-      return false;
-    }
+  contractorProfile = null;
+  renderApprovalStatus(null);
+  renderEmpty("Complete contractor onboarding before you can receive leads.");
+  return false;
+}
 
-    contractorProfile = snap.data();
-    contractorLeadProfileStatus.textContent = `Profile status: ${contractorProfile.status || "pending"}`;
+contractorProfile = snap.data();
+renderApprovalStatus(contractorProfile);
 
-    return true;
-  }
+return true;
 
   async function loadMyLeads() {
     const currentUser = await waitForAKOAuth();
