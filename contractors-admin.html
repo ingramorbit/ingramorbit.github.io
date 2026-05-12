@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Contractor Review</title>
+  <link rel="stylesheet" href="styles.css?v=24">
+</head>
+<body>
+  <section class="contractors-admin-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="contractors-admin-back contractors-admin-back-floating" href="all-requests.html">← Back to All Requests</a>
+
+    <div class="container">
+      <div class="contractors-admin-hero-content">
+        <div class="contractors-admin-brand">AssistKingOnline</div>
+        <h1 class="contractors-admin-title">✅ Contractor Approval</h1>
+        <p>Review contractor profiles and control who appears in assignment recommendations.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container contractors-admin-wrap">
+    <div class="contractors-admin-card">
+      <strong>Contractor review queue</strong>
+      <p style="margin:8px 0 14px">
+        Only <strong>approved</strong> contractors will appear in trucking assignment recommendations and dropdowns.
+      </p>
+
+      <div class="contractors-admin-filters">
+        <input
+          id="contractorsAdminSearch"
+          class="contractors-admin-filter-input"
+          type="text"
+          placeholder="Search company, contact, email, city, business type..."
+        />
+
+        <select id="contractorsAdminStatus" class="contractors-admin-filter-select">
+          <option value="">All statuses</option>
+          <option value="pending">pending</option>
+          <option value="approved">approved</option>
+          <option value="rejected">rejected</option>
+        </select>
+      </div>
+
+      <p id="contractorsAdminSummary" class="contractors-admin-summary">Loading contractors...</p>
+
+      <div id="contractorsAdminList" class="contractors-admin-list">
+        <div class="contractor-admin-item">
+          <p style="margin:0;font-weight:800;">Loading contractors...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      updateDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const contractorsAdminSearch = document.getElementById("contractorsAdminSearch");
+    const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
+    const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
+    const contractorsAdminList = document.getElementById("contractorsAdminList");
+
+    let contractors = [];
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatDate(value) {
+      if (!value) return "—";
+      try {
+        return new Date(value).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function getCategoryKey(item) {
+      const raw = String(item.category || item.categoryLabel || "").toLowerCase();
+
+      if (raw.includes("trucking")) return "trucking";
+      if (raw.includes("hvac")) return "hvac";
+
+      return "general";
+    }
+
+    function getChecklistConfig(item) {
+      const categoryKey = getCategoryKey(item);
+
+      if (categoryKey === "trucking") {
+        return [
+          { key: "legalIdentityVerified", label: "Legal company / contact verified" },
+          { key: "mcDotVerified", label: "USDOT / MC checked" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "equipmentVerified", label: "Equipment matches profile" },
+          { key: "serviceAreaVerified", label: "Service area / lanes confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "hvac") {
+        return [
+          { key: "stateLicenseVerified", label: "State license verified" },
+          { key: "epa608Verified", label: "EPA 608 / required certs reviewed" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "serviceAreaVerified", label: "Service area confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      return [
+        { key: "identityVerified", label: "Business identity verified" },
+        { key: "insuranceVerified", label: "Insurance proof reviewed" },
+        { key: "contactVerified", label: "Phone / email verified" }
+      ];
+    }
+
+    function getChecklistState(item) {
+      return item.reviewChecklist || {};
+    }
+
+    function getChecklistProgress(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+      const completed = config.filter(entry => state[entry.key] === true).length;
+
+      return {
+        completed,
+        total: config.length
+      };
+    }
+
+    function canApproveContractor(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+
+      return config.every(entry => state[entry.key] === true);
+    }
+
+    function renderChecklist(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+      const progress = getChecklistProgress(item);
+
+      return `
+        <div class="contractor-checklist">
+          <div class="contractor-checklist-title-row">
+            <div class="contractor-checklist-title">
+              Review checklist · ${escapeHtml(getCategoryKey(item).toUpperCase())}
+            </div>
+            <div class="contractor-checklist-progress">
+              ${progress.completed}/${progress.total} complete
+            </div>
+          </div>
+
+          <div class="contractor-checklist-items">
+            ${config.map(entry => `
+              <label class="contractor-checklist-item">
+                <input
+                  type="checkbox"
+                  class="contractor-checklist-checkbox"
+                  data-contractorid="${escapeHtml(item._docId || "")}"
+                  data-checkkey="${escapeHtml(entry.key)}"
+                  ${state[entry.key] === true ? "checked" : ""}
+                />
+                <span>${escapeHtml(entry.label)}</span>
+              </label>
+            `).join("")}
+          </div>
+
+          <button
+            type="button"
+            class="contractor-admin-btn checklist-save-btn"
+            data-contractorid="${escapeHtml(item._docId || "")}"
+          >
+            Save Checklist
+          </button>
+        </div>
+      `;
+    }
+
+    function getFilteredContractors() {
+      const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
+      const statusValue = (contractorsAdminStatus?.value || "").trim().toLowerCase();
+
+      let items = [...contractors];
+
+      if (searchValue) {
+        items = items.filter(item => {
+          const haystack = [
+            item.companyName,
+            item.contactName,
+            item.email,
+            item.phone,
+            item.city,
+            item.state,
+            item.businessType,
+            item.category,
+            ...(Array.isArray(item.equipmentTypes) ? item.equipmentTypes : [])
+          ].join(" ").toLowerCase();
+
+          return haystack.includes(searchValue);
+        });
+      }
+
+      if (statusValue) {
+        items = items.filter(item => String(item.status || "pending").toLowerCase() === statusValue);
+      }
+
+      items.sort((a, b) => Number(b.updatedAt || b.createdAt || 0) - Number(a.updatedAt || a.createdAt || 0));
+
+      return items;
+    }
+
+    function updateSummary(items) {
+      const total = contractors.length;
+      const visible = items.length;
+
+      if (!total) {
+        contractorsAdminSummary.textContent = "No contractors found.";
+        return;
+      }
+
+      if (visible === total) {
+        contractorsAdminSummary.textContent = `Showing all ${total} contractor${total === 1 ? "" : "s"}.`;
+        return;
+      }
+
+      contractorsAdminSummary.textContent = `Showing ${visible} of ${total} contractor${total === 1 ? "" : "s"}.`;
+    }
+
+    function renderContractors(items) {
+      if (!items.length) {
+        contractorsAdminList.innerHTML = `
+          <div class="contractor-admin-item">
+            <p style="margin:0;font-weight:800;">No contractors match your filters.</p>
+          </div>
+        `;
+        return;
+      }
+
+      contractorsAdminList.innerHTML = items.map(item => {
+        const rawStatus = String(item.status || "pending").toLowerCase();
+        const statusClass = rawStatus.replace(/\s+/g, "-");
+        const equipmentText = Array.isArray(item.equipmentTypes) && item.equipmentTypes.length
+          ? item.equipmentTypes.join(", ")
+          : "No equipment listed";
+
+        return `
+          <div class="contractor-admin-item">
+            <div class="contractor-admin-top">
+              <div>
+                <h3 class="contractor-admin-title-text">${escapeHtml(item.companyName || "Unnamed contractor")}</h3>
+                <p class="contractor-admin-subtitle">${escapeHtml(item.contactName || "No contact name")}</p>
+              </div>
+
+              <span class="contractor-admin-status-pill status-${escapeHtml(statusClass)}">
+                ${escapeHtml(rawStatus)}
+              </span>
+            </div>
+
+            <div class="contractor-admin-meta">
+              <span>📍 ${escapeHtml(item.city || "—")}${item.state ? `, ${escapeHtml(item.state)}` : ""}</span>
+              <span>🏷 ${escapeHtml(item.businessType || "—")}</span>
+              <span>🚚 ${escapeHtml(item.categoryLabel || item.category || "—")}</span>
+            </div>
+
+            <div class="contractor-admin-contact">
+              <span>✉️ ${escapeHtml(item.email || "—")}</span>
+              <span>📞 ${escapeHtml(item.phone || "—")}</span>
+            </div>
+
+            <p class="contractor-admin-equipment"><strong>Equipment:</strong> ${escapeHtml(equipmentText)}</p>
+            <p class="contractor-admin-dates"><strong>Created:</strong> ${escapeHtml(formatDate(item.createdAt))}</p>
+            <p class="contractor-admin-dates"><strong>Updated:</strong> ${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</p>
+
+            ${
+              item.notes
+                ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
+                : ""
+            }
+
+            ${renderChecklist(item)}
+
+            <div class="contractor-admin-actions">
+              <button
+                type="button"
+                class="contractor-admin-btn approve-btn"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+                data-nextstatus="approved"
+                ${rawStatus === "approved" ? "disabled" : ""}
+              >
+                Approve
+              </button>
+
+              <button
+                type="button"
+                class="contractor-admin-btn pending-btn"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+                data-nextstatus="pending"
+                ${rawStatus === "pending" ? "disabled" : ""}
+              >
+                Set Pending
+              </button>
+
+              <button
+                type="button"
+                class="contractor-admin-btn reject-btn"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+                data-nextstatus="rejected"
+                ${rawStatus === "rejected" ? "disabled" : ""}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function applyFilters() {
+      const items = getFilteredContractors();
+      updateSummary(items);
+      renderContractors(items);
+    }
+
+    async function loadContractors() {
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
+        return;
+      }
+
+      if (currentUser.tier !== "admin") {
+        contractorsAdminList.innerHTML = `
+          <div class="contractor-admin-item">
+            <p style="margin:0;font-weight:800;">Admin access is required.</p>
+          </div>
+        `;
+        contractorsAdminSummary.textContent = "Admin access is required.";
+        return;
+      }
+
+      try {
+        const snapshot = await getDocs(collection(db, "contractors"));
+
+        contractors = snapshot.docs.map(docSnap => ({
+          _docId: docSnap.id,
+          ...docSnap.data()
+        }));
+
+        applyFilters();
+      } catch (err) {
+        console.error(err);
+        contractorsAdminList.innerHTML = `
+          <div class="contractor-admin-item">
+            <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+        contractorsAdminSummary.textContent = "Could not load contractors.";
+      }
+    }
+
+    contractorsAdminList.addEventListener("click", async (e) => {
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser || currentUser.tier !== "admin") {
+        alert("Admin access is required.");
+        return;
+      }
+
+      const checklistSaveBtn = e.target.closest(".checklist-save-btn");
+      if (checklistSaveBtn) {
+        const contractorId = checklistSaveBtn.getAttribute("data-contractorid");
+        const contractor = contractors.find(item => item._docId === contractorId);
+
+        if (!contractorId || !contractor) {
+          alert("Could not find this contractor.");
+          return;
+        }
+
+        const config = getChecklistConfig(contractor);
+        const checkboxMap = {};
+
+        config.forEach(entry => {
+          const checkbox = [...contractorsAdminList.querySelectorAll(".contractor-checklist-checkbox")]
+            .find(el =>
+              el.getAttribute("data-contractorid") === contractorId &&
+              el.getAttribute("data-checkkey") === entry.key
+            );
+
+          checkboxMap[entry.key] = !!checkbox?.checked;
+        });
+
+        try {
+          await updateDoc(doc(db, "contractors", contractorId), {
+            reviewChecklist: checkboxMap,
+            reviewChecklistUpdatedAt: Date.now(),
+            reviewChecklistUpdatedBy: currentUser.uid,
+            updatedAt: Date.now()
+          });
+
+          await loadContractors();
+          alert("Checklist saved.");
+        } catch (err) {
+          console.error(err);
+          alert(`Could not save checklist: ${err.message}`);
+        }
+        return;
+      }
+
+      const actionBtn = e.target.closest(".contractor-admin-btn");
+      if (!actionBtn || actionBtn.classList.contains("checklist-save-btn")) return;
+
+      const contractorId = actionBtn.getAttribute("data-contractorid");
+      const nextStatus = (actionBtn.getAttribute("data-nextstatus") || "").trim();
+
+      if (!contractorId || !nextStatus) {
+        alert("Could not update this contractor.");
+        return;
+      }
+
+      const contractor = contractors.find(item => item._docId === contractorId);
+      if (!contractor) {
+        alert("Could not find contractor data.");
+        return;
+      }
+
+      if (nextStatus === "approved" && !canApproveContractor(contractor)) {
+        alert("Complete the review checklist before approving this contractor.");
+        return;
+      }
+
+      const confirmed = confirm(`Set "${contractor.companyName || contractor.contactName || "this contractor"}" to "${nextStatus}"?`);
+      if (!confirmed) return;
+
+      const now = Date.now();
+      const payload = {
+        status: nextStatus,
+        updatedAt: now
+      };
+
+      if (nextStatus === "approved") {
+        payload.approvedAt = now;
+      }
+
+      if (nextStatus === "rejected") {
+        payload.rejectedAt = now;
+      }
+
+      try {
+        await updateDoc(doc(db, "contractors", contractorId), payload);
+        await loadContractors();
+        alert(`Contractor updated to "${nextStatus}".`);
+      } catch (err) {
+        console.error(err);
+        alert(`Could not update contractor: ${err.message}`);
+      }
+    });
+
+    if (contractorsAdminSearch) {
+      contractorsAdminSearch.addEventListener("input", applyFilters);
+    }
+
+    if (contractorsAdminStatus) {
+      contractorsAdminStatus.addEventListener("change", applyFilters);
+    }
+
+    loadContractors();
+  </script>
+</body>
+</html>
