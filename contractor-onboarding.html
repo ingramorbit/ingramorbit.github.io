@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=17">
+  <link rel="stylesheet" href="styles.css?v=24">
 </head>
 <body>
   <section class="contractor-hero">
@@ -30,9 +30,20 @@
   <main class="container contractor-wrap">
     <div class="contractor-card">
       <strong>Contractor Profile</strong>
-      <p style="margin:8px 0 14px">For now, we are focusing this onboarding flow on trucking contractors.</p>
+<p style="margin:8px 0 14px">For now, we are focusing this onboarding flow on trucking contractors.</p>
 
-      <form id="contractorOnboardingForm" class="contractor-form">
+<div id="contractorReviewStatusBox" class="contractor-review-status-box">
+  <div class="contractor-review-status-top">
+    <span class="contractor-review-status-label">Approval status</span>
+    <span id="contractorReviewStatusPill" class="contractor-review-status-pill status-not-submitted">not submitted</span>
+  </div>
+  <p id="contractorReviewStatusMessage" class="contractor-review-status-message">
+    Complete your profile and save it for review.
+  </p>
+  <p id="contractorReviewStatusMeta" class="contractor-review-status-meta"></p>
+</div>
+
+<form id="contractorOnboardingForm" class="contractor-form">
         <input id="coCategory" value="Trucking" readonly />
         <input id="coCompanyName" placeholder="Company name" required />
         <input id="coContactName" placeholder="Primary contact name" required />
@@ -85,18 +96,22 @@
     const db = getFirestore(app);
 
     const form = document.getElementById("contractorOnboardingForm");
-    const coCategory = document.getElementById("coCategory");
-    const coCompanyName = document.getElementById("coCompanyName");
-    const coContactName = document.getElementById("coContactName");
-    const coEmail = document.getElementById("coEmail");
-    const coPhone = document.getElementById("coPhone");
-    const coCity = document.getElementById("coCity");
-    const coState = document.getElementById("coState");
-    const coRadius = document.getElementById("coRadius");
-    const coBusinessType = document.getElementById("coBusinessType");
-    const coMcDot = document.getElementById("coMcDot");
-    const coNotes = document.getElementById("coNotes");
-    const contractorStatus = document.getElementById("contractorStatus");
+const coCategory = document.getElementById("coCategory");
+const coCompanyName = document.getElementById("coCompanyName");
+const coContactName = document.getElementById("coContactName");
+const coEmail = document.getElementById("coEmail");
+const coPhone = document.getElementById("coPhone");
+const coCity = document.getElementById("coCity");
+const coState = document.getElementById("coState");
+const coRadius = document.getElementById("coRadius");
+const coBusinessType = document.getElementById("coBusinessType");
+const coMcDot = document.getElementById("coMcDot");
+const coNotes = document.getElementById("coNotes");
+const contractorStatus = document.getElementById("contractorStatus");
+
+const contractorReviewStatusPill = document.getElementById("contractorReviewStatusPill");
+const contractorReviewStatusMessage = document.getElementById("contractorReviewStatusMessage");
+const contractorReviewStatusMeta = document.getElementById("contractorReviewStatusMeta");
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -115,6 +130,49 @@
       return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
     }
 
+    function getApprovalMessage(status) {
+  if (status === "approved") {
+    return "Your contractor profile is approved. You are eligible to appear in assignment recommendations.";
+  }
+
+  if (status === "rejected") {
+    return "Your contractor profile is not approved right now. Review your details and update your profile if needed.";
+  }
+
+  if (status === "pending") {
+    return "Your contractor profile is under review. You may not receive new leads until approved.";
+  }
+
+  return "Complete your profile and save it for review.";
+}
+
+function renderApprovalStatus(profileData) {
+  const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
+  const safeStatus = rawStatus || "not-submitted";
+
+  if (contractorReviewStatusPill) {
+    contractorReviewStatusPill.textContent = safeStatus;
+    contractorReviewStatusPill.className = `contractor-review-status-pill status-${safeStatus.replace(/\s+/g, "-")}`;
+  }
+
+  if (contractorReviewStatusMessage) {
+    contractorReviewStatusMessage.textContent = getApprovalMessage(safeStatus);
+  }
+
+  if (contractorReviewStatusMeta) {
+    if (!profileData) {
+      contractorReviewStatusMeta.textContent = "";
+      return;
+    }
+
+    const updatedText = profileData.updatedAt
+      ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
+      : "";
+
+    contractorReviewStatusMeta.textContent = updatedText;
+  }
+}
+
     async function loadProfile() {
       const currentUser = await waitForAKOAuth();
 
@@ -127,28 +185,31 @@
       const snap = await getDoc(ref);
 
       if (snap.exists()) {
-        const data = snap.data();
+      if (snap.exists()) {
+  const data = snap.data();
 
-        coCompanyName.value = data.companyName || "";
-        coContactName.value = data.contactName || currentUser.name || "";
-        coEmail.value = data.email || currentUser.email || "";
-        coPhone.value = data.phone || "";
-        coCity.value = data.city || "";
-        coState.value = data.state || "";
-        coRadius.value = data.serviceRadiusMiles || "";
-        coBusinessType.value = data.businessType || "";
-        coMcDot.value = data.mcDotNumber || "";
-        coNotes.value = data.notes || "";
+  coCompanyName.value = data.companyName || "";
+  coContactName.value = data.contactName || currentUser.name || "";
+  coEmail.value = data.email || currentUser.email || "";
+  coPhone.value = data.phone || "";
+  coCity.value = data.city || "";
+  coState.value = data.state || "";
+  coRadius.value = data.serviceRadiusMiles || "";
+  coBusinessType.value = data.businessType || "";
+  coMcDot.value = data.mcDotNumber || "";
+  coNotes.value = data.notes || "";
 
-        const equipmentTypes = data.equipmentTypes || [];
-        document.querySelectorAll('input[name="equipment"]').forEach(el => {
-          el.checked = equipmentTypes.includes(el.value);
-        });
+  const equipmentTypes = data.equipmentTypes || [];
+  document.querySelectorAll('input[name="equipment"]').forEach(el => {
+    el.checked = equipmentTypes.includes(el.value);
+  });
 
-        contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
-      } else {
-        coContactName.value = currentUser.name || "";
-        coEmail.value = currentUser.email || "";
+  renderApprovalStatus(data);
+  contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+} else {
+  coContactName.value = currentUser.name || "";
+  coEmail.value = currentUser.email || "";
+  renderApprovalStatus(null);
       }
 
       return currentUser;
@@ -205,10 +266,11 @@
       }
 
       try {
-        contractorStatus.textContent = "Saving contractor profile...";
-        await setDoc(contractorRef, payload, { merge: true });
-        contractorStatus.textContent = "Contractor profile saved. You can now open My Leads.";
-      } catch (err) {
+  contractorStatus.textContent = "Saving contractor profile...";
+  await setDoc(contractorRef, payload, { merge: true });
+  renderApprovalStatus(payload);
+  contractorStatus.textContent = "Contractor profile saved. You can now open My Leads.";
+} catch (err) {
         console.error(err);
         contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
       }
