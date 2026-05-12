@@ -30,7 +30,11 @@
   <main class="container all-requests-wrap">
     <div class="all-requests-card">
   <strong>Submitted requests</strong>
-  <p style="margin:8px 0 14px">This page is for admins only.</p>
+<p style="margin:8px 0 10px">This page is for admins only.</p>
+
+<div class="admin-quick-links">
+  <a href="contractors-admin.html" class="admin-quick-link-btn">Manage Contractors</a>
+</div>
 
   <div class="all-requests-filters">
     <input
@@ -278,11 +282,14 @@ let allInternalNotes = [];
   }
 
   function getMatchingContractorsForRequest(item) {
-    if (!isTruckingRequest(item)) return [];
+  if (!isTruckingRequest(item)) return [];
 
-    return allContractors
-      .filter(contractor => String(contractor.category || "").toLowerCase() === "trucking")
-      .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
+  return allContractors
+    .filter(contractor =>
+      String(contractor.category || "").toLowerCase() === "trucking" &&
+      String(contractor.status || "pending").toLowerCase() === "approved"
+    )
+    .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
   }
 
   function getAssignedContractorLabel(item) {
@@ -546,10 +553,10 @@ function renderTopRecommendations(item) {
 
   if (!ranked.length) {
     return `
-      <p class="assignment-note assignment-note-muted">
-        No trucking contractors available yet.
-      </p>
-    `;
+  <p class="assignment-note assignment-note-muted">
+    No approved trucking contractors available yet.
+  </p>
+`;
   }
 
   return `
@@ -586,7 +593,7 @@ function renderTopRecommendations(item) {
   const selectedUid = getDefaultContractorSelection(item);
 
   if (!contractors.length) {
-    return `<option value="">No trucking contractors available</option>`;
+    return `<option value="">No approved trucking contractors available</option>`;
   }
 
   return [
