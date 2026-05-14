@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -41,6 +41,11 @@
     Complete your profile and save it for review.
   </p>
   <p id="contractorLeadReviewStatusMeta" class="contractor-review-status-meta"></p>
+
+  <div id="contractorLeadReviewFeedbackBox" class="contractor-review-feedback" hidden>
+    <div class="contractor-review-feedback-title">Admin review feedback</div>
+    <div id="contractorLeadReviewFeedbackText" class="contractor-review-feedback-text"></div>
+  </div>
       </div>
 
       <div id="contractorLeadsList" class="requests-list">
@@ -74,6 +79,8 @@
 const contractorLeadReviewStatusPill = document.getElementById("contractorLeadReviewStatusPill");
 const contractorLeadReviewStatusMessage = document.getElementById("contractorLeadReviewStatusMessage");
 const contractorLeadReviewStatusMeta = document.getElementById("contractorLeadReviewStatusMeta");
+const contractorLeadReviewFeedbackBox = document.getElementById("contractorLeadReviewFeedbackBox");
+const contractorLeadReviewFeedbackText = document.getElementById("contractorLeadReviewFeedbackText");
 
   let contractorProfile = null;
   let contractorLeads = [];
@@ -136,6 +143,7 @@ const contractorLeadReviewStatusMeta = document.getElementById("contractorLeadRe
 function renderApprovalStatus(profileData) {
   const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
   const safeStatus = rawStatus || "not-submitted";
+  const reviewFeedback = String(profileData?.reviewFeedback || "").trim();
 
   if (contractorLeadReviewStatusPill) {
     contractorLeadReviewStatusPill.textContent = safeStatus;
@@ -149,17 +157,24 @@ function renderApprovalStatus(profileData) {
   if (contractorLeadReviewStatusMeta) {
     if (!profileData) {
       contractorLeadReviewStatusMeta.textContent = "";
-      return;
+    } else {
+      const updatedText = profileData.updatedAt
+        ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
+        : "";
+
+      contractorLeadReviewStatusMeta.textContent = updatedText;
     }
+  }
 
-    const updatedText = profileData.updatedAt
-      ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
-      : "";
+  if (contractorLeadReviewFeedbackBox && contractorLeadReviewFeedbackText) {
+    const shouldShowFeedback =
+      !!reviewFeedback &&
+      (safeStatus === "pending" || safeStatus === "rejected");
 
-    contractorLeadReviewStatusMeta.textContent = updatedText;
+    contractorLeadReviewFeedbackBox.hidden = !shouldShowFeedback;
+    contractorLeadReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
   }
 }
-
   function renderLeads(items) {
     if (!items.length) {
       renderEmpty("No leads have been assigned to you yet.");
