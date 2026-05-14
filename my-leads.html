@@ -250,7 +250,6 @@ function renderApprovalStatus(profileData) {
   }
 
   async function loadContractorProfile(currentUser) {
-  async function loadContractorProfile(currentUser) {
   const ref = doc(db, "contractors", currentUser.uid);
   const snap = await getDoc(ref);
 
