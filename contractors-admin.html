@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=25">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -319,6 +319,23 @@
 
             ${renderChecklist(item)}
 
+            <div class="contractor-review-feedback-editor">
+  <div class="contractor-review-feedback-editor-title">Contractor-facing review feedback</div>
+  <textarea
+    class="contractor-review-feedback-input"
+    data-contractorid="${escapeHtml(item._docId || "")}"
+    placeholder="Explain why this contractor is pending or rejected, or what they need to fix before approval..."
+  >${escapeHtml(item.reviewFeedback || "")}</textarea>
+
+  <button
+    type="button"
+    class="contractor-admin-btn review-feedback-save-btn"
+    data-contractorid="${escapeHtml(item._docId || "")}"
+  >
+    Save Feedback
+  </button>
+</div>
+
             <div class="contractor-admin-actions">
               <button
                 type="button"
@@ -406,6 +423,45 @@
         return;
       }
 
+      const feedbackSaveBtn = e.target.closest(".review-feedback-save-btn");
+      if (feedbackSaveBtn) {
+        const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
+        const contractor = contractors.find(item => item._docId === contractorId);
+
+        if (!contractorId || !contractor) {
+          alert("Could not find this contractor.");
+          return;
+        }
+
+        const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+          .find(el => el.getAttribute("data-contractorid") === contractorId);
+
+        if (!feedbackInput) {
+          alert("Could not find the feedback box.");
+          return;
+        }
+
+        const reviewFeedback = (feedbackInput.value || "").trim();
+        const now = Date.now();
+
+        try {
+          await updateDoc(doc(db, "contractors", contractorId), {
+            reviewFeedback: reviewFeedback,
+            reviewFeedbackUpdatedAt: now,
+            reviewFeedbackUpdatedBy: currentUser.uid,
+            reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
+            updatedAt: now
+          });
+
+          await loadContractors();
+          alert("Review feedback saved.");
+        } catch (err) {
+          console.error(err);
+          alert(`Could not save feedback: ${err.message}`);
+        }
+        return;
+      }
+
       const checklistSaveBtn = e.target.closest(".checklist-save-btn");
       if (checklistSaveBtn) {
         const contractorId = checklistSaveBtn.getAttribute("data-contractorid");
@@ -463,8 +519,18 @@
         return;
       }
 
+      const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+        .find(el => el.getAttribute("data-contractorid") === contractorId);
+
+      const reviewFeedback = (feedbackInput?.value || "").trim();
+
       if (nextStatus === "approved" && !canApproveContractor(contractor)) {
         alert("Complete the review checklist before approving this contractor.");
+        return;
+      }
+
+      if (nextStatus === "rejected" && !reviewFeedback) {
+        alert("Enter a contractor-facing rejection reason before rejecting this contractor.");
         return;
       }
 
@@ -472,10 +538,14 @@
       if (!confirmed) return;
 
       const now = Date.now();
-      const payload = {
-        status: nextStatus,
-        updatedAt: now
-      };
+const payload = {
+  status: nextStatus,
+  updatedAt: now,
+  reviewFeedback: reviewFeedback,
+  reviewFeedbackUpdatedAt: now,
+  reviewFeedbackUpdatedBy: currentUser.uid,
+  reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin"
+};
 
       if (nextStatus === "approved") {
         payload.approvedAt = now;
