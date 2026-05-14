@@ -2962,3 +2962,61 @@ body{
     padding-top:36px !important;
   }
 }
+
+/* ===== Contractor Review Feedback ===== */
+.contractor-review-feedback{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:#fffaf0;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-review-feedback-title{
+  margin:0 0 8px;
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-review-feedback-text{
+  font-weight:800;
+  color:#333;
+  white-space:pre-wrap;
+  line-height:1.45;
+}
+
+.contractor-review-feedback-editor{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:#fffaf0;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-review-feedback-editor-title{
+  margin:0 0 10px;
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-review-feedback-input{
+  width:100%;
+  min-height:100px;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+  resize:vertical;
+}
+
+.contractor-review-feedback-input:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.review-feedback-save-btn{
+  margin-top:12px;
+  background:#1E3A8A;
+}
