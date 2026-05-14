@@ -250,22 +250,24 @@ function renderApprovalStatus(profileData) {
   }
 
   async function loadContractorProfile(currentUser) {
-    const ref = doc(db, "contractors", currentUser.uid);
-    const snap = await getDoc(ref);
+  async function loadContractorProfile(currentUser) {
+  const ref = doc(db, "contractors", currentUser.uid);
+  const snap = await getDoc(ref);
 
-    if (!snap.exists()) {
-  contractorProfile = null;
-  renderApprovalStatus(null);
-  renderEmpty("Complete contractor onboarding before you can receive leads.");
-  return false;
+  if (!snap.exists()) {
+    contractorProfile = null;
+    renderApprovalStatus(null);
+    renderEmpty("Complete contractor onboarding before you can receive leads.");
+    return false;
+  }
+
+  contractorProfile = snap.data();
+  renderApprovalStatus(contractorProfile);
+
+  return true;
 }
 
-contractorProfile = snap.data();
-renderApprovalStatus(contractorProfile);
-
-return true;
-
-  async function loadMyLeads() {
+async function loadMyLeads() {
     const currentUser = await waitForAKOAuth();
 
     if (!currentUser) {
