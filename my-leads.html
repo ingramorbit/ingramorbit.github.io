@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -48,6 +48,12 @@
   </div>
       </div>
 
+      <div id="contractorLeadResubmissionBox" class="contractor-resubmission-box" hidden>
+  <div class="contractor-resubmission-title">What to fix before re-review</div>
+  <ul id="contractorLeadResubmissionList" class="contractor-resubmission-list"></ul>
+  <a href="contractor-onboarding.html" class="contractor-resubmission-link">Go to Contractor Onboarding</a>
+      </div>
+
       <div id="contractorLeadsList" class="requests-list">
         <div class="request-item">
           <p style="margin:0;font-weight:800;">Loading your leads...</p>
@@ -81,6 +87,8 @@ const contractorLeadReviewStatusMessage = document.getElementById("contractorLea
 const contractorLeadReviewStatusMeta = document.getElementById("contractorLeadReviewStatusMeta");
 const contractorLeadReviewFeedbackBox = document.getElementById("contractorLeadReviewFeedbackBox");
 const contractorLeadReviewFeedbackText = document.getElementById("contractorLeadReviewFeedbackText");
+const contractorLeadResubmissionBox = document.getElementById("contractorLeadResubmissionBox");
+const contractorLeadResubmissionList = document.getElementById("contractorLeadResubmissionList");
 
   let contractorProfile = null;
   let contractorLeads = [];
@@ -140,6 +148,52 @@ const contractorLeadReviewFeedbackText = document.getElementById("contractorLead
   return "Complete your profile and save it for review.";
 }
 
+    function getContractorActionItems(profileData) {
+  const items = [];
+  const category = String(profileData?.category || "trucking").toLowerCase();
+  const equipmentTypes = Array.isArray(profileData?.equipmentTypes) ? profileData.equipmentTypes : [];
+
+  if (!profileData?.companyName) items.push("Add your company name.");
+  if (!profileData?.contactName) items.push("Add your contact name.");
+  if (!profileData?.email) items.push("Add your business email.");
+  if (!profileData?.phone) items.push("Add your phone number.");
+  if (!profileData?.city) items.push("Add your city.");
+  if (!profileData?.state) items.push("Add your state.");
+  if (!profileData?.serviceRadiusMiles) items.push("Set your service radius.");
+  if (!profileData?.businessType) items.push("Choose your business type.");
+
+  if (category === "trucking") {
+    if (!profileData?.mcDotNumber) items.push("Add your USDOT / MC number.");
+    if (!equipmentTypes.length) items.push("Select at least one equipment type.");
+  }
+
+  if (category === "hvac") {
+    if (!profileData?.stateLicenseNumber) items.push("Add your state license number.");
+  }
+
+  return items;
+}
+
+function renderResubmissionCues(profileData) {
+  if (!contractorLeadResubmissionBox || !contractorLeadResubmissionList) return;
+
+  const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
+  const shouldShow = safeStatus === "pending" || safeStatus === "rejected";
+
+  if (!shouldShow) {
+    contractorLeadResubmissionBox.hidden = true;
+    contractorLeadResubmissionList.innerHTML = "";
+    return;
+  }
+
+  const items = getContractorActionItems(profileData);
+
+  contractorLeadResubmissionBox.hidden = false;
+  contractorLeadResubmissionList.innerHTML = items.length
+    ? items.map(item => `<li>${escapeHtml(item)}</li>`).join("")
+    : `<li>Your profile looks complete. Review the admin feedback above and update your onboarding profile if needed.</li>`;
+}
+
 function renderApprovalStatus(profileData) {
   const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
   const safeStatus = rawStatus || "not-submitted";
@@ -158,13 +212,29 @@ function renderApprovalStatus(profileData) {
     if (!profileData) {
       contractorLeadReviewStatusMeta.textContent = "";
     } else {
-      const updatedText = profileData.updatedAt
-        ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
+      const submittedAt = profileData.submittedForReviewAt
+        ? `Submitted: ${new Date(profileData.submittedForReviewAt).toLocaleString()}`
         : "";
 
-      contractorLeadReviewStatusMeta.textContent = updatedText;
+      const resubmittedAt = profileData.resubmittedForReviewAt
+        ? `Resubmitted: ${new Date(profileData.resubmittedForReviewAt).toLocaleString()}`
+        : "";
+
+      contractorLeadReviewStatusMeta.textContent = [submittedAt, resubmittedAt].filter(Boolean).join(" · ");
     }
   }
+
+  if (contractorLeadReviewFeedbackBox && contractorLeadReviewFeedbackText) {
+    const shouldShowFeedback =
+      !!reviewFeedback &&
+      (safeStatus === "pending" || safeStatus === "rejected");
+
+    contractorLeadReviewFeedbackBox.hidden = !shouldShowFeedback;
+    contractorLeadReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
+  }
+
+  renderResubmissionCues(profileData);
+}
 
   if (contractorLeadReviewFeedbackBox && contractorLeadReviewFeedbackText) {
     const shouldShowFeedback =
