@@ -308,7 +308,6 @@ function renderApprovalStatus(profileData) {
       `;
     }).join("");
   }
-
   async function loadContractorProfile(currentUser) {
   const ref = doc(db, "contractors", currentUser.uid);
   const snap = await getDoc(ref);
