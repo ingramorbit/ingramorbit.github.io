@@ -173,7 +173,91 @@ const contractorResubmissionHint = document.getElementById("contractorResubmissi
   return "Complete your profile and save it for review.";
 }
 
-    function getContractorActionItems(profileData) {
+    function getContractorChecklistConfig(profileData) {
+  const rawCategory = String(profileData?.category || profileData?.categoryLabel || "").toLowerCase();
+
+  if (rawCategory.includes("trucking")) {
+    return [
+      {
+        key: "legalIdentityVerified",
+        contractorText: "Be ready to verify your legal company and primary contact details."
+      },
+      {
+        key: "mcDotVerified",
+        contractorText: "Make sure your USDOT / MC information is correct and ready for review."
+      },
+      {
+        key: "insuranceVerified",
+        contractorText: "Provide current insurance proof for review."
+      },
+      {
+        key: "equipmentVerified",
+        contractorText: "Make sure your listed equipment matches what you actually operate."
+      },
+      {
+        key: "serviceAreaVerified",
+        contractorText: "Confirm your service area or lanes."
+      },
+      {
+        key: "contactVerified",
+        contractorText: "Make sure your phone and email are correct and reachable."
+      }
+    ];
+  }
+
+  if (rawCategory.includes("hvac")) {
+    return [
+      {
+        key: "stateLicenseVerified",
+        contractorText: "Provide your state license information for review."
+      },
+      {
+        key: "epa608Verified",
+        contractorText: "Provide your EPA 608 or required certification details."
+      },
+      {
+        key: "insuranceVerified",
+        contractorText: "Provide current insurance proof for review."
+      },
+      {
+        key: "serviceAreaVerified",
+        contractorText: "Confirm your service area."
+      },
+      {
+        key: "contactVerified",
+        contractorText: "Make sure your phone and email are correct and reachable."
+      }
+    ];
+  }
+
+  return [
+    {
+      key: "identityVerified",
+      contractorText: "Be ready to verify your business identity."
+    },
+    {
+      key: "insuranceVerified",
+      contractorText: "Provide current insurance proof for review."
+    },
+    {
+      key: "contactVerified",
+      contractorText: "Make sure your phone and email are correct and reachable."
+    }
+  ];
+}
+
+function getContractorActionItems(profileData) {
+  const checklistConfig = getContractorChecklistConfig(profileData);
+  const reviewChecklist = profileData?.reviewChecklist || {};
+
+  const checklistItems = checklistConfig
+    .filter(entry => reviewChecklist[entry.key] !== true)
+    .map(entry => entry.contractorText);
+
+  if (checklistItems.length) {
+    return checklistItems;
+  }
+
   const items = [];
   const category = String(profileData?.category || "trucking").toLowerCase();
   const equipmentTypes = Array.isArray(profileData?.equipmentTypes) ? profileData.equipmentTypes : [];
