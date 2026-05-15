@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=25">
+  <link rel="stylesheet" href="styles.css?v=26">
 </head>
 <body>
   <section class="contractor-hero">
@@ -45,6 +45,14 @@
   <div id="contractorReviewFeedbackBox" class="contractor-review-feedback" hidden>
     <div class="contractor-review-feedback-title">Admin review feedback</div>
     <div id="contractorReviewFeedbackText" class="contractor-review-feedback-text"></div>
+  </div>
+
+  <div id="contractorResubmissionBox" class="contractor-resubmission-box" hidden>
+  <div class="contractor-resubmission-title">What to fix before re-review</div>
+  <ul id="contractorResubmissionList" class="contractor-resubmission-list"></ul>
+  <p id="contractorResubmissionHint" class="contractor-resubmission-hint">
+    Update your profile below, then save it again to resubmit for review.
+  </p>
   </div>
 </div>
 
@@ -113,12 +121,15 @@ const coBusinessType = document.getElementById("coBusinessType");
 const coMcDot = document.getElementById("coMcDot");
 const coNotes = document.getElementById("coNotes");
 const contractorStatus = document.getElementById("contractorStatus");
-
+const contractorSubmitBtn = form?.querySelector('button[type="submit"]');
 const contractorReviewStatusPill = document.getElementById("contractorReviewStatusPill");
 const contractorReviewStatusMessage = document.getElementById("contractorReviewStatusMessage");
 const contractorReviewStatusMeta = document.getElementById("contractorReviewStatusMeta");
 const contractorReviewFeedbackBox = document.getElementById("contractorReviewFeedbackBox");
 const contractorReviewFeedbackText = document.getElementById("contractorReviewFeedbackText");
+const contractorResubmissionBox = document.getElementById("contractorResubmissionBox");
+const contractorResubmissionList = document.getElementById("contractorResubmissionList");
+const contractorResubmissionHint = document.getElementById("contractorResubmissionHint");
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -153,6 +164,58 @@ const contractorReviewFeedbackText = document.getElementById("contractorReviewFe
   return "Complete your profile and save it for review.";
 }
 
+    function getContractorActionItems(profileData) {
+  const items = [];
+  const category = String(profileData?.category || "trucking").toLowerCase();
+  const equipmentTypes = Array.isArray(profileData?.equipmentTypes) ? profileData.equipmentTypes : [];
+
+  if (!profileData?.companyName) items.push("Add your company name.");
+  if (!profileData?.contactName) items.push("Add your contact name.");
+  if (!profileData?.email) items.push("Add your business email.");
+  if (!profileData?.phone) items.push("Add your phone number.");
+  if (!profileData?.city) items.push("Add your city.");
+  if (!profileData?.state) items.push("Add your state.");
+  if (!profileData?.serviceRadiusMiles) items.push("Set your service radius.");
+  if (!profileData?.businessType) items.push("Choose your business type.");
+
+  if (category === "trucking") {
+    if (!profileData?.mcDotNumber) items.push("Add your USDOT / MC number.");
+    if (!equipmentTypes.length) items.push("Select at least one equipment type.");
+  }
+
+  if (category === "hvac") {
+    if (!profileData?.stateLicenseNumber) items.push("Add your state license number.");
+  }
+
+  return items;
+}
+
+function renderResubmissionCues(profileData) {
+  if (!contractorResubmissionBox || !contractorResubmissionList || !contractorResubmissionHint) return;
+
+  const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
+  const shouldShow = safeStatus === "pending" || safeStatus === "rejected";
+
+  if (!shouldShow) {
+    contractorResubmissionBox.hidden = true;
+    contractorResubmissionList.innerHTML = "";
+    return;
+  }
+
+  const items = getContractorActionItems(profileData);
+
+  contractorResubmissionBox.hidden = false;
+
+  contractorResubmissionList.innerHTML = items.length
+    ? items.map(item => `<li>${escapeHtml(item)}</li>`).join("")
+    : `<li>Your profile looks complete. Review the admin feedback above and resave your profile for re-review.</li>`;
+
+  contractorResubmissionHint.textContent =
+    safeStatus === "rejected"
+      ? "Update the items above, then save your profile again to resubmit for review."
+      : "Your profile is still under review. If you update important details, save again so the admin sees the latest version.";
+}
+
 function renderApprovalStatus(profileData) {
   const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
   const safeStatus = rawStatus || "not-submitted";
@@ -171,11 +234,15 @@ function renderApprovalStatus(profileData) {
     if (!profileData) {
       contractorReviewStatusMeta.textContent = "";
     } else {
-      const updatedText = profileData.updatedAt
-        ? `Last updated: ${new Date(profileData.updatedAt).toLocaleString()}`
+      const submittedAt = profileData.submittedForReviewAt
+        ? `Submitted: ${new Date(profileData.submittedForReviewAt).toLocaleString()}`
         : "";
 
-      contractorReviewStatusMeta.textContent = updatedText;
+      const resubmittedAt = profileData.resubmittedForReviewAt
+        ? `Resubmitted: ${new Date(profileData.resubmittedForReviewAt).toLocaleString()}`
+        : "";
+
+      contractorReviewStatusMeta.textContent = [submittedAt, resubmittedAt].filter(Boolean).join(" · ");
     }
   }
 
@@ -187,6 +254,8 @@ function renderApprovalStatus(profileData) {
     contractorReviewFeedbackBox.hidden = !shouldShowFeedback;
     contractorReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
   }
+
+  renderResubmissionCues(profileData);
 }
 
     async function loadProfile() {
@@ -222,10 +291,27 @@ function renderApprovalStatus(profileData) {
 
   renderApprovalStatus(data);
   contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+        window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
+
+if (contractorSubmitBtn) {
+  const safeStatus = String(data.status || "pending").toLowerCase();
+
+  if (safeStatus === "rejected") {
+    contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
+  } else if (safeStatus === "approved") {
+    contractorSubmitBtn.textContent = "Save Profile Updates";
+  } else {
+    contractorSubmitBtn.textContent = "Save Profile for Review";
+  }
 } else {
   coContactName.value = currentUser.name || "";
   coEmail.value = currentUser.email || "";
   renderApprovalStatus(null);
+  window.currentContractorProfileStatus = "not-submitted";
+
+if (contractorSubmitBtn) {
+  contractorSubmitBtn.textContent = "Save Profile for Review";
+}
       }
 
       return currentUser;
@@ -247,25 +333,44 @@ function renderApprovalStatus(profileData) {
       const existingSnap = await getDoc(contractorRef);
       const existingData = existingSnap.exists() ? existingSnap.data() : null;
 
-      const payload = {
-        ownerUid: currentUser.uid,
-        email: coEmail.value.trim(),
-        category: "trucking",
-        categoryLabel: coCategory.value.trim(),
-        companyName: coCompanyName.value.trim(),
-        contactName: coContactName.value.trim(),
-        phone: coPhone.value.trim(),
-        city: coCity.value.trim(),
-        state: coState.value.trim(),
-        serviceRadiusMiles: Number(coRadius.value || 0),
-        businessType: coBusinessType.value.trim(),
-        mcDotNumber: coMcDot.value.trim(),
-        equipmentTypes,
-        notes: coNotes.value.trim(),
-        status: existingData?.status || "pending",
-        createdAt: existingData?.createdAt || Date.now(),
-        updatedAt: Date.now()
-      };
+      const now = Date.now();
+const currentStatus = String((window.currentContractorProfileStatus || "not-submitted")).toLowerCase();
+
+const nextStatus =
+  currentStatus === "approved"
+    ? "approved"
+    : "pending";
+
+const payload = {
+  ownerUid: currentUser.uid,
+  category: coCategory.value,
+  categoryLabel: "Trucking",
+  companyName: coCompanyName.value.trim(),
+  contactName: coContactName.value.trim(),
+  email: coEmail.value.trim(),
+  phone: coPhone.value.trim(),
+  city: coCity.value.trim(),
+  state: coState.value.trim(),
+  serviceRadiusMiles: Number(coRadius.value || 0),
+  businessType: coBusinessType.value,
+  mcDotNumber: coMcDot.value.trim(),
+  equipmentTypes: getSelectedEquipment(),
+  notes: coNotes.value.trim(),
+  status: nextStatus,
+  updatedAt: now
+};
+
+      if (currentStatus === "not-submitted") {
+  payload.submittedForReviewAt = now;
+}
+
+if (currentStatus === "rejected") {
+  payload.resubmittedForReviewAt = now;
+}
+
+if (currentStatus === "pending" && !payload.submittedForReviewAt) {
+  payload.submittedForReviewAt = now;
+}
 
       if (
         !payload.companyName ||
@@ -284,8 +389,16 @@ function renderApprovalStatus(profileData) {
       try {
   contractorStatus.textContent = "Saving contractor profile...";
   await setDoc(contractorRef, payload, { merge: true });
-  renderApprovalStatus(payload);
-  contractorStatus.textContent = "Contractor profile saved. You can now open My Leads.";
+window.currentContractorProfileStatus = payload.status;
+renderApprovalStatus(payload);
+
+if (payload.status === "pending" && currentStatus === "rejected") {
+  contractorStatus.textContent = "Profile updated and resubmitted for review.";
+} else if (payload.status === "pending") {
+  contractorStatus.textContent = "Contractor profile saved and submitted for review.";
+} else {
+  contractorStatus.textContent = "Contractor profile saved.";
+}
 } catch (err) {
         console.error(err);
         contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
