@@ -405,6 +405,14 @@ const displayProfile = {
 window.currentContractorProfileStatus = payload.status;
 renderApprovalStatus(displayProfile);
 
+        if (contractorSubmitBtn) {
+  if (payload.status === "approved") {
+    contractorSubmitBtn.textContent = "Save Profile Updates";
+  } else {
+    contractorSubmitBtn.textContent = "Save Profile for Review";
+  }
+        }
+
 if (payload.status === "pending" && currentStatus === "rejected") {
   contractorStatus.textContent = "Profile updated and resubmitted for review.";
 } else if (payload.status === "pending") {
