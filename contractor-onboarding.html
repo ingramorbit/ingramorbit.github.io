@@ -148,6 +148,15 @@ const contractorResubmissionHint = document.getElementById("contractorResubmissi
       return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
     }
 
+    function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+    }
+
     function getApprovalMessage(status) {
   if (status === "approved") {
     return "Your contractor profile is approved. You are eligible to appear in assignment recommendations.";
@@ -326,8 +335,6 @@ function renderApprovalStatus(profileData) {
         window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
         return;
       }
-
-      const equipmentTypes = getSelectedEquipment();
 
       const contractorRef = doc(db, "contractors", currentUser.uid);
       const existingSnap = await getDoc(contractorRef);
