@@ -259,62 +259,62 @@ function renderApprovalStatus(profileData) {
 }
 
     async function loadProfile() {
-      const currentUser = await waitForAKOAuth();
+  const currentUser = await waitForAKOAuth();
 
-      if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
-        return null;
-      }
-
-      const ref = doc(db, "contractors", currentUser.uid);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-      if (snap.exists()) {
-  const data = snap.data();
-
-  coCompanyName.value = data.companyName || "";
-  coContactName.value = data.contactName || currentUser.name || "";
-  coEmail.value = data.email || currentUser.email || "";
-  coPhone.value = data.phone || "";
-  coCity.value = data.city || "";
-  coState.value = data.state || "";
-  coRadius.value = data.serviceRadiusMiles || "";
-  coBusinessType.value = data.businessType || "";
-  coMcDot.value = data.mcDotNumber || "";
-  coNotes.value = data.notes || "";
-
-  const equipmentTypes = data.equipmentTypes || [];
-  document.querySelectorAll('input[name="equipment"]').forEach(el => {
-    el.checked = equipmentTypes.includes(el.value);
-  });
-
-  renderApprovalStatus(data);
-  contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
-        window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
-
-if (contractorSubmitBtn) {
-  const safeStatus = String(data.status || "pending").toLowerCase();
-
-  if (safeStatus === "rejected") {
-    contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
-  } else if (safeStatus === "approved") {
-    contractorSubmitBtn.textContent = "Save Profile Updates";
-  } else {
-    contractorSubmitBtn.textContent = "Save Profile for Review";
+  if (!currentUser) {
+    window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
+    return null;
   }
-} else {
-  coContactName.value = currentUser.name || "";
-  coEmail.value = currentUser.email || "";
-  renderApprovalStatus(null);
-  window.currentContractorProfileStatus = "not-submitted";
 
-if (contractorSubmitBtn) {
-  contractorSubmitBtn.textContent = "Save Profile for Review";
-}
+  const ref = doc(db, "contractors", currentUser.uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    const data = snap.data();
+
+    coCompanyName.value = data.companyName || "";
+    coContactName.value = data.contactName || currentUser.name || "";
+    coEmail.value = data.email || currentUser.email || "";
+    coPhone.value = data.phone || "";
+    coCity.value = data.city || "";
+    coState.value = data.state || "";
+    coRadius.value = data.serviceRadiusMiles || "";
+    coBusinessType.value = data.businessType || "";
+    coMcDot.value = data.mcDotNumber || "";
+    coNotes.value = data.notes || "";
+
+    const equipmentTypes = data.equipmentTypes || [];
+    document.querySelectorAll('input[name="equipment"]').forEach(el => {
+      el.checked = equipmentTypes.includes(el.value);
+    });
+
+    renderApprovalStatus(data);
+    contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+    window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
+
+    if (contractorSubmitBtn) {
+      const safeStatus = String(data.status || "pending").toLowerCase();
+
+      if (safeStatus === "rejected") {
+        contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
+      } else if (safeStatus === "approved") {
+        contractorSubmitBtn.textContent = "Save Profile Updates";
+      } else {
+        contractorSubmitBtn.textContent = "Save Profile for Review";
       }
+    }
+  } else {
+    coContactName.value = currentUser.name || "";
+    coEmail.value = currentUser.email || "";
+    renderApprovalStatus(null);
+    window.currentContractorProfileStatus = "not-submitted";
 
-      return currentUser;
+    if (contractorSubmitBtn) {
+      contractorSubmitBtn.textContent = "Save Profile for Review";
+    }
+  }
+
+  return currentUser;
     }
 
     form.addEventListener("submit", async (e) => {
@@ -389,8 +389,14 @@ if (currentStatus === "pending" && !payload.submittedForReviewAt) {
       try {
   contractorStatus.textContent = "Saving contractor profile...";
   await setDoc(contractorRef, payload, { merge: true });
+
+const displayProfile = {
+  ...(existingData || {}),
+  ...payload
+};
+
 window.currentContractorProfileStatus = payload.status;
-renderApprovalStatus(payload);
+renderApprovalStatus(displayProfile);
 
 if (payload.status === "pending" && currentStatus === "rejected") {
   contractorStatus.textContent = "Profile updated and resubmitted for review.";
