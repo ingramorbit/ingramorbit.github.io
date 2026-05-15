@@ -46,12 +46,12 @@
     <div class="contractor-review-feedback-title">Admin review feedback</div>
     <div id="contractorLeadReviewFeedbackText" class="contractor-review-feedback-text"></div>
   </div>
-      </div>
 
-      <div id="contractorLeadResubmissionBox" class="contractor-resubmission-box" hidden>
-  <div class="contractor-resubmission-title">What to fix before re-review</div>
-  <ul id="contractorLeadResubmissionList" class="contractor-resubmission-list"></ul>
-  <a href="contractor-onboarding.html" class="contractor-resubmission-link">Go to Contractor Onboarding</a>
+  <div id="contractorLeadResubmissionBox" class="contractor-resubmission-box" hidden>
+    <div class="contractor-resubmission-title">What to fix before re-review</div>
+    <ul id="contractorLeadResubmissionList" class="contractor-resubmission-list"></ul>
+    <a href="contractor-onboarding.html" class="contractor-resubmission-link">Go to Contractor Onboarding</a>
+  </div>
       </div>
 
       <div id="contractorLeadsList" class="requests-list">
@@ -234,16 +234,6 @@ function renderApprovalStatus(profileData) {
   }
 
   renderResubmissionCues(profileData);
-}
-
-  if (contractorLeadReviewFeedbackBox && contractorLeadReviewFeedbackText) {
-    const shouldShowFeedback =
-      !!reviewFeedback &&
-      (safeStatus === "pending" || safeStatus === "rejected");
-
-    contractorLeadReviewFeedbackBox.hidden = !shouldShowFeedback;
-    contractorLeadReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
-  }
 }
   function renderLeads(items) {
     if (!items.length) {
