@@ -311,6 +311,16 @@
             <p class="contractor-admin-dates"><strong>Created:</strong> ${escapeHtml(formatDate(item.createdAt))}</p>
             <p class="contractor-admin-dates"><strong>Updated:</strong> ${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</p>
 
+${
+  item.resubmittedForReviewAt
+    ? `
+      <p class="contractor-admin-dates">
+        <strong>Last resubmitted:</strong> ${escapeHtml(formatDate(item.resubmittedForReviewAt))}
+      </p>
+    `
+    : ""
+}
+
             ${
               item.notes
                 ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
