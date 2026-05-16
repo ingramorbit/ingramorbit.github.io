@@ -151,8 +151,16 @@
       setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    import {
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    
     const app = getApp();
-    const db = getFirestore(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
     const form = document.getElementById("contractorOnboardingForm");
 const coCategory = document.getElementById("coCategory");
@@ -176,6 +184,16 @@ const contractorReviewFeedbackText = document.getElementById("contractorReviewFe
 const contractorResubmissionBox = document.getElementById("contractorResubmissionBox");
 const contractorResubmissionList = document.getElementById("contractorResubmissionList");
 const contractorResubmissionHint = document.getElementById("contractorResubmissionHint");
+
+    const coDocBusinessIdentity = document.getElementById("coDocBusinessIdentity");
+const coDocInsuranceProof = document.getElementById("coDocInsuranceProof");
+const coDocMcDotProof = document.getElementById("coDocMcDotProof");
+const coDocEquipmentProof = document.getElementById("coDocEquipmentProof");
+
+const coDocBusinessIdentityStatus = document.getElementById("coDocBusinessIdentityStatus");
+const coDocInsuranceProofStatus = document.getElementById("coDocInsuranceProofStatus");
+const coDocMcDotProofStatus = document.getElementById("coDocMcDotProofStatus");
+const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofStatus");
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
