@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body>
   <section class="contractor-hero">
@@ -55,6 +55,52 @@
   </p>
   </div>
 </div>
+
+      <div class="contractor-docs-box">
+  <div class="contractor-docs-title">Required documents for trucking approval</div>
+  <p class="contractor-docs-note">
+    Upload these files so admin can review your contractor profile. Admin will still verify your contact info, service area, and checklist items separately.
+  </p>
+
+  <ul class="contractor-docs-required-list">
+    <li>Legal business / identity document — required</li>
+    <li>Insurance certificate — required</li>
+    <li>USDOT / MC proof — required</li>
+    <li>Equipment / truck proof — recommended</li>
+  </ul>
+
+  <div class="contractor-doc-upload-row">
+    <label class="contractor-doc-upload-label" for="coDocBusinessIdentity">
+      1. Legal business / identity document
+    </label>
+    <input id="coDocBusinessIdentity" type="file" accept=".pdf,image/*" />
+    <div id="coDocBusinessIdentityStatus" class="contractor-doc-upload-status"></div>
+  </div>
+
+  <div class="contractor-doc-upload-row">
+    <label class="contractor-doc-upload-label" for="coDocInsuranceProof">
+      2. Insurance certificate
+    </label>
+    <input id="coDocInsuranceProof" type="file" accept=".pdf,image/*" />
+    <div id="coDocInsuranceProofStatus" class="contractor-doc-upload-status"></div>
+  </div>
+
+  <div class="contractor-doc-upload-row">
+    <label class="contractor-doc-upload-label" for="coDocMcDotProof">
+      3. USDOT / MC proof
+    </label>
+    <input id="coDocMcDotProof" type="file" accept=".pdf,image/*" />
+    <div id="coDocMcDotProofStatus" class="contractor-doc-upload-status"></div>
+  </div>
+
+  <div class="contractor-doc-upload-row">
+    <label class="contractor-doc-upload-label" for="coDocEquipmentProof">
+      4. Equipment / truck proof
+    </label>
+    <input id="coDocEquipmentProof" type="file" accept=".pdf,image/*" />
+    <div id="coDocEquipmentProofStatus" class="contractor-doc-upload-status"></div>
+  </div>
+      </div>
 
 <form id="contractorOnboardingForm" class="contractor-form">
         <input id="coCategory" value="Trucking" readonly />
