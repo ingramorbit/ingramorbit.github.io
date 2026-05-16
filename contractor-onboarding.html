@@ -221,6 +221,111 @@ const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofSt
     .replaceAll("'", "&#39;");
     }
 
+    function formatDocDate(value) {
+  if (!value) return "";
+  try {
+    return new Date(value).toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
+function getRequiredDocumentConfig() {
+  return [
+    {
+      key: "businessIdentity",
+      label: "Legal business / identity document",
+      required: true,
+      input: coDocBusinessIdentity,
+      statusEl: coDocBusinessIdentityStatus
+    },
+    {
+      key: "insuranceProof",
+      label: "Insurance certificate",
+      required: true,
+      input: coDocInsuranceProof,
+      statusEl: coDocInsuranceProofStatus
+    },
+    {
+      key: "mcDotProof",
+      label: "USDOT / MC proof",
+      required: true,
+      input: coDocMcDotProof,
+      statusEl: coDocMcDotProofStatus
+    },
+    {
+      key: "equipmentProof",
+      label: "Equipment / truck proof",
+      required: false,
+      input: coDocEquipmentProof,
+      statusEl: coDocEquipmentProofStatus
+    }
+  ];
+}
+
+function renderDocumentUploadStatus(documents = {}) {
+  getRequiredDocumentConfig().forEach(entry => {
+    const meta = documents?.[entry.key];
+
+    if (!entry.statusEl) return;
+
+    if (meta?.url) {
+      entry.statusEl.innerHTML = `
+        <span class="contractor-doc-status-pill uploaded">Uploaded</span>
+        <a class="contractor-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View current file</a>
+        <span class="contractor-doc-meta">
+          ${escapeHtml(meta.name || "Uploaded file")}
+          ${meta.uploadedAt ? ` · ${escapeHtml(formatDocDate(meta.uploadedAt))}` : ""}
+        </span>
+      `;
+    } else {
+      entry.statusEl.innerHTML = `
+        <span class="contractor-doc-status-pill ${entry.required ? "required" : "optional"}">
+          ${entry.required ? "Required" : "Optional"}
+        </span>
+        <span class="contractor-doc-meta">No file uploaded yet.</span>
+      `;
+    }
+  });
+}
+
+function getMissingRequiredDocumentLabels(existingDocuments = {}) {
+  return getRequiredDocumentConfig()
+    .filter(entry => entry.required && !existingDocuments?.[entry.key]?.url && !(entry.input?.files?.[0]))
+    .map(entry => entry.label);
+}
+
+async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
+  const nextDocuments = { ...existingDocuments };
+
+  for (const entry of getRequiredDocumentConfig()) {
+    const file = entry.input?.files?.[0];
+    if (!file) continue;
+
+    const safeName = String(file.name || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `contractor-documents/${currentUser.uid}/${entry.key}/${Date.now()}_${safeName}`;
+    const fileRef = storageRef(storage, path);
+
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+
+    nextDocuments[entry.key] = {
+      name: file.name || "Uploaded file",
+      url,
+      path,
+      uploadedAt: Date.now(),
+      sizeBytes: Number(file.size || 0),
+      mimeType: file.type || ""
+    };
+
+    if (entry.input) {
+      entry.input.value = "";
+    }
+  }
+
+  return nextDocuments;
+}
+
     function getApprovalMessage(status) {
   if (status === "approved") {
     return "Your contractor profile is approved. You are eligible to appear in assignment recommendations.";
@@ -446,6 +551,7 @@ function renderApprovalStatus(profileData) {
     });
 
     renderApprovalStatus(data);
+    renderDocumentUploadStatus(data.documents || {});
     contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
     window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
 
@@ -464,6 +570,7 @@ function renderApprovalStatus(profileData) {
     coContactName.value = currentUser.name || "";
     coEmail.value = currentUser.email || "";
     renderApprovalStatus(null);
+    renderDocumentUploadStatus({});
     window.currentContractorProfileStatus = "not-submitted";
 
     if (contractorSubmitBtn) {
@@ -541,8 +648,17 @@ if (currentStatus === "pending" && !payload.submittedForReviewAt) {
         return;
       }
 
+      const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents || {});
+
+if (missingRequiredDocuments.length) {
+  contractorStatus.textContent = `Please upload required documents: ${missingRequiredDocuments.join(", ")}.`;
+  return;
+}
+
       try {
-  contractorStatus.textContent = "Saving contractor profile...";
+  contractorStatus.textContent = "Uploading documents and saving contractor profile...";
+        const uploadedDocuments = await uploadSelectedDocuments(currentUser, existingData?.documents || {});
+payload.documents = uploadedDocuments;
   await setDoc(contractorRef, payload, { merge: true });
 
 const displayProfile = {
@@ -552,6 +668,7 @@ const displayProfile = {
 
 window.currentContractorProfileStatus = payload.status;
 renderApprovalStatus(displayProfile);
+        renderDocumentUploadStatus(uploadedDocuments);
 
         if (contractorSubmitBtn) {
   if (payload.status === "approved") {
