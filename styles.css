@@ -3020,3 +3020,143 @@ body{
   margin-top:12px;
   background:#1E3A8A;
 }
+
+/* ===== Contractor Required Documents ===== */
+.contractor-docs-box{
+  margin:16px 0 18px;
+  padding:16px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.08);
+}
+
+.contractor-docs-title{
+  font-size:20px;
+  font-weight:900;
+  color:#111;
+  margin:0 0 8px;
+}
+
+.contractor-docs-note{
+  margin:0 0 10px;
+  color:#444;
+  font-weight:700;
+  line-height:1.5;
+}
+
+.contractor-docs-required-list{
+  margin:0 0 14px;
+  padding-left:20px;
+  display:grid;
+  gap:6px;
+  color:#333;
+  font-weight:800;
+}
+
+.contractor-doc-upload-row{
+  display:grid;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.contractor-doc-upload-label{
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-doc-upload-status{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  font-size:13px;
+}
+
+.contractor-doc-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.contractor-doc-status-pill.required{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-doc-status-pill.optional{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+.contractor-doc-status-pill.uploaded{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-doc-link{
+  font-weight:800;
+  color:#1E3A8A;
+  text-decoration:none;
+}
+
+.contractor-doc-link:hover{
+  text-decoration:underline;
+}
+
+.contractor-doc-meta{
+  color:#555;
+  font-weight:700;
+}
+
+/* ===== Admin Contractor Documents ===== */
+.contractor-admin-docs{
+  margin-top:12px;
+  padding:14px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-admin-docs-title{
+  font-weight:900;
+  color:#111;
+  margin:0 0 10px;
+}
+
+.contractor-admin-docs-list{
+  display:grid;
+  gap:10px;
+}
+
+.contractor-admin-doc-row{
+  display:grid;
+  gap:4px;
+}
+
+.contractor-admin-doc-label{
+  font-weight:800;
+  color:#333;
+}
+
+.contractor-admin-doc-link{
+  color:#1E3A8A;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.contractor-admin-doc-link:hover{
+  text-decoration:underline;
+}
+
+.contractor-admin-doc-meta{
+  color:#555;
+  font-size:13px;
+  font-weight:700;
+}
+
+.contractor-admin-doc-missing{
+  color:#991b1b;
+  font-weight:900;
+}
