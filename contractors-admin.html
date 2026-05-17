@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -216,23 +216,28 @@
       `;
     }
 
-    function renderContractorDocuments(item) {
-  const documents = item.documents || {};
-
-  const entries = [
+    function getContractorDocumentEntries() {
+  return [
     { key: "businessIdentity", label: "Business / identity" },
     { key: "insuranceProof", label: "Insurance certificate" },
     { key: "mcDotProof", label: "USDOT / MC proof" },
     { key: "equipmentProof", label: "Equipment / truck proof" }
   ];
+}
+
+function renderContractorDocuments(item) {
+  const documents = item.documents || {};
+  const documentReview = item.documentReview || {};
 
   return `
     <div class="contractor-admin-docs">
       <div class="contractor-admin-docs-title">Uploaded documents</div>
 
       <div class="contractor-admin-docs-list">
-        ${entries.map(entry => {
+        ${getContractorDocumentEntries().map(entry => {
           const meta = documents[entry.key];
+          const review = documentReview[entry.key] || {};
+          const reviewStatus = String(review.status || "pending").toLowerCase();
 
           return `
             <div class="contractor-admin-doc-row">
@@ -249,13 +254,51 @@
                   `
                   : `<span class="contractor-admin-doc-missing">Missing</span>`
               }
+
+              <div class="contractor-admin-doc-review-controls">
+                <select
+                  class="contractor-doc-review-select"
+                  data-contractorid="${escapeHtml(item._docId || "")}"
+                  data-dockey="${escapeHtml(entry.key)}"
+                >
+                  <option value="pending" ${reviewStatus === "pending" ? "selected" : ""}>pending</option>
+                  <option value="approved" ${reviewStatus === "approved" ? "selected" : ""}>approved</option>
+                  <option value="rejected" ${reviewStatus === "rejected" ? "selected" : ""}>rejected</option>
+                  <option value="needs-replacement" ${reviewStatus === "needs-replacement" ? "selected" : ""}>needs-replacement</option>
+                </select>
+
+                <input
+                  type="text"
+                  class="contractor-doc-review-note"
+                  data-contractorid="${escapeHtml(item._docId || "")}"
+                  data-dockey="${escapeHtml(entry.key)}"
+                  value="${escapeHtml(review.note || "")}"
+                  placeholder="Short note for contractor"
+                />
+
+                <div class="contractor-admin-doc-review-meta">
+                  ${
+                    review.reviewedAt
+                      ? `Last reviewed: ${escapeHtml(formatDate(review.reviewedAt))}`
+                      : "Not reviewed yet."
+                  }
+                </div>
+              </div>
             </div>
           `;
         }).join("")}
       </div>
+
+      <button
+        type="button"
+        class="contractor-admin-btn contractor-doc-review-save-btn"
+        data-contractorid="${escapeHtml(item._docId || "")}"
+      >
+        Save Document Reviews
+      </button>
     </div>
   `;
-    }
+}
 
     function getFilteredContractors() {
       const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
@@ -514,6 +557,68 @@ ${renderChecklist(item)}
         }
         return;
       }
+
+      const documentReviewSaveBtn = e.target.closest(".contractor-doc-review-save-btn");
+if (documentReviewSaveBtn) {
+  const contractorId = documentReviewSaveBtn.getAttribute("data-contractorid");
+  const contractor = contractors.find(item => item._docId === contractorId);
+
+  if (!contractorId || !contractor) {
+    alert("Could not find this contractor.");
+    return;
+  }
+
+  const nextDocumentReview = {
+    ...(contractor.documentReview || {})
+  };
+
+  const documents = contractor.documents || {};
+  const now = Date.now();
+
+  for (const entry of getContractorDocumentEntries()) {
+    const selectEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-select")]
+      .find(el =>
+        el.getAttribute("data-contractorid") === contractorId &&
+        el.getAttribute("data-dockey") === entry.key
+      );
+
+    const noteEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-note")]
+      .find(el =>
+        el.getAttribute("data-contractorid") === contractorId &&
+        el.getAttribute("data-dockey") === entry.key
+      );
+
+    const nextStatus = String(selectEl?.value || "pending").trim().toLowerCase();
+    const nextNote = String(noteEl?.value || "").trim();
+
+    if (!documents?.[entry.key]?.url && nextStatus === "approved") {
+      alert(`${entry.label} cannot be approved because no file has been uploaded.`);
+      return;
+    }
+
+    nextDocumentReview[entry.key] = {
+      status: nextStatus,
+      note: nextNote,
+      reviewedAt: now,
+      reviewedBy: currentUser.uid,
+      reviewedByName: currentUser.name || currentUser.email || "Admin"
+    };
+  }
+
+  try {
+    await updateDoc(doc(db, "contractors", contractorId), {
+      documentReview: nextDocumentReview,
+      updatedAt: now
+    });
+
+    await loadContractors();
+    alert("Document reviews saved.");
+  } catch (err) {
+    console.error(err);
+    alert(`Could not save document reviews: ${err.message}`);
+  }
+  return;
+}
 
       const checklistSaveBtn = e.target.closest(".checklist-save-btn");
       if (checklistSaveBtn) {
