@@ -3160,3 +3160,85 @@ body{
   color:#991b1b;
   font-weight:900;
 }
+
+/* ===== Contractor Document Review Status ===== */
+.contractor-doc-review-summary{
+  margin-top:8px;
+  display:grid;
+  gap:4px;
+}
+
+.contractor-doc-review-pill{
+  display:inline-block;
+  width:max-content;
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.contractor-doc-review-pill.status-pending{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.contractor-doc-review-pill.status-approved{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-doc-review-pill.status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-doc-review-pill.status-needs-replacement{
+  background:#fde68a;
+  color:#92400e;
+}
+
+.contractor-doc-review-note{
+  color:#333;
+  font-weight:800;
+  line-height:1.4;
+}
+
+.contractor-doc-review-meta{
+  color:#666;
+  font-size:12px;
+  font-weight:700;
+}
+
+/* ===== Admin Document Review Controls ===== */
+.contractor-admin-doc-review-controls{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+
+.contractor-doc-review-select,
+.contractor-doc-review-note{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  font-weight:700;
+  outline:0;
+}
+
+.contractor-doc-review-select:focus,
+.contractor-doc-review-note:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractor-admin-doc-review-meta{
+  color:#666;
+  font-size:12px;
+  font-weight:700;
+}
+
+.contractor-doc-review-save-btn{
+  margin-top:12px;
+  background:#1E3A8A;
+}
