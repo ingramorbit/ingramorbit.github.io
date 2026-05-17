@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=27">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -216,6 +216,47 @@
       `;
     }
 
+    function renderContractorDocuments(item) {
+  const documents = item.documents || {};
+
+  const entries = [
+    { key: "businessIdentity", label: "Business / identity" },
+    { key: "insuranceProof", label: "Insurance certificate" },
+    { key: "mcDotProof", label: "USDOT / MC proof" },
+    { key: "equipmentProof", label: "Equipment / truck proof" }
+  ];
+
+  return `
+    <div class="contractor-admin-docs">
+      <div class="contractor-admin-docs-title">Uploaded documents</div>
+
+      <div class="contractor-admin-docs-list">
+        ${entries.map(entry => {
+          const meta = documents[entry.key];
+
+          return `
+            <div class="contractor-admin-doc-row">
+              <span class="contractor-admin-doc-label">${escapeHtml(entry.label)}</span>
+
+              ${
+                meta?.url
+                  ? `
+                    <a class="contractor-admin-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View file</a>
+                    <span class="contractor-admin-doc-meta">
+                      ${escapeHtml(meta.name || "Uploaded file")}
+                      ${meta.uploadedAt ? ` · ${escapeHtml(formatDate(meta.uploadedAt))}` : ""}
+                    </span>
+                  `
+                  : `<span class="contractor-admin-doc-missing">Missing</span>`
+              }
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
+    }
+
     function getFilteredContractors() {
       const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
       const statusValue = (contractorsAdminStatus?.value || "").trim().toLowerCase();
@@ -322,12 +363,14 @@ ${
 }
 
             ${
-              item.notes
-                ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
-                : ""
-            }
+  item.notes
+    ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
+    : ""
+}
 
-            ${renderChecklist(item)}
+${renderContractorDocuments(item)}
+
+${renderChecklist(item)}
 
             <div class="contractor-review-feedback-editor">
   <div class="contractor-review-feedback-editor-title">Contractor-facing review feedback</div>
