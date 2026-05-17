@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
 </head>
 <body>
   <section class="contractor-hero">
@@ -263,9 +263,12 @@ function getRequiredDocumentConfig() {
   ];
 }
 
-function renderDocumentUploadStatus(documents = {}) {
+function renderDocumentUploadStatus(documents = {}, documentReview = {}) {
   getRequiredDocumentConfig().forEach(entry => {
     const meta = documents?.[entry.key];
+    const review = documentReview?.[entry.key] || {};
+    const reviewStatus = String(review.status || "pending").toLowerCase();
+    const safeReviewStatusClass = reviewStatus.replace(/\s+/g, "-");
 
     if (!entry.statusEl) return;
 
@@ -277,6 +280,22 @@ function renderDocumentUploadStatus(documents = {}) {
           ${escapeHtml(meta.name || "Uploaded file")}
           ${meta.uploadedAt ? ` · ${escapeHtml(formatDocDate(meta.uploadedAt))}` : ""}
         </span>
+
+        <div class="contractor-doc-review-summary">
+          <span class="contractor-doc-review-pill status-${safeReviewStatusClass}">
+            ${escapeHtml(reviewStatus)}
+          </span>
+          ${
+            review.note
+              ? `<div class="contractor-doc-review-note">${escapeHtml(review.note)}</div>`
+              : ""
+          }
+          ${
+            review.reviewedAt
+              ? `<div class="contractor-doc-review-meta">Reviewed ${escapeHtml(formatDocDate(review.reviewedAt))}</div>`
+              : ""
+          }
+        </div>
       `;
     } else {
       entry.statusEl.innerHTML = `
@@ -297,6 +316,7 @@ function getMissingRequiredDocumentLabels(existingDocuments = {}) {
 
 async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
   const nextDocuments = { ...existingDocuments };
+  const replacedKeys = [];
 
   for (const entry of getRequiredDocumentConfig()) {
     const file = entry.input?.files?.[0];
@@ -318,12 +338,17 @@ async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
       mimeType: file.type || ""
     };
 
+    replacedKeys.push(entry.key);
+
     if (entry.input) {
       entry.input.value = "";
     }
   }
 
-  return nextDocuments;
+  return {
+    nextDocuments,
+    replacedKeys
+  };
 }
 
     function getApprovalMessage(status) {
@@ -551,7 +576,7 @@ function renderApprovalStatus(profileData) {
     });
 
     renderApprovalStatus(data);
-    renderDocumentUploadStatus(data.documents || {});
+    renderDocumentUploadStatus(data.documents || {}, data.documentReview || {});
     contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
     window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
 
@@ -570,7 +595,7 @@ function renderApprovalStatus(profileData) {
     coContactName.value = currentUser.name || "";
     coEmail.value = currentUser.email || "";
     renderApprovalStatus(null);
-    renderDocumentUploadStatus({});
+    renderDocumentUploadStatus({}, {});
     window.currentContractorProfileStatus = "not-submitted";
 
     if (contractorSubmitBtn) {
@@ -657,9 +682,31 @@ if (missingRequiredDocuments.length) {
 
       try {
   contractorStatus.textContent = "Uploading documents and saving contractor profile...";
-        const uploadedDocuments = await uploadSelectedDocuments(currentUser, existingData?.documents || {});
+
+const {
+  nextDocuments: uploadedDocuments,
+  replacedKeys
+} = await uploadSelectedDocuments(currentUser, existingData?.documents || {});
+
 payload.documents = uploadedDocuments;
-  await setDoc(contractorRef, payload, { merge: true });
+
+const nextDocumentReview = {
+  ...(existingData?.documentReview || {})
+};
+
+replacedKeys.forEach(key => {
+  nextDocumentReview[key] = {
+    status: "pending",
+    note: "",
+    reviewedAt: null,
+    reviewedBy: "",
+    reviewedByName: ""
+  };
+});
+
+payload.documentReview = nextDocumentReview;
+
+await setDoc(contractorRef, payload, { merge: true });
 
 const displayProfile = {
   ...(existingData || {}),
@@ -668,7 +715,7 @@ const displayProfile = {
 
 window.currentContractorProfileStatus = payload.status;
 renderApprovalStatus(displayProfile);
-        renderDocumentUploadStatus(uploadedDocuments);
+renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
 
         if (contractorSubmitBtn) {
   if (payload.status === "approved") {
