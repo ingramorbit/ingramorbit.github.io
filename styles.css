@@ -3242,3 +3242,27 @@ body{
   margin-top:12px;
   background:#1E3A8A;
 }
+
+/* ===== Admin Approval Blockers ===== */
+.contractor-admin-blockers{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background:#fff7ed;
+  border:1px solid #fdba74;
+}
+
+.contractor-admin-blockers-title{
+  font-weight:900;
+  color:#9a3412;
+  margin:0 0 8px;
+}
+
+.contractor-admin-blockers-list{
+  margin:0;
+  padding-left:18px;
+  display:grid;
+  gap:6px;
+  color:#7c2d12;
+  font-weight:800;
+}
