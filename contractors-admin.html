@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=28">
+  <link rel="stylesheet" href="styles.css?v=29">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -167,12 +167,65 @@
       };
     }
 
-    function canApproveContractor(item) {
-      const config = getChecklistConfig(item);
-      const state = getChecklistState(item);
+    function getRequiredContractorDocumentKeys(item) {
+  const rawCategory = String(item.category || item.categoryLabel || "").toLowerCase();
 
-      return config.every(entry => state[entry.key] === true);
+  if (rawCategory.includes("trucking")) {
+    return ["businessIdentity", "insuranceProof", "mcDotProof"];
+  }
+
+  if (rawCategory.includes("hvac")) {
+    return ["businessIdentity", "insuranceProof"];
+  }
+
+  return ["businessIdentity", "insuranceProof"];
+}
+
+function getRequiredDocumentApprovalSummary(item) {
+  const requiredKeys = getRequiredContractorDocumentKeys(item);
+  const documents = item.documents || {};
+  const documentReview = item.documentReview || {};
+
+  let uploaded = 0;
+  let approved = 0;
+
+  requiredKeys.forEach(key => {
+    if (documents?.[key]?.url) {
+      uploaded += 1;
     }
+
+    if (String(documentReview?.[key]?.status || "").toLowerCase() === "approved") {
+      approved += 1;
+    }
+  });
+
+  return {
+    requiredTotal: requiredKeys.length,
+    uploaded,
+    approved
+  };
+}
+
+function areRequiredDocumentsApproved(item) {
+  const requiredKeys = getRequiredContractorDocumentKeys(item);
+  const documents = item.documents || {};
+  const documentReview = item.documentReview || {};
+
+  return requiredKeys.every(key => {
+    const hasUploadedFile = !!documents?.[key]?.url;
+    const reviewStatus = String(documentReview?.[key]?.status || "").toLowerCase();
+
+    return hasUploadedFile && reviewStatus === "approved";
+  });
+}
+
+function canApproveContractor(item) {
+  const config = getChecklistConfig(item);
+  const state = getChecklistState(item);
+  const checklistComplete = config.every(entry => state[entry.key] === true);
+
+  return checklistComplete && areRequiredDocumentsApproved(item);
+}
 
     function renderChecklist(item) {
       const config = getChecklistConfig(item);
@@ -413,6 +466,11 @@ ${
 
 ${renderContractorDocuments(item)}
 
+<p class="contractor-admin-dates">
+  <strong>Required document approvals:</strong>
+  ${escapeHtml(String(getRequiredDocumentApprovalSummary(item).approved))}/${escapeHtml(String(getRequiredDocumentApprovalSummary(item).requiredTotal))} approved
+</p>
+
 ${renderChecklist(item)}
 
             <div class="contractor-review-feedback-editor">
@@ -434,14 +492,15 @@ ${renderChecklist(item)}
 
             <div class="contractor-admin-actions">
               <button
-                type="button"
-                class="contractor-admin-btn approve-btn"
-                data-contractorid="${escapeHtml(item._docId || "")}"
-                data-nextstatus="approved"
-                ${rawStatus === "approved" ? "disabled" : ""}
-              >
-                Approve
-              </button>
+  type="button"
+  class="contractor-admin-btn approve-btn"
+  data-contractorid="${escapeHtml(item._docId || "")}"
+  data-nextstatus="approved"
+  ${rawStatus === "approved" ? "disabled" : ""}
+  title="${escapeHtml(canApproveContractor(item) ? "Ready for approval" : "Complete checklist and approve all required documents first")}"
+>
+  Approve
+</button>
 
               <button
                 type="button"
@@ -683,8 +742,16 @@ if (documentReviewSaveBtn) {
       const reviewFeedback = (feedbackInput?.value || "").trim();
 
       if (nextStatus === "approved" && !canApproveContractor(contractor)) {
-        alert("Complete the review checklist before approving this contractor.");
-        return;
+  const checklistProgress = getChecklistProgress(contractor);
+  const docSummary = getRequiredDocumentApprovalSummary(contractor);
+
+  alert(
+    `This contractor cannot be approved yet.\n\n` +
+    `Checklist: ${checklistProgress.completed}/${checklistProgress.total} complete\n` +
+    `Required documents approved: ${docSummary.approved}/${docSummary.requiredTotal}\n\n` +
+    `Complete the review checklist and approve all required documents first.`
+  );
+  return;
       }
 
       if (nextStatus === "rejected" && !reviewFeedback) {
