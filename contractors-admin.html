@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -181,6 +181,15 @@
   return ["businessIdentity", "insuranceProof"];
 }
 
+function getRequiredContractorDocumentLabelMap() {
+  return {
+    businessIdentity: "Business / identity",
+    insuranceProof: "Insurance certificate",
+    mcDotProof: "USDOT / MC proof",
+    equipmentProof: "Equipment / truck proof"
+  };
+}
+
 function getRequiredDocumentApprovalSummary(item) {
   const requiredKeys = getRequiredContractorDocumentKeys(item);
   const documents = item.documents || {};
@@ -206,17 +215,31 @@ function getRequiredDocumentApprovalSummary(item) {
   };
 }
 
-function areRequiredDocumentsApproved(item) {
+function getBlockingRequiredDocumentLabels(item) {
   const requiredKeys = getRequiredContractorDocumentKeys(item);
   const documents = item.documents || {};
   const documentReview = item.documentReview || {};
+  const labelMap = getRequiredContractorDocumentLabelMap();
 
-  return requiredKeys.every(key => {
+  return requiredKeys.flatMap(key => {
+    const label = labelMap[key] || key;
     const hasUploadedFile = !!documents?.[key]?.url;
-    const reviewStatus = String(documentReview?.[key]?.status || "").toLowerCase();
+    const reviewStatus = String(documentReview?.[key]?.status || "pending").toLowerCase();
 
-    return hasUploadedFile && reviewStatus === "approved";
+    if (!hasUploadedFile) {
+      return [`${label} — missing upload`];
+    }
+
+    if (reviewStatus !== "approved") {
+      return [`${label} — ${reviewStatus}`];
+    }
+
+    return [];
   });
+}
+
+function areRequiredDocumentsApproved(item) {
+  return getBlockingRequiredDocumentLabels(item).length === 0;
 }
 
 function canApproveContractor(item) {
@@ -470,6 +493,19 @@ ${renderContractorDocuments(item)}
   <strong>Required document approvals:</strong>
   ${escapeHtml(String(getRequiredDocumentApprovalSummary(item).approved))}/${escapeHtml(String(getRequiredDocumentApprovalSummary(item).requiredTotal))} approved
 </p>
+
+${
+  getBlockingRequiredDocumentLabels(item).length
+    ? `
+      <div class="contractor-admin-blockers">
+        <div class="contractor-admin-blockers-title">Blocking approval</div>
+        <ul class="contractor-admin-blockers-list">
+          ${getBlockingRequiredDocumentLabels(item).map(label => `<li>${escapeHtml(label)}</li>`).join("")}
+        </ul>
+      </div>
+    `
+    : ""
+}
 
 ${renderChecklist(item)}
 
@@ -744,11 +780,13 @@ if (documentReviewSaveBtn) {
       if (nextStatus === "approved" && !canApproveContractor(contractor)) {
   const checklistProgress = getChecklistProgress(contractor);
   const docSummary = getRequiredDocumentApprovalSummary(contractor);
+  const blockingDocs = getBlockingRequiredDocumentLabels(contractor);
 
   alert(
     `This contractor cannot be approved yet.\n\n` +
     `Checklist: ${checklistProgress.completed}/${checklistProgress.total} complete\n` +
     `Required documents approved: ${docSummary.approved}/${docSummary.requiredTotal}\n\n` +
+    `Blocking required documents:\n- ${blockingDocs.join("\n- ")}\n\n` +
     `Complete the review checklist and approve all required documents first.`
   );
   return;
