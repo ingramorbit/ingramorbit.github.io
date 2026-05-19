@@ -215,10 +215,10 @@ function getRequiredDocumentApprovalSummary(item) {
   };
 }
 
-function getBlockingRequiredDocumentLabels(item) {
+function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) {
   const requiredKeys = getRequiredContractorDocumentKeys(item);
   const documents = item.documents || {};
-  const documentReview = item.documentReview || {};
+  const documentReview = documentReviewOverride || item.documentReview || {};
   const labelMap = getRequiredContractorDocumentLabelMap();
 
   return requiredKeys.flatMap(key => {
@@ -700,14 +700,33 @@ if (documentReviewSaveBtn) {
     };
   }
 
+  const blockingRequiredDocs = getBlockingRequiredDocumentLabels(contractor, nextDocumentReview);
+
+  const updatePayload = {
+    documentReview: nextDocumentReview,
+    updatedAt: now
+  };
+
+  if (blockingRequiredDocs.length) {
+    updatePayload.status = "pending";
+    updatePayload.approvedAt = null;
+    updatePayload.statusAutoResetAt = now;
+    updatePayload.statusAutoResetReason = "required-documents-not-approved";
+  }
+
   try {
-    await updateDoc(doc(db, "contractors", contractorId), {
-      documentReview: nextDocumentReview,
-      updatedAt: now
-    });
+    await updateDoc(doc(db, "contractors", contractorId), updatePayload);
 
     await loadContractors();
-    alert("Document reviews saved.");
+
+    if (blockingRequiredDocs.length) {
+      alert(
+        "Document reviews saved.\n\n" +
+        "Contractor status has been set to pending because one or more required documents are not approved."
+      );
+    } else {
+      alert("Document reviews saved.");
+    }
   } catch (err) {
     console.error(err);
     alert(`Could not save document reviews: ${err.message}`);
