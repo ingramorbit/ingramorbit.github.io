@@ -145,11 +145,12 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      doc,
-      getDoc,
-      setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     import {
   getStorage,
@@ -194,6 +195,8 @@ const coDocBusinessIdentityStatus = document.getElementById("coDocBusinessIdenti
 const coDocInsuranceProofStatus = document.getElementById("coDocInsuranceProofStatus");
 const coDocMcDotProofStatus = document.getElementById("coDocMcDotProofStatus");
 const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofStatus");
+   
+    let unsubscribeContractorReviewListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -211,6 +214,47 @@ const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofSt
     function getSelectedEquipment() {
       return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
     }
+
+    function applyLiveProfileReviewState(profileData) {
+  const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
+
+  renderApprovalStatus(profileData);
+  renderDocumentUploadStatus(
+    profileData?.documents || {},
+    profileData?.documentReview || {}
+  );
+
+  window.currentContractorProfileStatus = safeStatus;
+
+  if (contractorSubmitBtn) {
+    if (safeStatus === "rejected") {
+      contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
+    } else if (safeStatus === "approved") {
+      contractorSubmitBtn.textContent = "Save Profile Updates";
+    } else {
+      contractorSubmitBtn.textContent = "Save Profile for Review";
+    }
+  }
+}
+
+function startProfileReviewListener(currentUser) {
+  if (unsubscribeContractorReviewListener) {
+    unsubscribeContractorReviewListener();
+  }
+
+  const contractorRef = doc(db, "contractors", currentUser.uid);
+
+  unsubscribeContractorReviewListener = onSnapshot(
+    contractorRef,
+    (snap) => {
+      const liveData = snap.exists() ? snap.data() : null;
+      applyLiveProfileReviewState(liveData);
+    },
+    (err) => {
+      console.error("Live contractor review listener failed:", err);
+    }
+  );
+}
 
     function escapeHtml(value) {
   return String(value || "")
@@ -575,34 +619,16 @@ function renderApprovalStatus(profileData) {
       el.checked = equipmentTypes.includes(el.value);
     });
 
-    renderApprovalStatus(data);
-    renderDocumentUploadStatus(data.documents || {}, data.documentReview || {});
-    contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
-    window.currentContractorProfileStatus = String(data.status || "pending").toLowerCase();
-
-    if (contractorSubmitBtn) {
-      const safeStatus = String(data.status || "pending").toLowerCase();
-
-      if (safeStatus === "rejected") {
-        contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
-      } else if (safeStatus === "approved") {
-        contractorSubmitBtn.textContent = "Save Profile Updates";
-      } else {
-        contractorSubmitBtn.textContent = "Save Profile for Review";
-      }
-    }
+    applyLiveProfileReviewState(data);
+contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
   } else {
     coContactName.value = currentUser.name || "";
     coEmail.value = currentUser.email || "";
-    renderApprovalStatus(null);
-    renderDocumentUploadStatus({}, {});
-    window.currentContractorProfileStatus = "not-submitted";
-
-    if (contractorSubmitBtn) {
-      contractorSubmitBtn.textContent = "Save Profile for Review";
-    }
+    applyLiveProfileReviewState(null);
+contractorStatus.textContent = "Complete your contractor profile to submit it for review.";
   }
 
+      startProfileReviewListener(currentUser);
   return currentUser;
     }
 
