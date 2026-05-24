@@ -687,24 +687,6 @@ ${renderChecklist(item)}
       }
 
       const feedbackSaveBtn = e.target.closest(".review-feedback-save-btn");
-      if (feedbackSaveBtn) {
-        const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
-        const contractor = contractors.find(item => item._docId === contractorId);
-
-        if (!contractorId || !contractor) {
-          alert("Could not find this contractor.");
-          return;
-        }
-
-        const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
-          .find(el => el.getAttribute("data-contractorid") === contractorId);
-
-        if (!feedbackInput) {
-          alert("Could not find the feedback box.");
-          return;
-        }
-
-        const feedbackSaveBtn = e.target.closest(".review-feedback-save-btn");
 if (feedbackSaveBtn) {
   const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
   const contractor = contractors.find(item => item._docId === contractorId);
