@@ -781,17 +781,32 @@ if (documentReviewSaveBtn) {
 
   const blockingRequiredDocs = getBlockingRequiredDocumentLabels(contractor, nextDocumentReview);
 
-  const updatePayload = {
-    documentReview: nextDocumentReview,
-    updatedAt: now
-  };
+const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+  .find(el => el.getAttribute("data-contractorid") === contractorId);
 
-  if (blockingRequiredDocs.length) {
-    updatePayload.status = "pending";
-    updatePayload.approvedAt = null;
-    updatePayload.statusAutoResetAt = now;
-    updatePayload.statusAutoResetReason = "required-documents-not-approved";
-  }
+const manualFeedback = String(
+  feedbackInput?.value || contractor.reviewFeedbackManual || contractor.reviewFeedback || ""
+).trim();
+
+const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+  contractor,
+  nextDocumentReview,
+  manualFeedback
+);
+
+const updatePayload = {
+  documentReview: nextDocumentReview,
+  reviewFeedbackManual: manualFeedback,
+  reviewFeedback: combinedReviewFeedback,
+  updatedAt: now
+};
+
+if (blockingRequiredDocs.length) {
+  updatePayload.status = "pending";
+  updatePayload.approvedAt = null;
+  updatePayload.statusAutoResetAt = now;
+  updatePayload.statusAutoResetReason = "required-documents-not-approved";
+}
 
   try {
     await updateDoc(doc(db, "contractors", contractorId), updatePayload);
