@@ -238,6 +238,78 @@ function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) 
   });
 }
 
+  function getAutoDocumentFeedbackLines(item, documentReviewOverride = null) {
+  const requiredKeys = getRequiredContractorDocumentKeys(item);
+  const documents = item.documents || {};
+  const documentReview = documentReviewOverride || item.documentReview || {};
+  const labelMap = getRequiredContractorDocumentLabelMap();
+
+  return requiredKeys.flatMap(key => {
+    const label = labelMap[key] || key;
+    const hasUploadedFile = !!documents?.[key]?.url;
+    const review = documentReview[key] || {};
+    const reviewStatus = String(review.status || "pending").toLowerCase();
+    const reviewNote = String(review.note || "").trim();
+
+    if (!hasUploadedFile) {
+      return [`${label}: upload required document.`];
+    }
+
+    if (reviewStatus === "approved") {
+      return [];
+    }
+
+    if (reviewStatus === "needs-replacement") {
+      return [
+        reviewNote
+          ? `${label}: needs replacement — ${reviewNote}`
+          : `${label}: needs replacement.`
+      ];
+    }
+
+    if (reviewStatus === "rejected") {
+      return [
+        reviewNote
+          ? `${label}: rejected — ${reviewNote}`
+          : `${label}: rejected.`
+      ];
+    }
+
+    if (reviewStatus === "pending") {
+      return [
+        reviewNote
+          ? `${label}: pending review — ${reviewNote}`
+          : `${label}: pending review.`
+      ];
+    }
+
+    return [
+      reviewNote
+        ? `${label}: ${reviewNote}`
+        : `${label}: ${reviewStatus}.`
+    ];
+  });
+}
+
+function buildContractorFacingReviewFeedback(item, documentReviewOverride = null, manualFeedbackOverride = null) {
+  const manualFeedback = String(
+    manualFeedbackOverride ?? item.reviewFeedbackManual ?? item.reviewFeedback ?? ""
+  ).trim();
+
+  const documentLines = getAutoDocumentFeedbackLines(item, documentReviewOverride);
+  const parts = [];
+
+  if (manualFeedback) {
+    parts.push(manualFeedback);
+  }
+
+  if (documentLines.length) {
+    parts.push(`Document action items:\n- ${documentLines.join("\n- ")}`);
+  }
+
+  return parts.join("\n\n").trim();
+}
+
 function areRequiredDocumentsApproved(item) {
   return getBlockingRequiredDocumentLabels(item).length === 0;
 }
@@ -515,7 +587,7 @@ ${renderChecklist(item)}
     class="contractor-review-feedback-input"
     data-contractorid="${escapeHtml(item._docId || "")}"
     placeholder="Explain why this contractor is pending or rejected, or what they need to fix before approval..."
-  >${escapeHtml(item.reviewFeedback || "")}</textarea>
+  >${escapeHtml(item.reviewFeedbackManual || item.reviewFeedback || "")}</textarea>
 
   <button
     type="button"
@@ -632,26 +704,51 @@ ${renderChecklist(item)}
           return;
         }
 
-        const reviewFeedback = (feedbackInput.value || "").trim();
-        const now = Date.now();
+        const feedbackSaveBtn = e.target.closest(".review-feedback-save-btn");
+if (feedbackSaveBtn) {
+  const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
+  const contractor = contractors.find(item => item._docId === contractorId);
 
-        try {
-          await updateDoc(doc(db, "contractors", contractorId), {
-            reviewFeedback: reviewFeedback,
-            reviewFeedbackUpdatedAt: now,
-            reviewFeedbackUpdatedBy: currentUser.uid,
-            reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
-            updatedAt: now
-          });
+  if (!contractorId || !contractor) {
+    alert("Could not find this contractor.");
+    return;
+  }
 
-          await loadContractors();
-          alert("Review feedback saved.");
-        } catch (err) {
-          console.error(err);
-          alert(`Could not save feedback: ${err.message}`);
-        }
-        return;
-      }
+  const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+    .find(el => el.getAttribute("data-contractorid") === contractorId);
+
+  if (!feedbackInput) {
+    alert("Could not find the feedback box.");
+    return;
+  }
+
+  const manualFeedback = (feedbackInput.value || "").trim();
+  const now = Date.now();
+
+  const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+    contractor,
+    contractor.documentReview || {},
+    manualFeedback
+  );
+
+  try {
+    await updateDoc(doc(db, "contractors", contractorId), {
+      reviewFeedbackManual: manualFeedback,
+      reviewFeedback: combinedReviewFeedback,
+      reviewFeedbackUpdatedAt: now,
+      reviewFeedbackUpdatedBy: currentUser.uid,
+      reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
+      updatedAt: now
+    });
+
+    await loadContractors();
+    alert("Review feedback saved.");
+  } catch (err) {
+    console.error(err);
+    alert(`Could not save feedback: ${err.message}`);
+  }
+  return;
+}
 
       const documentReviewSaveBtn = e.target.closest(".contractor-doc-review-save-btn");
 if (documentReviewSaveBtn) {
