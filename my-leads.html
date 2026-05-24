@@ -510,50 +510,85 @@ function renderApprovalStatus(profileData) {
       `;
     }).join("");
   }
-  async function loadContractors() {
-  const currentUser = await waitForAKOAuth();
-
-  if (!currentUser) {
-    window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
-    return;
+  function startContractorLeadsListener(currentUser) {
+  if (unsubscribeContractorLeadsListener) {
+    unsubscribeContractorLeadsListener();
   }
 
-  if (currentUser.tier !== "admin") {
-    contractorsAdminList.innerHTML = `
-      <div class="contractor-admin-item">
-        <p style="margin:0;font-weight:800;">Admin access is required.</p>
-      </div>
-    `;
-    contractorsAdminSummary.textContent = "Admin access is required.";
-    return;
-  }
+  const q = query(
+    collection(db, "contractorLeads"),
+    where("contractorUid", "==", currentUser.uid)
+  );
 
-  if (unsubscribeContractorsListener) {
-    unsubscribeContractorsListener();
-  }
-
-  unsubscribeContractorsListener = onSnapshot(
-    collection(db, "contractors"),
+  unsubscribeContractorLeadsListener = onSnapshot(
+    q,
     (snapshot) => {
-      contractors = snapshot.docs.map(docSnap => ({
-        _docId: docSnap.id,
-        ...docSnap.data()
-      }));
+      contractorLeads = snapshot.docs
+        .map(docSnap => ({
+          _docId: docSnap.id,
+          ...docSnap.data()
+        }))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-      applyFilters();
+      renderLeads(contractorLeads);
     },
     (err) => {
       console.error(err);
-      contractorsAdminList.innerHTML = `
-        <div class="contractor-admin-item">
-          <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
-        </div>
-      `;
-      contractorsAdminSummary.textContent = "Could not load contractors.";
+      renderEmpty(`Could not load your leads: ${err.message}`);
     }
   );
+}
+
+function startContractorProfileListener(currentUser) {
+  if (unsubscribeContractorProfileListener) {
+    unsubscribeContractorProfileListener();
   }
 
+  const ref = doc(db, "contractors", currentUser.uid);
+
+  unsubscribeContractorProfileListener = onSnapshot(
+    ref,
+    (snap) => {
+      if (!snap.exists()) {
+        contractorProfile = null;
+        renderApprovalStatus(null);
+        renderLeadDocumentSummary(null);
+
+        if (unsubscribeContractorLeadsListener) {
+          unsubscribeContractorLeadsListener();
+          unsubscribeContractorLeadsListener = null;
+        }
+
+        renderEmpty("Complete contractor onboarding before you can receive leads.");
+        return;
+      }
+
+      contractorProfile = snap.data();
+      renderApprovalStatus(contractorProfile);
+      renderLeadDocumentSummary(contractorProfile);
+
+      if (!unsubscribeContractorLeadsListener) {
+        startContractorLeadsListener(currentUser);
+      }
+    },
+    (err) => {
+      console.error(err);
+      renderEmpty(`Could not load your contractor profile: ${err.message}`);
+    }
+  );
+}
+
+async function loadMyLeads() {
+  const currentUser = await waitForAKOAuth();
+
+  if (!currentUser) {
+    window.location.href = `index.html?auth=1&return=${encodeURIComponent("my-leads.html")}`;
+    return;
+  }
+
+  startContractorProfileListener(currentUser);
+}
+    
   contractorLeadsList.addEventListener("click", async (e) => {
     const acceptBtn = e.target.closest(".lead-accept-btn");
     if (acceptBtn) {
@@ -597,7 +632,6 @@ function renderApprovalStatus(profileData) {
           console.warn("Activity log write failed:", activityErr);
         }
 
-        await loadMyLeads();
         alert("Lead accepted.");
       } catch (err) {
         console.error(err);
@@ -648,7 +682,6 @@ function renderApprovalStatus(profileData) {
           console.warn("Activity log write failed:", activityErr);
         }
 
-        await loadMyLeads();
         alert("Lead declined.");
       } catch (err) {
         console.error(err);
