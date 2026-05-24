@@ -67,6 +67,7 @@
   getFirestore,
   collection,
   updateDoc,
+  addDoc,
   doc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -111,6 +112,23 @@ let unsubscribeContractorsListener = null;
       } catch {
         return "—";
       }
+    }
+
+    async function createContractorNotification(currentUser, contractorId, title, message, type) {
+  try {
+    await addDoc(collection(db, "contractorNotifications"), {
+      contractorUid: contractorId,
+      title,
+      message,
+      type,
+      isRead: false,
+      createdAt: Date.now(),
+      actorUid: currentUser?.uid || "",
+      actorName: currentUser?.name || currentUser?.email || "Admin"
+    });
+  } catch (err) {
+    console.warn("Notification write failed:", err);
+  }
     }
 
     function getCategoryKey(item) {
@@ -730,6 +748,14 @@ if (feedbackSaveBtn) {
   updatedAt: now
 });
 
+await createContractorNotification(
+  currentUser,
+  contractorId,
+  "Review feedback updated",
+  "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
+  "review-feedback"
+);
+
 alert("Review feedback saved.");
   } catch (err) {
     console.error(err);
@@ -817,14 +843,30 @@ if (blockingRequiredDocs.length) {
   try {
     await updateDoc(doc(db, "contractors", contractorId), updatePayload);
 
+const docReviewTitle = blockingRequiredDocs.length
+  ? "Document review needs attention"
+  : "Document review updated";
+
+const docReviewMessage = blockingRequiredDocs.length
+  ? `Admin reviewed your documents. Action needed on: ${blockingRequiredDocs.join("; ")}.`
+  : "Admin reviewed your uploaded documents. Your required document review is up to date.";
+
+await createContractorNotification(
+  currentUser,
+  contractorId,
+  docReviewTitle,
+  docReviewMessage,
+  "document-review"
+);
+
 if (blockingRequiredDocs.length) {
-      alert(
-        "Document reviews saved.\n\n" +
-        "Contractor status has been set to pending because one or more required documents are not approved."
-      );
-    } else {
-      alert("Document reviews saved.");
-    }
+  alert(
+    "Document reviews saved.\n\n" +
+    "Contractor status has been set to pending because one or more required documents are not approved."
+  );
+} else {
+  alert("Document reviews saved.");
+}
   } catch (err) {
     console.error(err);
     alert(`Could not save document reviews: ${err.message}`);
@@ -943,6 +985,27 @@ const payload = {
 
       try {
         await updateDoc(doc(db, "contractors", contractorId), payload);
+
+const statusTitleMap = {
+  approved: "Contractor profile approved",
+  pending: "Contractor profile set to pending",
+  rejected: "Contractor profile rejected"
+};
+
+const statusMessageMap = {
+  approved: "Your contractor profile is approved. You can appear in assignment recommendations.",
+  pending: "Your contractor profile is currently pending review. Check your feedback and document review results for next steps.",
+  rejected: "Your contractor profile was rejected. Review the feedback and document action items, then update and resubmit."
+};
+
+await createContractorNotification(
+  currentUser,
+  contractorId,
+  statusTitleMap[nextStatus] || "Contractor profile updated",
+  statusMessageMap[nextStatus] || "Your contractor review status was updated.",
+  "approval-status"
+);
+
 alert(`Contractor updated to "${nextStatus}".`);
       } catch (err) {
         console.error(err);
