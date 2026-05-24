@@ -79,16 +79,17 @@
   <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore,
-    collection,
-    query,
-    where,
-    getDocs,
-    getDoc,
-    updateDoc,
-    addDoc,
-    doc
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  getDoc,
+  updateDoc,
+  addDoc,
+  doc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const app = getApp();
   const db = getFirestore(app);
@@ -105,7 +106,9 @@ const contractorLeadDocumentSummaryBox = document.getElementById("contractorLead
 const contractorLeadDocumentSummaryList = document.getElementById("contractorLeadDocumentSummaryList");
 
   let contractorProfile = null;
-  let contractorLeads = [];
+let contractorLeads = [];
+let unsubscribeContractorProfileListener = null;
+let unsubscribeContractorLeadsListener = null;
 
   function waitForAKOAuth() {
     return new Promise((resolve) => {
@@ -507,56 +510,48 @@ function renderApprovalStatus(profileData) {
       `;
     }).join("");
   }
-  async function loadContractorProfile(currentUser) {
-  const ref = doc(db, "contractors", currentUser.uid);
-  const snap = await getDoc(ref);
+  async function loadContractors() {
+  const currentUser = await waitForAKOAuth();
 
-  if (!snap.exists()) {
-    contractorProfile = null;
-    renderApprovalStatus(null);
-    renderLeadDocumentSummary(null);
-    renderEmpty("Complete contractor onboarding before you can receive leads.");
-    return false;
+  if (!currentUser) {
+    window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
+    return;
   }
 
-  contractorProfile = snap.data();
-  renderApprovalStatus(contractorProfile);
-  renderLeadDocumentSummary(contractorProfile);
-
-  return true;
+  if (currentUser.tier !== "admin") {
+    contractorsAdminList.innerHTML = `
+      <div class="contractor-admin-item">
+        <p style="margin:0;font-weight:800;">Admin access is required.</p>
+      </div>
+    `;
+    contractorsAdminSummary.textContent = "Admin access is required.";
+    return;
   }
 
-async function loadMyLeads() {
-    const currentUser = await waitForAKOAuth();
+  if (unsubscribeContractorsListener) {
+    unsubscribeContractorsListener();
+  }
 
-    if (!currentUser) {
-      window.location.href = `index.html?auth=1&return=${encodeURIComponent("my-leads.html")}`;
-      return;
-    }
+  unsubscribeContractorsListener = onSnapshot(
+    collection(db, "contractors"),
+    (snapshot) => {
+      contractors = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
 
-    const hasProfile = await loadContractorProfile(currentUser);
-    if (!hasProfile) return;
-
-    try {
-      const q = query(
-        collection(db, "contractorLeads"),
-        where("contractorUid", "==", currentUser.uid)
-      );
-
-      const snapshot = await getDocs(q);
-
-      contractorLeads = snapshot.docs
-        .map(docSnap => ({
-          _docId: docSnap.id,
-          ...docSnap.data()
-        }))
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-      renderLeads(contractorLeads);
-    } catch (err) {
+      applyFilters();
+    },
+    (err) => {
       console.error(err);
-      renderEmpty(`Could not load your leads: ${err.message}`);
+      contractorsAdminList.innerHTML = `
+        <div class="contractor-admin-item">
+          <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
+        </div>
+      `;
+      contractorsAdminSummary.textContent = "Could not load contractors.";
     }
+  );
   }
 
   contractorLeadsList.addEventListener("click", async (e) => {
