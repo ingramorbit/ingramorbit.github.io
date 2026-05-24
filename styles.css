@@ -3266,3 +3266,128 @@ body{
   color:#7c2d12;
   font-weight:800;
 }
+
+.contractor-notifications-box{
+  margin-top:16px;
+  padding:16px;
+  border:1px solid rgba(90,45,130,.14);
+  background:#fff;
+  border-radius:18px;
+  box-shadow:0 10px 24px rgba(43,15,73,.08);
+}
+
+.contractor-notifications-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.contractor-notifications-title{
+  font-weight:800;
+  color:#2B0F49;
+}
+
+.contractor-notifications-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(31,104,255,.12);
+  color:#1F68FF;
+  font-weight:800;
+  font-size:.85rem;
+}
+
+.contractor-notifications-actions{
+  margin-bottom:12px;
+}
+
+.contractor-notifications-markall-btn{
+  border:0;
+  border-radius:999px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+  background:#2B0F49;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(43,15,73,.16);
+}
+
+.contractor-notifications-markall-btn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.contractor-notifications-list{
+  display:grid;
+  gap:12px;
+}
+
+.contractor-notification-item{
+  padding:14px;
+  border:1px solid rgba(90,45,130,.12);
+  border-radius:16px;
+  background:#faf8ff;
+}
+
+.contractor-notification-item.is-unread{
+  border-color:rgba(31,104,255,.35);
+  background:#f5f9ff;
+}
+
+.contractor-notification-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:8px;
+}
+
+.contractor-notification-title{
+  font-weight:800;
+  color:#2B0F49;
+}
+
+.contractor-notification-time{
+  font-size:.85rem;
+  color:#6b7280;
+  white-space:nowrap;
+}
+
+.contractor-notification-message{
+  color:#374151;
+  line-height:1.45;
+  margin-bottom:8px;
+}
+
+.contractor-notification-meta{
+  font-size:.85rem;
+  color:#6b7280;
+  margin-bottom:10px;
+}
+
+.contractor-notification-read-btn{
+  border:0;
+  border-radius:999px;
+  padding:8px 12px;
+  font-weight:800;
+  cursor:pointer;
+  background:#1F68FF;
+  color:#fff;
+}
+
+.contractor-notification-read-state{
+  display:inline-block;
+  font-size:.85rem;
+  font-weight:700;
+  color:#0f766e;
+}
+
+.contractor-notification-empty{
+  margin:0;
+  color:#6b7280;
+}
