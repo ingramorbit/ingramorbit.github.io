@@ -643,7 +643,6 @@ ${renderChecklist(item)}
     }
 
     async function loadContractors() {
-    async function loadContractors() {
   const currentUser = await waitForAKOAuth();
 
   if (!currentUser) {
@@ -892,7 +891,13 @@ alert("Checklist saved.");
       const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
         .find(el => el.getAttribute("data-contractorid") === contractorId);
 
-      const reviewFeedback = (feedbackInput?.value || "").trim();
+      const manualFeedback = (feedbackInput?.value || "").trim();
+
+const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+  contractor,
+  contractor.documentReview || {},
+  manualFeedback
+);
 
       if (nextStatus === "approved" && !canApproveContractor(contractor)) {
   const checklistProgress = getChecklistProgress(contractor);
@@ -921,7 +926,8 @@ alert("Checklist saved.");
 const payload = {
   status: nextStatus,
   updatedAt: now,
-  reviewFeedback: reviewFeedback,
+  reviewFeedbackManual: manualFeedback,
+  reviewFeedback: combinedReviewFeedback,
   reviewFeedbackUpdatedAt: now,
   reviewFeedbackUpdatedBy: currentUser.uid,
   reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin"
