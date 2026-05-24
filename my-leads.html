@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -52,6 +52,18 @@
     <ul id="contractorLeadResubmissionList" class="contractor-resubmission-list"></ul>
     <a href="contractor-onboarding.html" class="contractor-resubmission-link">Go to Contractor Onboarding</a>
   </div>
+        <div id="contractorLeadDocumentSummaryBox" class="contractor-docs-box">
+  <div class="contractor-docs-title">Document review summary</div>
+  <p class="contractor-docs-note">
+    This shows which approval documents you uploaded and how admin reviewed each one.
+  </p>
+
+  <div id="contractorLeadDocumentSummaryList"></div>
+
+  <a href="contractor-onboarding.html" class="contractor-resubmission-link">
+    Go to Contractor Onboarding
+  </a>
+        </div>
       </div>
 
       <div id="contractorLeadsList" class="requests-list">
@@ -89,6 +101,8 @@ const contractorLeadReviewFeedbackBox = document.getElementById("contractorLeadR
 const contractorLeadReviewFeedbackText = document.getElementById("contractorLeadReviewFeedbackText");
 const contractorLeadResubmissionBox = document.getElementById("contractorLeadResubmissionBox");
 const contractorLeadResubmissionList = document.getElementById("contractorLeadResubmissionList");
+const contractorLeadDocumentSummaryBox = document.getElementById("contractorLeadDocumentSummaryBox");
+const contractorLeadDocumentSummaryList = document.getElementById("contractorLeadDocumentSummaryList");
 
   let contractorProfile = null;
   let contractorLeads = [];
@@ -278,6 +292,107 @@ function renderResubmissionCues(profileData) {
     : `<li>Your profile looks complete. Review the admin feedback above and update your onboarding profile if needed.</li>`;
 }
 
+    function getLeadDocumentEntries(profileData) {
+  const rawCategory = String(profileData?.category || profileData?.categoryLabel || "").toLowerCase();
+
+  if (rawCategory.includes("trucking")) {
+    return [
+      { key: "businessIdentity", label: "Business / identity", required: true },
+      { key: "insuranceProof", label: "Insurance certificate", required: true },
+      { key: "mcDotProof", label: "USDOT / MC proof", required: true },
+      { key: "equipmentProof", label: "Equipment / truck proof", required: false }
+    ];
+  }
+
+  if (rawCategory.includes("hvac")) {
+    return [
+      { key: "businessIdentity", label: "Business / identity", required: true },
+      { key: "insuranceProof", label: "Insurance certificate", required: true }
+    ];
+  }
+
+  return [
+    { key: "businessIdentity", label: "Business / identity", required: true },
+    { key: "insuranceProof", label: "Insurance certificate", required: true }
+  ];
+}
+
+function renderLeadDocumentSummary(profileData) {
+  if (!contractorLeadDocumentSummaryBox || !contractorLeadDocumentSummaryList) return;
+
+  if (!profileData) {
+    contractorLeadDocumentSummaryBox.hidden = false;
+    contractorLeadDocumentSummaryList.innerHTML = `
+      <div class="contractor-doc-upload-row">
+        <div class="contractor-doc-upload-label">Approval documents</div>
+        <div class="contractor-doc-upload-status">
+          <span class="contractor-doc-status-pill required">Required</span>
+          <span class="contractor-doc-meta">Complete contractor onboarding and upload your approval documents.</span>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const documents = profileData.documents || {};
+  const documentReview = profileData.documentReview || {};
+  const entries = getLeadDocumentEntries(profileData);
+
+  contractorLeadDocumentSummaryBox.hidden = false;
+
+  contractorLeadDocumentSummaryList.innerHTML = entries.map(entry => {
+    const meta = documents[entry.key];
+    const review = documentReview[entry.key] || {};
+    const reviewStatus = String(review.status || "pending").toLowerCase();
+    const safeReviewStatusClass = reviewStatus.replace(/\s+/g, "-");
+
+    if (!meta?.url) {
+      return `
+        <div class="contractor-doc-upload-row">
+          <div class="contractor-doc-upload-label">${escapeHtml(entry.label)}</div>
+          <div class="contractor-doc-upload-status">
+            <span class="contractor-doc-status-pill ${entry.required ? "required" : "optional"}">
+              ${entry.required ? "Required" : "Optional"}
+            </span>
+            <span class="contractor-doc-meta">No file uploaded yet.</span>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="contractor-doc-upload-row">
+        <div class="contractor-doc-upload-label">${escapeHtml(entry.label)}</div>
+
+        <div class="contractor-doc-upload-status">
+          <span class="contractor-doc-status-pill uploaded">Uploaded</span>
+          <a class="contractor-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View current file</a>
+          <span class="contractor-doc-meta">
+            ${escapeHtml(meta.name || "Uploaded file")}
+            ${meta.uploadedAt ? ` · ${escapeHtml(formatDate(meta.uploadedAt))}` : ""}
+          </span>
+        </div>
+
+        <div class="contractor-doc-review-summary">
+          <span class="contractor-doc-review-pill status-${safeReviewStatusClass}">
+            ${escapeHtml(reviewStatus)}
+          </span>
+          ${
+            review.note
+              ? `<div class="contractor-doc-review-note">${escapeHtml(review.note)}</div>`
+              : ""
+          }
+          ${
+            review.reviewedAt
+              ? `<div class="contractor-doc-review-meta">Reviewed ${escapeHtml(formatDate(review.reviewedAt))}</div>`
+              : ""
+          }
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
 function renderApprovalStatus(profileData) {
   const rawStatus = String(profileData?.status || "not-submitted").toLowerCase();
   const safeStatus = rawStatus || "not-submitted";
@@ -393,21 +508,24 @@ function renderApprovalStatus(profileData) {
     }).join("");
   }
   async function loadContractorProfile(currentUser) {
+  async function loadContractorProfile(currentUser) {
   const ref = doc(db, "contractors", currentUser.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
     contractorProfile = null;
     renderApprovalStatus(null);
+    renderLeadDocumentSummary(null);
     renderEmpty("Complete contractor onboarding before you can receive leads.");
     return false;
   }
 
   contractorProfile = snap.data();
   renderApprovalStatus(contractorProfile);
+  renderLeadDocumentSummary(contractorProfile);
 
   return true;
-}
+  }
 
 async function loadMyLeads() {
     const currentUser = await waitForAKOAuth();
