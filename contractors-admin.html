@@ -914,7 +914,7 @@ const combinedReviewFeedback = buildContractorFacingReviewFeedback(
   return;
       }
 
-      if (nextStatus === "rejected" && !reviewFeedback) {
+      if (nextStatus === "rejected" && !manualFeedback) {
         alert("Enter a contractor-facing rejection reason before rejecting this contractor.");
         return;
       }
