@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=30">
+  <link rel="stylesheet" href="styles.css?v=31">
 </head>
 <body>
   <section class="contractor-hero">
@@ -55,6 +55,27 @@
   </p>
   </div>
 </div>
+
+      <div id="contractorNotificationsBox" class="contractor-notifications-box">
+  <div class="contractor-notifications-top">
+    <div class="contractor-notifications-title">Review notifications</div>
+    <span id="contractorNotificationsBadge" class="contractor-notifications-badge">0 unread</span>
+  </div>
+
+  <div class="contractor-notifications-actions">
+    <button
+      id="contractorNotificationsMarkAllBtn"
+      type="button"
+      class="contractor-notifications-markall-btn"
+    >
+      Mark all read
+    </button>
+  </div>
+
+  <div id="contractorNotificationsList" class="contractor-notifications-list">
+    <p class="contractor-notification-empty">No notifications yet.</p>
+  </div>
+      </div>
 
       <div class="contractor-docs-box">
   <div class="contractor-docs-title">Required documents for trucking approval</div>
@@ -146,9 +167,13 @@
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
   getFirestore,
+  collection,
+  query,
+  where,
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -186,6 +211,10 @@ const contractorResubmissionBox = document.getElementById("contractorResubmissio
 const contractorResubmissionList = document.getElementById("contractorResubmissionList");
 const contractorResubmissionHint = document.getElementById("contractorResubmissionHint");
 
+    const contractorNotificationsBadge = document.getElementById("contractorNotificationsBadge");
+const contractorNotificationsMarkAllBtn = document.getElementById("contractorNotificationsMarkAllBtn");
+const contractorNotificationsList = document.getElementById("contractorNotificationsList");
+    
     const coDocBusinessIdentity = document.getElementById("coDocBusinessIdentity");
 const coDocInsuranceProof = document.getElementById("coDocInsuranceProof");
 const coDocMcDotProof = document.getElementById("coDocMcDotProof");
@@ -196,7 +225,9 @@ const coDocInsuranceProofStatus = document.getElementById("coDocInsuranceProofSt
 const coDocMcDotProofStatus = document.getElementById("coDocMcDotProofStatus");
 const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofStatus");
    
-    let unsubscribeContractorReviewListener = null;
+    let contractorNotificationItems = [];
+let unsubscribeContractorReviewListener = null;
+let unsubscribeContractorNotificationsListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -252,6 +283,92 @@ function startProfileReviewListener(currentUser) {
     },
     (err) => {
       console.error("Live contractor review listener failed:", err);
+    }
+  );
+}
+
+    function renderContractorNotifications(items = []) {
+  contractorNotificationItems = [...items].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+  const unreadCount = contractorNotificationItems.filter(item => item.isRead !== true).length;
+
+  if (contractorNotificationsBadge) {
+    contractorNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
+  }
+
+  if (contractorNotificationsMarkAllBtn) {
+    contractorNotificationsMarkAllBtn.disabled = unreadCount === 0;
+  }
+
+  if (!contractorNotificationsList) return;
+
+  if (!contractorNotificationItems.length) {
+    contractorNotificationsList.innerHTML = `<p class="contractor-notification-empty">No notifications yet.</p>`;
+    return;
+  }
+
+  contractorNotificationsList.innerHTML = contractorNotificationItems.slice(0, 8).map(item => `
+    <div class="contractor-notification-item ${item.isRead === true ? "" : "is-unread"}">
+      <div class="contractor-notification-row">
+        <div class="contractor-notification-title">${escapeHtml(item.title || "Review update")}</div>
+        <div class="contractor-notification-time">${escapeHtml(formatDocDate(item.createdAt) || "—")}</div>
+      </div>
+
+      <div class="contractor-notification-message">${escapeHtml(item.message || "")}</div>
+      <div class="contractor-notification-meta">${escapeHtml(item.actorName || "Admin")}</div>
+
+      ${
+        item.isRead === true
+          ? `<span class="contractor-notification-read-state">Read</span>`
+          : `<button type="button" class="contractor-notification-read-btn" data-notificationid="${escapeHtml(item._docId || "")}">Mark read</button>`
+      }
+    </div>
+  `).join("");
+}
+
+async function markContractorNotificationRead(notificationId) {
+  if (!notificationId) return;
+
+  await updateDoc(doc(db, "contractorNotifications", notificationId), {
+    isRead: true,
+    readAt: Date.now()
+  });
+}
+
+async function markAllContractorNotificationsRead() {
+  const unreadItems = contractorNotificationItems.filter(item => item.isRead !== true);
+
+  for (const item of unreadItems) {
+    await markContractorNotificationRead(item._docId);
+  }
+}
+
+function startContractorNotificationsListener(currentUser) {
+  if (unsubscribeContractorNotificationsListener) {
+    unsubscribeContractorNotificationsListener();
+  }
+
+  const notificationsQuery = query(
+    collection(db, "contractorNotifications"),
+    where("contractorUid", "==", currentUser.uid)
+  );
+
+  unsubscribeContractorNotificationsListener = onSnapshot(
+    notificationsQuery,
+    (snapshot) => {
+      const items = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      renderContractorNotifications(items);
+    },
+    (err) => {
+      console.error("Live contractor notifications listener failed:", err);
+
+      if (contractorNotificationsList) {
+        contractorNotificationsList.innerHTML = `<p class="contractor-notification-empty">Could not load notifications.</p>`;
+      }
     }
   );
 }
@@ -629,7 +746,8 @@ contractorStatus.textContent = "Complete your contractor profile to submit it fo
   }
 
       startProfileReviewListener(currentUser);
-  return currentUser;
+startContractorNotificationsListener(currentUser);
+return currentUser;
     }
 
     form.addEventListener("submit", async (e) => {
@@ -763,6 +881,34 @@ if (payload.status === "pending" && currentStatus === "rejected") {
         contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
       }
     });
+
+    if (contractorNotificationsList) {
+  contractorNotificationsList.addEventListener("click", async (e) => {
+    const readBtn = e.target.closest(".contractor-notification-read-btn");
+    if (!readBtn) return;
+
+    const notificationId = readBtn.getAttribute("data-notificationid");
+    if (!notificationId) return;
+
+    try {
+      await markContractorNotificationRead(notificationId);
+    } catch (err) {
+      console.error(err);
+      contractorStatus.textContent = `Could not mark notification read: ${err.message}`;
+    }
+  });
+}
+
+if (contractorNotificationsMarkAllBtn) {
+  contractorNotificationsMarkAllBtn.addEventListener("click", async () => {
+    try {
+      await markAllContractorNotificationsRead();
+    } catch (err) {
+      console.error(err);
+      contractorStatus.textContent = `Could not mark all notifications read: ${err.message}`;
+    }
+  });
+}
 
     loadProfile();
   </script>
