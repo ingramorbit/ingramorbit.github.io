@@ -64,12 +64,12 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-      getFirestore,
-      collection,
-      getDocs,
-      updateDoc,
-      doc
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  getFirestore,
+  collection,
+  updateDoc,
+  doc,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = getApp();
     const db = getFirestore(app);
@@ -80,6 +80,7 @@
     const contractorsAdminList = document.getElementById("contractorsAdminList");
 
     let contractors = [];
+let unsubscribeContractorsListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -642,41 +643,48 @@ ${renderChecklist(item)}
     }
 
     async function loadContractors() {
-      const currentUser = await waitForAKOAuth();
+    async function loadContractors() {
+  const currentUser = await waitForAKOAuth();
 
-      if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
-        return;
-      }
+  if (!currentUser) {
+    window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
+    return;
+  }
 
-      if (currentUser.tier !== "admin") {
-        contractorsAdminList.innerHTML = `
-          <div class="contractor-admin-item">
-            <p style="margin:0;font-weight:800;">Admin access is required.</p>
-          </div>
-        `;
-        contractorsAdminSummary.textContent = "Admin access is required.";
-        return;
-      }
+  if (currentUser.tier !== "admin") {
+    contractorsAdminList.innerHTML = `
+      <div class="contractor-admin-item">
+        <p style="margin:0;font-weight:800;">Admin access is required.</p>
+      </div>
+    `;
+    contractorsAdminSummary.textContent = "Admin access is required.";
+    return;
+  }
 
-      try {
-        const snapshot = await getDocs(collection(db, "contractors"));
+  if (unsubscribeContractorsListener) {
+    unsubscribeContractorsListener();
+  }
 
-        contractors = snapshot.docs.map(docSnap => ({
-          _docId: docSnap.id,
-          ...docSnap.data()
-        }));
+  unsubscribeContractorsListener = onSnapshot(
+    collection(db, "contractors"),
+    (snapshot) => {
+      contractors = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
 
-        applyFilters();
-      } catch (err) {
-        console.error(err);
-        contractorsAdminList.innerHTML = `
-          <div class="contractor-admin-item">
-            <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
-          </div>
-        `;
-        contractorsAdminSummary.textContent = "Could not load contractors.";
-      }
+      applyFilters();
+    },
+    (err) => {
+      console.error(err);
+      contractorsAdminList.innerHTML = `
+        <div class="contractor-admin-item">
+          <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
+        </div>
+      `;
+      contractorsAdminSummary.textContent = "Could not load contractors.";
+    }
+  );
     }
 
     contractorsAdminList.addEventListener("click", async (e) => {
@@ -715,16 +723,15 @@ if (feedbackSaveBtn) {
 
   try {
     await updateDoc(doc(db, "contractors", contractorId), {
-      reviewFeedbackManual: manualFeedback,
-      reviewFeedback: combinedReviewFeedback,
-      reviewFeedbackUpdatedAt: now,
-      reviewFeedbackUpdatedBy: currentUser.uid,
-      reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
-      updatedAt: now
-    });
+  reviewFeedbackManual: manualFeedback,
+  reviewFeedback: combinedReviewFeedback,
+  reviewFeedbackUpdatedAt: now,
+  reviewFeedbackUpdatedBy: currentUser.uid,
+  reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
+  updatedAt: now
+});
 
-    await loadContractors();
-    alert("Review feedback saved.");
+alert("Review feedback saved.");
   } catch (err) {
     console.error(err);
     alert(`Could not save feedback: ${err.message}`);
@@ -811,9 +818,7 @@ if (blockingRequiredDocs.length) {
   try {
     await updateDoc(doc(db, "contractors", contractorId), updatePayload);
 
-    await loadContractors();
-
-    if (blockingRequiredDocs.length) {
+if (blockingRequiredDocs.length) {
       alert(
         "Document reviews saved.\n\n" +
         "Contractor status has been set to pending because one or more required documents are not approved."
@@ -853,14 +858,13 @@ if (blockingRequiredDocs.length) {
 
         try {
           await updateDoc(doc(db, "contractors", contractorId), {
-            reviewChecklist: checkboxMap,
-            reviewChecklistUpdatedAt: Date.now(),
-            reviewChecklistUpdatedBy: currentUser.uid,
-            updatedAt: Date.now()
-          });
+  reviewChecklist: checkboxMap,
+  reviewChecklistUpdatedAt: Date.now(),
+  reviewChecklistUpdatedBy: currentUser.uid,
+  updatedAt: Date.now()
+});
 
-          await loadContractors();
-          alert("Checklist saved.");
+alert("Checklist saved.");
         } catch (err) {
           console.error(err);
           alert(`Could not save checklist: ${err.message}`);
@@ -933,8 +937,7 @@ const payload = {
 
       try {
         await updateDoc(doc(db, "contractors", contractorId), payload);
-        await loadContractors();
-        alert(`Contractor updated to "${nextStatus}".`);
+alert(`Contractor updated to "${nextStatus}".`);
       } catch (err) {
         console.error(err);
         alert(`Could not update contractor: ${err.message}`);
