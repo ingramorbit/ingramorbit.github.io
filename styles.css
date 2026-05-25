@@ -3391,3 +3391,23 @@ body{
   margin:0;
   color:#6b7280;
 }
+
+.auth-notification-jump{
+  margin-top:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-radius:999px;
+  padding:10px 14px;
+  background:#1F68FF;
+  color:#fff;
+  font-weight:800;
+  font-size:.9rem;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(31,104,255,.18);
+}
+
+.auth-notification-jump.is-hidden{
+  display:none;
+}
