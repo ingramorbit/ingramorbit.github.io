@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=30">
+  <link rel="stylesheet" href="styles.css?v=31">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -63,10 +63,30 @@
   <a href="contractor-onboarding.html" class="contractor-resubmission-link">
     Go to Contractor Onboarding
   </a>
-        </div>
-      </div>
+</div>
 
-      <div id="contractorLeadsList" class="requests-list">
+<div id="contractorLeadNotificationsBox" class="contractor-notifications-box">
+  <div class="contractor-notifications-top">
+    <div class="contractor-notifications-title">Review notifications</div>
+    <span id="contractorLeadNotificationsBadge" class="contractor-notifications-badge">0 unread</span>
+  </div>
+
+  <div class="contractor-notifications-actions">
+    <button
+      id="contractorLeadNotificationsMarkAllBtn"
+      type="button"
+      class="contractor-notifications-markall-btn"
+    >
+      Mark all read
+    </button>
+  </div>
+
+  <div id="contractorLeadNotificationsList" class="contractor-notifications-list">
+    <p class="contractor-notification-empty">No notifications yet.</p>
+  </div>
+</div>
+
+<div id="contractorLeadsList" class="requests-list">
         <div class="request-item">
           <p style="margin:0;font-weight:800;">Loading your leads...</p>
         </div>
@@ -105,10 +125,16 @@ const contractorLeadResubmissionList = document.getElementById("contractorLeadRe
 const contractorLeadDocumentSummaryBox = document.getElementById("contractorLeadDocumentSummaryBox");
 const contractorLeadDocumentSummaryList = document.getElementById("contractorLeadDocumentSummaryList");
 
+    const contractorLeadNotificationsBadge = document.getElementById("contractorLeadNotificationsBadge");
+const contractorLeadNotificationsMarkAllBtn = document.getElementById("contractorLeadNotificationsMarkAllBtn");
+const contractorLeadNotificationsList = document.getElementById("contractorLeadNotificationsList");
+
   let contractorProfile = null;
 let contractorLeads = [];
+let contractorLeadNotificationItems = [];
 let unsubscribeContractorProfileListener = null;
 let unsubscribeContractorLeadsListener = null;
+let unsubscribeContractorLeadNotificationsListener = null;
 
   function waitForAKOAuth() {
     return new Promise((resolve) => {
@@ -437,6 +463,92 @@ function renderApprovalStatus(profileData) {
 
   renderResubmissionCues(profileData);
 }
+
+    function renderContractorLeadNotifications(items = []) {
+  contractorLeadNotificationItems = [...items].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+  const unreadCount = contractorLeadNotificationItems.filter(item => item.isRead !== true).length;
+
+  if (contractorLeadNotificationsBadge) {
+    contractorLeadNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
+  }
+
+  if (contractorLeadNotificationsMarkAllBtn) {
+    contractorLeadNotificationsMarkAllBtn.disabled = unreadCount === 0;
+  }
+
+  if (!contractorLeadNotificationsList) return;
+
+  if (!contractorLeadNotificationItems.length) {
+    contractorLeadNotificationsList.innerHTML = `<p class="contractor-notification-empty">No notifications yet.</p>`;
+    return;
+  }
+
+  contractorLeadNotificationsList.innerHTML = contractorLeadNotificationItems.slice(0, 8).map(item => `
+    <div class="contractor-notification-item ${item.isRead === true ? "" : "is-unread"}">
+      <div class="contractor-notification-row">
+        <div class="contractor-notification-title">${escapeHtml(item.title || "Review update")}</div>
+        <div class="contractor-notification-time">${escapeHtml(formatDate(item.createdAt) || "—")}</div>
+      </div>
+
+      <div class="contractor-notification-message">${escapeHtml(item.message || "")}</div>
+      <div class="contractor-notification-meta">${escapeHtml(item.actorName || "Admin")}</div>
+
+      ${
+        item.isRead === true
+          ? `<span class="contractor-notification-read-state">Read</span>`
+          : `<button type="button" class="contractor-notification-read-btn" data-notificationid="${escapeHtml(item._docId || "")}">Mark read</button>`
+      }
+    </div>
+  `).join("");
+}
+
+async function markContractorLeadNotificationRead(notificationId) {
+  if (!notificationId) return;
+
+  await updateDoc(doc(db, "contractorNotifications", notificationId), {
+    isRead: true,
+    readAt: Date.now()
+  });
+}
+
+async function markAllContractorLeadNotificationsRead() {
+  const unreadItems = contractorLeadNotificationItems.filter(item => item.isRead !== true);
+
+  for (const item of unreadItems) {
+    await markContractorLeadNotificationRead(item._docId);
+  }
+}
+
+function startContractorLeadNotificationsListener(currentUser) {
+  if (unsubscribeContractorLeadNotificationsListener) {
+    unsubscribeContractorLeadNotificationsListener();
+  }
+
+  const notificationsQuery = query(
+    collection(db, "contractorNotifications"),
+    where("contractorUid", "==", currentUser.uid)
+  );
+
+  unsubscribeContractorLeadNotificationsListener = onSnapshot(
+    notificationsQuery,
+    (snapshot) => {
+      const items = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      renderContractorLeadNotifications(items);
+    },
+    (err) => {
+      console.error(err);
+
+      if (contractorLeadNotificationsList) {
+        contractorLeadNotificationsList.innerHTML = `<p class="contractor-notification-empty">Could not load notifications.</p>`;
+      }
+    }
+  );
+}
   function renderLeads(items) {
     if (!items.length) {
       renderEmpty("No leads have been assigned to you yet.");
@@ -587,6 +699,7 @@ async function loadMyLeads() {
   }
 
   startContractorProfileListener(currentUser);
+  startContractorLeadNotificationsListener(currentUser);
 }
     
   contractorLeadsList.addEventListener("click", async (e) => {
@@ -689,6 +802,34 @@ async function loadMyLeads() {
       }
     }
   });
+
+    if (contractorLeadNotificationsList) {
+  contractorLeadNotificationsList.addEventListener("click", async (e) => {
+    const readBtn = e.target.closest(".contractor-notification-read-btn");
+    if (!readBtn) return;
+
+    const notificationId = readBtn.getAttribute("data-notificationid");
+    if (!notificationId) return;
+
+    try {
+      await markContractorLeadNotificationRead(notificationId);
+    } catch (err) {
+      console.error(err);
+      alert(`Could not mark notification read: ${err.message}`);
+    }
+  });
+}
+
+if (contractorLeadNotificationsMarkAllBtn) {
+  contractorLeadNotificationsMarkAllBtn.addEventListener("click", async () => {
+    try {
+      await markAllContractorLeadNotificationsRead();
+    } catch (err) {
+      console.error(err);
+      alert(`Could not mark all notifications read: ${err.message}`);
+    }
+  });
+}
 
   loadMyLeads();
   </script>
