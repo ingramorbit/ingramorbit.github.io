@@ -4,16 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
   <section class="contractor-hero">
 
     <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
+  <div id="authArea">
+    <span id="welcomeUser" class="welcome-user"></span>
+    <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+  </div>
+
+  <button
+    id="contractorTopNotificationJump"
+    type="button"
+    class="auth-notification-jump is-hidden"
+  >
+    0 unread
+  </button>
     </div>
 
     <a class="contractor-back contractor-back-floating" href="trucking.html">← Back to Trucking</a>
@@ -211,9 +219,11 @@ const contractorResubmissionBox = document.getElementById("contractorResubmissio
 const contractorResubmissionList = document.getElementById("contractorResubmissionList");
 const contractorResubmissionHint = document.getElementById("contractorResubmissionHint");
 
-    const contractorNotificationsBadge = document.getElementById("contractorNotificationsBadge");
+    const contractorNotificationsBox = document.getElementById("contractorNotificationsBox");
+const contractorNotificationsBadge = document.getElementById("contractorNotificationsBadge");
 const contractorNotificationsMarkAllBtn = document.getElementById("contractorNotificationsMarkAllBtn");
 const contractorNotificationsList = document.getElementById("contractorNotificationsList");
+const contractorTopNotificationJump = document.getElementById("contractorTopNotificationJump");
     
     const coDocBusinessIdentity = document.getElementById("coDocBusinessIdentity");
 const coDocInsuranceProof = document.getElementById("coDocInsuranceProof");
@@ -292,13 +302,18 @@ function startProfileReviewListener(currentUser) {
 
   const unreadCount = contractorNotificationItems.filter(item => item.isRead !== true).length;
 
-  if (contractorNotificationsBadge) {
-    contractorNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
-  }
+if (contractorNotificationsBadge) {
+  contractorNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
+}
 
-  if (contractorNotificationsMarkAllBtn) {
-    contractorNotificationsMarkAllBtn.disabled = unreadCount === 0;
-  }
+if (contractorNotificationsMarkAllBtn) {
+  contractorNotificationsMarkAllBtn.disabled = unreadCount === 0;
+}
+
+if (contractorTopNotificationJump) {
+  contractorTopNotificationJump.textContent = `${unreadCount} unread`;
+  contractorTopNotificationJump.classList.toggle("is-hidden", unreadCount === 0);
+}
 
   if (!contractorNotificationsList) return;
 
@@ -909,6 +924,15 @@ if (contractorNotificationsMarkAllBtn) {
     }
   });
 }
+
+    if (contractorTopNotificationJump && contractorNotificationsBox) {
+  contractorTopNotificationJump.addEventListener("click", () => {
+    contractorNotificationsBox.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+    }
 
     loadProfile();
   </script>
