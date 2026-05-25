@@ -4,16 +4,24 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
   <section class="contractor-leads-hero">
 
     <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
+  <div id="authArea">
+    <span id="welcomeUser" class="welcome-user"></span>
+    <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+  </div>
+
+  <button
+    id="contractorLeadTopNotificationJump"
+    type="button"
+    class="auth-notification-jump is-hidden"
+  >
+    0 unread
+  </button>
     </div>
 
     <a class="contractor-leads-back contractor-leads-back-floating" href="trucking.html">← Back to Trucking</a>
@@ -127,9 +135,11 @@ const contractorLeadResubmissionList = document.getElementById("contractorLeadRe
 const contractorLeadDocumentSummaryBox = document.getElementById("contractorLeadDocumentSummaryBox");
 const contractorLeadDocumentSummaryList = document.getElementById("contractorLeadDocumentSummaryList");
 
-    const contractorLeadNotificationsBadge = document.getElementById("contractorLeadNotificationsBadge");
+    const contractorLeadNotificationsBox = document.getElementById("contractorLeadNotificationsBox");
+const contractorLeadNotificationsBadge = document.getElementById("contractorLeadNotificationsBadge");
 const contractorLeadNotificationsMarkAllBtn = document.getElementById("contractorLeadNotificationsMarkAllBtn");
 const contractorLeadNotificationsList = document.getElementById("contractorLeadNotificationsList");
+const contractorLeadTopNotificationJump = document.getElementById("contractorLeadTopNotificationJump");
 
   let contractorProfile = null;
 let contractorLeads = [];
@@ -471,12 +481,18 @@ function renderApprovalStatus(profileData) {
 
   const unreadCount = contractorLeadNotificationItems.filter(item => item.isRead !== true).length;
 
-  if (contractorLeadNotificationsBadge) {
-    contractorLeadNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
-  }
+if (contractorLeadNotificationsBadge) {
+  contractorLeadNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
+}
 
-  if (contractorLeadNotificationsMarkAllBtn) {
-    contractorLeadNotificationsMarkAllBtn.disabled = unreadCount === 0;
+if (contractorLeadNotificationsMarkAllBtn) {
+  contractorLeadNotificationsMarkAllBtn.disabled = unreadCount === 0;
+}
+
+if (contractorLeadTopNotificationJump) {
+  contractorLeadTopNotificationJump.textContent = `${unreadCount} unread`;
+  contractorLeadTopNotificationJump.classList.toggle("is-hidden", unreadCount === 0);
+}
   }
 
   if (!contractorLeadNotificationsList) return;
@@ -832,6 +848,15 @@ if (contractorLeadNotificationsMarkAllBtn) {
     }
   });
 }
+
+    if (contractorLeadTopNotificationJump && contractorLeadNotificationsBox) {
+  contractorLeadTopNotificationJump.addEventListener("click", () => {
+    contractorLeadNotificationsBox.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  });
+    }
 
   loadMyLeads();
   </script>
