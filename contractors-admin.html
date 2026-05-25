@@ -329,6 +329,28 @@ function buildContractorFacingReviewFeedback(item, documentReviewOverride = null
   return parts.join("\n\n").trim();
 }
 
+    async function createContractorNotification({
+  contractorId,
+  title,
+  message,
+  type = "general",
+  actorUid = "",
+  actorName = "Admin"
+}) {
+  if (!contractorId || !title || !message) return;
+
+  await addDoc(collection(db, "contractorNotifications"), {
+    contractorUid: contractorId,
+    title: String(title).trim(),
+    message: String(message).trim(),
+    type: String(type || "general").trim(),
+    actorUid: String(actorUid || "").trim(),
+    actorName: String(actorName || "Admin").trim(),
+    isRead: false,
+    createdAt: Date.now()
+  });
+    }
+
 function areRequiredDocumentsApproved(item) {
   return getBlockingRequiredDocumentLabels(item).length === 0;
 }
