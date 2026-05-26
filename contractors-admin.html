@@ -114,23 +114,6 @@ let unsubscribeContractorsListener = null;
       }
     }
 
-    async function createContractorNotification(currentUser, contractorId, title, message, type) {
-  try {
-    await addDoc(collection(db, "contractorNotifications"), {
-      contractorUid: contractorId,
-      title,
-      message,
-      type,
-      isRead: false,
-      createdAt: Date.now(),
-      actorUid: currentUser?.uid || "",
-      actorName: currentUser?.name || currentUser?.email || "Admin"
-    });
-  } catch (err) {
-    console.warn("Notification write failed:", err);
-  }
-    }
-
     function getCategoryKey(item) {
       const raw = String(item.category || item.categoryLabel || "").toLowerCase();
 
@@ -770,13 +753,14 @@ if (feedbackSaveBtn) {
   updatedAt: now
 });
 
-await createContractorNotification(
-  currentUser,
+await createContractorNotification({
   contractorId,
-  "Review feedback updated",
-  "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
-  "review-feedback"
-);
+  title: "Review feedback updated",
+  message: "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
+  type: "review-feedback",
+  actorUid: currentUser.uid,
+  actorName: currentUser.name || currentUser.email || "Admin"
+});
 
 alert("Review feedback saved.");
   } catch (err) {
@@ -873,13 +857,14 @@ const docReviewMessage = blockingRequiredDocs.length
   ? `Admin reviewed your documents. Action needed on: ${blockingRequiredDocs.join("; ")}.`
   : "Admin reviewed your uploaded documents. Your required document review is up to date.";
 
-await createContractorNotification(
-  currentUser,
+await createContractorNotification({
   contractorId,
-  docReviewTitle,
-  docReviewMessage,
-  "document-review"
-);
+  title: docReviewTitle,
+  message: docReviewMessage,
+  type: "document-review",
+  actorUid: currentUser.uid,
+  actorName: currentUser.name || currentUser.email || "Admin"
+});
 
 if (blockingRequiredDocs.length) {
   alert(
@@ -920,15 +905,26 @@ if (blockingRequiredDocs.length) {
         });
 
         try {
-          await updateDoc(doc(db, "contractors", contractorId), {
-  reviewChecklist: checkboxMap,
-  reviewChecklistUpdatedAt: Date.now(),
-  reviewChecklistUpdatedBy: currentUser.uid,
-  updatedAt: Date.now()
-});
+  await updateDoc(doc(db, "contractors", contractorId), {
+    reviewChecklist: checkboxMap,
+    reviewChecklistUpdatedAt: Date.now(),
+    reviewChecklistUpdatedBy: currentUser.uid,
+    updatedAt: Date.now()
+  });
 
-alert("Checklist saved.");
-        } catch (err) {
+  const completedCount = Object.values(checkboxMap).filter(value => value === true).length;
+
+  await createContractorNotification({
+    contractorId,
+    title: "Checklist review updated",
+    message: `Admin updated your contractor review checklist. ${completedCount}/${config.length} checklist items are marked complete.`,
+    type: "checklist-updated",
+    actorUid: currentUser.uid,
+    actorName: currentUser.name || currentUser.email || "Admin"
+  });
+
+  alert("Checklist saved.");
+} catch (err) {
           console.error(err);
           alert(`Could not save checklist: ${err.message}`);
         }
@@ -1020,13 +1016,14 @@ const statusMessageMap = {
   rejected: "Your contractor profile was rejected. Review the feedback and document action items, then update and resubmit."
 };
 
-await createContractorNotification(
-  currentUser,
+await createContractorNotification({
   contractorId,
-  statusTitleMap[nextStatus] || "Contractor profile updated",
-  statusMessageMap[nextStatus] || "Your contractor review status was updated.",
-  "approval-status"
-);
+  title: statusTitleMap[nextStatus] || "Contractor profile updated",
+  message: statusMessageMap[nextStatus] || "Your contractor review status was updated.",
+  type: "approval-status",
+  actorUid: currentUser.uid,
+  actorName: currentUser.name || currentUser.email || "Admin"
+});
 
 alert(`Contractor updated to "${nextStatus}".`);
       } catch (err) {
