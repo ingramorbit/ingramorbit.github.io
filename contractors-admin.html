@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="styles.css?v=30">
 </head>
 <body>
-  <section class="contractors-admin-hero">
 <section class="contractors-admin-hero">
 
   <div class="login-button">
@@ -173,7 +172,8 @@ async function logContractorReviewActivity({
   contractor,
   actionType,
   summary,
-  details = ""
+  details = "",
+  statusAtTime = ""
 }) {
   if (!contractor?._docId || !summary) return;
 
@@ -188,11 +188,11 @@ async function logContractorReviewActivity({
     summary: String(summary).trim(),
     details: String(details || "").trim(),
     category: contractor.category || contractor.categoryLabel || "",
-    statusAtTime: contractor.status || "",
+    statusAtTime: statusAtTime || contractor.status || "",
     createdAt: Date.now()
   });
 }
-
+    
 function startContractorReviewActivityListener() {
   if (unsubscribeContractorReviewActivityListener) {
     unsubscribeContractorReviewActivityListener();
@@ -872,9 +872,10 @@ if (feedbackSaveBtn) {
 await logContractorReviewActivity({
   currentUser,
   contractor,
-  actionType: "feedback-updated",
-  summary: "Updated contractor-facing feedback",
-  details: manualFeedback || "No manual feedback entered."
+  actionType: `status-${nextStatus}`,
+  summary: `Set contractor status to ${nextStatus}`,
+  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided.",
+  statusAtTime: nextStatus
 });
 
 await createContractorNotification({
