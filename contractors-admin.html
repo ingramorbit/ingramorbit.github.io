@@ -10,11 +10,10 @@
   <section class="contractors-admin-hero">
 
     <div class="login-button">
-      <div>
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      <div id="authArea">
+  <span id="welcomeUser" class="welcome-user"></span>
+  <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
       </div>
-    </div>
 
     <a class="contractors-admin-back contractors-admin-back-floating" href="all-requests.html">← Back to All Requests</a>
 
@@ -52,6 +51,21 @@
 
       <p id="contractorsAdminSummary" class="contractors-admin-summary">Loading contractors...</p>
 
+      <div class="contractors-admin-activity-card">
+  <div class="contractors-admin-activity-top">
+    <div class="contractors-admin-activity-title">Review activity log</div>
+    <div class="contractors-admin-activity-subtitle">
+      Recent admin actions across contractor approvals, feedback, checklist reviews, and document reviews.
+    </div>
+  </div>
+
+  <div id="contractorReviewActivityList" class="contractor-review-activity-list">
+    <div class="contractor-review-activity-item">
+      <p style="margin:0;font-weight:800;">Loading activity...</p>
+    </div>
+  </div>
+      </div>
+
       <div id="contractorsAdminList" class="contractors-admin-list">
         <div class="contractor-admin-item">
           <p style="margin:0;font-weight:800;">Loading contractors...</p>
@@ -66,6 +80,9 @@
     import {
   getFirestore,
   collection,
+  query,
+  orderBy,
+  limit,
   updateDoc,
   addDoc,
   doc,
@@ -76,12 +93,14 @@
     const db = getFirestore(app);
 
     const contractorsAdminSearch = document.getElementById("contractorsAdminSearch");
-    const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
-    const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
-    const contractorsAdminList = document.getElementById("contractorsAdminList");
+const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
+const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
+const contractorsAdminList = document.getElementById("contractorsAdminList");
+const contractorReviewActivityList = document.getElementById("contractorReviewActivityList");
 
-    let contractors = [];
+let contractors = [];
 let unsubscribeContractorsListener = null;
+let unsubscribeContractorReviewActivityListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -113,6 +132,99 @@ let unsubscribeContractorsListener = null;
         return "—";
       }
     }
+
+    function renderContractorReviewActivity(items = []) {
+  if (!contractorReviewActivityList) return;
+
+  if (!items.length) {
+    contractorReviewActivityList.innerHTML = `
+      <div class="contractor-review-activity-item">
+        <p style="margin:0;font-weight:800;">No activity yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  contractorReviewActivityList.innerHTML = items.map(item => `
+    <div class="contractor-review-activity-item">
+      <div class="contractor-review-activity-row">
+        <div class="contractor-review-activity-action">${escapeHtml(item.summary || "Activity update")}</div>
+        <div class="contractor-review-activity-time">${escapeHtml(formatDate(item.createdAt))}</div>
+      </div>
+
+      <div class="contractor-review-activity-meta">
+        <span><strong>Contractor:</strong> ${escapeHtml(item.contractorCompanyName || item.contractorContactName || "—")}</span>
+        <span><strong>Admin:</strong> ${escapeHtml(item.actorName || "Admin")}</span>
+      </div>
+
+      ${
+        item.details
+          ? `<div class="contractor-review-activity-details">${escapeHtml(item.details)}</div>`
+          : ""
+      }
+    </div>
+  `).join("");
+}
+
+async function logContractorReviewActivity({
+  currentUser,
+  contractor,
+  actionType,
+  summary,
+  details = ""
+}) {
+  if (!contractor?._docId || !summary) return;
+
+  await addDoc(collection(db, "contractorReviewActivity"), {
+    contractorUid: contractor._docId,
+    contractorCompanyName: contractor.companyName || "",
+    contractorContactName: contractor.contactName || "",
+    contractorEmail: contractor.email || "",
+    actorUid: currentUser?.uid || "",
+    actorName: currentUser?.name || currentUser?.email || "Admin",
+    actionType: actionType || "general",
+    summary: String(summary).trim(),
+    details: String(details || "").trim(),
+    category: contractor.category || contractor.categoryLabel || "",
+    statusAtTime: contractor.status || "",
+    createdAt: Date.now()
+  });
+}
+
+function startContractorReviewActivityListener() {
+  if (unsubscribeContractorReviewActivityListener) {
+    unsubscribeContractorReviewActivityListener();
+  }
+
+  const activityQuery = query(
+    collection(db, "contractorReviewActivity"),
+    orderBy("createdAt", "desc"),
+    limit(40)
+  );
+
+  unsubscribeContractorReviewActivityListener = onSnapshot(
+    activityQuery,
+    (snapshot) => {
+      const items = snapshot.docs.map(docSnap => ({
+        _docId: docSnap.id,
+        ...docSnap.data()
+      }));
+
+      renderContractorReviewActivity(items);
+    },
+    (err) => {
+      console.error(err);
+
+      if (contractorReviewActivityList) {
+        contractorReviewActivityList.innerHTML = `
+          <div class="contractor-review-activity-item">
+            <p style="margin:0;font-weight:800;">Could not load activity: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+  );
+}
 
     function getCategoryKey(item) {
       const raw = String(item.category || item.categoryLabel || "").toLowerCase();
@@ -674,18 +786,20 @@ ${renderChecklist(item)}
   }
 
   if (currentUser.tier !== "admin") {
-    contractorsAdminList.innerHTML = `
-      <div class="contractor-admin-item">
-        <p style="margin:0;font-weight:800;">Admin access is required.</p>
-      </div>
-    `;
-    contractorsAdminSummary.textContent = "Admin access is required.";
-    return;
-  }
+  contractorsAdminList.innerHTML = `
+    <div class="contractor-admin-item">
+      <p style="margin:0;font-weight:800;">Admin access is required.</p>
+    </div>
+  `;
+  contractorsAdminSummary.textContent = "Admin access is required.";
+  return;
+}
 
-  if (unsubscribeContractorsListener) {
-    unsubscribeContractorsListener();
-  }
+startContractorReviewActivityListener();
+
+if (unsubscribeContractorsListener) {
+  unsubscribeContractorsListener();
+}
 
   unsubscribeContractorsListener = onSnapshot(
     collection(db, "contractors"),
@@ -751,6 +865,14 @@ if (feedbackSaveBtn) {
   reviewFeedbackUpdatedBy: currentUser.uid,
   reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
   updatedAt: now
+});
+
+await logContractorReviewActivity({
+  currentUser,
+  contractor,
+  actionType: "feedback-updated",
+  summary: "Updated contractor-facing feedback",
+  details: manualFeedback || "No manual feedback entered."
 });
 
 await createContractorNotification({
@@ -849,6 +971,16 @@ if (blockingRequiredDocs.length) {
   try {
     await updateDoc(doc(db, "contractors", contractorId), updatePayload);
 
+    await logContractorReviewActivity({
+  currentUser,
+  contractor,
+  actionType: "document-review-updated",
+  summary: "Updated contractor document review",
+  details: blockingRequiredDocs.length
+    ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
+    : "All required documents are approved."
+});
+
 const docReviewTitle = blockingRequiredDocs.length
   ? "Document review needs attention"
   : "Document review updated";
@@ -911,6 +1043,14 @@ if (blockingRequiredDocs.length) {
     reviewChecklistUpdatedBy: currentUser.uid,
     updatedAt: Date.now()
   });
+
+          await logContractorReviewActivity({
+  currentUser,
+  contractor,
+  actionType: "checklist-updated",
+  summary: "Updated contractor review checklist",
+  details: `${Object.values(checkboxMap).filter(value => value === true).length}/${config.length} checklist items complete`
+});
 
   const completedCount = Object.values(checkboxMap).filter(value => value === true).length;
 
