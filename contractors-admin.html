@@ -10,7 +10,7 @@
   <section class="contractors-admin-hero">
 
     <div class="login-button">
-      <div id="authArea">
+      <div>
         <span id="welcomeUser" class="welcome-user"></span>
         <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
       </div>
@@ -1003,6 +1003,14 @@ const payload = {
 
       try {
         await updateDoc(doc(db, "contractors", contractorId), payload);
+
+        await logContractorReviewActivity({
+  currentUser,
+  contractor,
+  actionType: `status-${nextStatus}`,
+  summary: `Set contractor status to ${nextStatus}`,
+  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided."
+});
 
 const statusTitleMap = {
   approved: "Contractor profile approved",
