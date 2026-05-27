@@ -872,10 +872,10 @@ if (feedbackSaveBtn) {
 await logContractorReviewActivity({
   currentUser,
   contractor,
-  actionType: `status-${nextStatus}`,
-  summary: `Set contractor status to ${nextStatus}`,
-  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided.",
-  statusAtTime: nextStatus
+  actionType: "feedback-updated",
+  summary: "Updated contractor-facing feedback",
+  details: manualFeedback || "No manual feedback entered.",
+  statusAtTime: contractor.status || ""
 });
 
 await createContractorNotification({
