@@ -981,7 +981,8 @@ if (blockingRequiredDocs.length) {
   summary: "Updated contractor document review",
   details: blockingRequiredDocs.length
     ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
-    : "All required documents are approved."
+    : "All required documents are approved.",
+  statusAtTime: blockingRequiredDocs.length ? "pending" : (contractor.status || "")
 });
 
 const docReviewTitle = blockingRequiredDocs.length
@@ -1152,7 +1153,8 @@ const payload = {
   contractor,
   actionType: `status-${nextStatus}`,
   summary: `Set contractor status to ${nextStatus}`,
-  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided."
+  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided.",
+  statusAtTime: nextStatus
 });
 
 const statusTitleMap = {
