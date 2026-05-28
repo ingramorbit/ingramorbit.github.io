@@ -342,8 +342,12 @@ const db = getFirestore(app);
         <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
 
         <div class="lb-actions">
-          <a href="#" class="trucking-cta">Apply Now</a>
-
+          <a
+  href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Trucking Job"}`)}"
+  class="trucking-cta"
+>
+  Apply Now
+</a>
           ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
   <button
     type="button"
@@ -519,41 +523,50 @@ if (jobBoardList) {
   });
 }
   if (postForm) {
-    postForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  postForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const newLoad = {
-        id: (plId.value || "").trim() || ("AK-" + Date.now()),
-        pickupCity: (plPickupCity.value || "").trim(),
-        dropCity: (plDropCity.value || "").trim(),
-        equipment: (plEquipment.value || "").trim(),
-        weight: Number(plWeight.value || 0),
-        miles: Number(plMiles.value || 0),
-        rate: Number(plRate.value || 0),
-        pickupDate: (plPickupDate.value || "").trim(),
-        commodity: (plCommodity.value || "").trim(),
-        contact: (plContact.value || "").trim(),
-        createdAt: Date.now()
-      };
+    const currentUser = getCurrentUser();
 
-      try {
-        const docRef = await addDoc(collection(db, "loads"), newLoad);
-        loads.unshift({
-          _docId: docRef.id,
-          ...newLoad
-        });
-        applyFilters();
-        postForm.reset();
-        alert("Load posted to board.");
-      } catch (err) {
-        console.error(err);
-        alert(
-          "Could not save load:\n" +
-          "code: " + err.code + "\n" +
-          "message: " + err.message
-        );
-      }
-    });
+    if (!currentUser) {
+      alert("You must be logged in to post a load.");
+      return;
+    }
+
+    const newLoad = {
+      id: (plId.value || "").trim() || ("AK-" + Date.now()),
+      pickupCity: (plPickupCity.value || "").trim(),
+      dropCity: (plDropCity.value || "").trim(),
+      equipment: (plEquipment.value || "").trim(),
+      weight: Number(plWeight.value || 0),
+      miles: Number(plMiles.value || 0),
+      rate: Number(plRate.value || 0),
+      pickupDate: (plPickupDate.value || "").trim(),
+      commodity: (plCommodity.value || "").trim(),
+      contact: (plContact.value || "").trim(),
+      ownerUid: currentUser.uid,
+      ownerEmail: currentUser.email || "",
+      createdAt: Date.now()
+    };
+
+    try {
+      const docRef = await addDoc(collection(db, "loads"), newLoad);
+      loads.unshift({
+        _docId: docRef.id,
+        ...newLoad
+      });
+      applyFilters();
+      postForm.reset();
+      alert("Load posted to board.");
+    } catch (err) {
+      console.error(err);
+      alert(
+        "Could not save load:\n" +
+        "code: " + err.code + "\n" +
+        "message: " + err.message
+      );
+    }
+  });
   }
 
   if (postJobForm) {
