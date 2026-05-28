@@ -982,7 +982,7 @@ if (blockingRequiredDocs.length) {
   details: blockingRequiredDocs.length
     ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
     : "All required documents are approved.",
-  statusAtTime: blockingRequiredDocs.length ? "pending" : (contractor.status || "")
+  statusAtTime: updatePayload.status || contractor.status || ""
 });
 
 const docReviewTitle = blockingRequiredDocs.length
