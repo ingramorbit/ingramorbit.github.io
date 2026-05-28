@@ -1053,7 +1053,8 @@ if (blockingRequiredDocs.length) {
   contractor,
   actionType: "checklist-updated",
   summary: "Updated contractor review checklist",
-  details: `${Object.values(checkboxMap).filter(value => value === true).length}/${config.length} checklist items complete`
+  details: `${Object.values(checkboxMap).filter(value => value === true).length}/${config.length} checklist items complete`,
+  statusAtTime: contractor.status || ""
 });
 
   const completedCount = Object.values(checkboxMap).filter(value => value === true).length;
