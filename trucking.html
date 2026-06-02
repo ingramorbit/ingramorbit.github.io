@@ -173,15 +173,17 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
   deleteDoc,
-  doc
+  doc,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = getApp();
 const db = getFirestore(app);
 
   let loads = [];
+  let unsubscribeLoadsListener = null;
+let unsubscribeJobsListener = null;
 
   function getCurrentUser() {
     return window.AKOUser || null;
@@ -363,32 +365,49 @@ const db = getFirestore(app);
     `).join("");
   }
 
-  async function loadFirestoreLoads() {
-    body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
+  function startLoadsListener() {
+  if (!body) return;
 
-    const snapshot = await getDocs(collection(db, "loads"));
-
-    loads = snapshot.docs.map(d => ({
-      _docId: d.id,
-      id: d.data().id || d.id,
-      ...d.data()
-    }));
-
-    applyFilters();
+  if (unsubscribeLoadsListener) {
+    unsubscribeLoadsListener();
   }
 
-  async function loadTruckingJobs() {
-    if (!jobBoardList) return;
+  body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
 
-    jobBoardList.innerHTML = `
-      <div class="job-card">
-        <p style="margin:0;font-weight:800;">Loading jobs...</p>
-      </div>
-    `;
+  unsubscribeLoadsListener = onSnapshot(
+    collection(db, "loads"),
+    (snapshot) => {
+      loads = snapshot.docs.map(d => ({
+        _docId: d.id,
+        id: d.data().id || d.id,
+        ...d.data()
+      }));
 
-    try {
-      const snapshot = await getDocs(collection(db, "jobs"));
+      applyFilters();
+    },
+    (err) => {
+      console.error(err);
+      body.innerHTML = `<tr><td colspan="10">Could not load loads: ${err.message}</td></tr>`;
+    }
+  );
+  }
 
+  function startTruckingJobsListener() {
+  if (!jobBoardList) return;
+
+  if (unsubscribeJobsListener) {
+    unsubscribeJobsListener();
+  }
+
+  jobBoardList.innerHTML = `
+    <div class="job-card">
+      <p style="margin:0;font-weight:800;">Loading jobs...</p>
+    </div>
+  `;
+
+  unsubscribeJobsListener = onSnapshot(
+    collection(db, "jobs"),
+    (snapshot) => {
       let jobs = snapshot.docs.map(d => ({
         _docId: d.id,
         ...d.data()
@@ -399,7 +418,8 @@ const db = getFirestore(app);
         .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
       renderJobs(jobs);
-    } catch (err) {
+    },
+    (err) => {
       console.error(err);
       jobBoardList.innerHTML = `
         <div class="job-card">
@@ -407,6 +427,7 @@ const db = getFirestore(app);
         </div>
       `;
     }
+  );
   }
 
   function applyFilters() {
@@ -479,8 +500,7 @@ const db = getFirestore(app);
 
         try {
           await deleteDoc(doc(db, "loads", docId));
-          loads = loads.filter(load => load._docId !== docId);
-          applyFilters();
+alert("Load deleted.");
         } catch (err) {
           console.error(err);
           alert(
@@ -510,8 +530,7 @@ if (jobBoardList) {
 
     try {
       await deleteDoc(doc(db, "jobs", jobId));
-      await loadTruckingJobs();
-      alert("Job deleted.");
+alert("Job deleted.");
     } catch (err) {
       console.error(err);
       alert(
@@ -550,14 +569,9 @@ if (jobBoardList) {
     };
 
     try {
-      const docRef = await addDoc(collection(db, "loads"), newLoad);
-      loads.unshift({
-        _docId: docRef.id,
-        ...newLoad
-      });
-      applyFilters();
-      postForm.reset();
-      alert("Load posted to board.");
+      await addDoc(collection(db, "loads"), newLoad);
+postForm.reset();
+alert("Load posted to board.");
     } catch (err) {
       console.error(err);
       alert(
@@ -595,10 +609,9 @@ if (jobBoardList) {
 
       try {
         await addDoc(collection(db, "jobs"), newJob);
-        postJobForm.reset();
-        if (pjCategory) pjCategory.value = "trucking";
-        await loadTruckingJobs();
-        alert("Job posted successfully.");
+postJobForm.reset();
+if (pjCategory) pjCategory.value = "trucking";
+alert("Job posted successfully.");
       } catch (err) {
         console.error(err);
         alert(
@@ -612,8 +625,8 @@ if (jobBoardList) {
 
   try {
   await waitForAKOAuth();
-await loadFirestoreLoads();
-await loadTruckingJobs();
+  startLoadsListener();
+  startTruckingJobsListener();
 } catch (err) {
   console.error(err);
   body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
