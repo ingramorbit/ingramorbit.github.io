@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Electricians</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
   <section class="electricians-hero">
@@ -22,7 +22,7 @@
       <div class="electricians-hero-content">
         <div class="electricians-brand">AssistKingOnline</div>
         <h1 class="electricians-title">⚡ Electricians</h1>
-        <p>Certified pros for installs, repairs, and emergencies.</p>
+        <p>Certified pros for installs, repairs, upgrades, and emergencies.</p>
       </div>
     </div>
   </section>
@@ -31,20 +31,294 @@
     <div class="electricians-card">
       <strong>Popular requests</strong>
       <div>
-        <span class="electricians-pill">Panel upgrade</span>
-        <span class="electricians-pill">Outlet/GFCI</span>
-        <span class="electricians-pill">Lighting</span>
-        <span class="electricians-pill">EV charger</span>
+        <span class="electricians-pill">Panel Upgrade</span>
+        <span class="electricians-pill">Outlet / GFCI</span>
+        <span class="electricians-pill">Lighting Install</span>
+        <span class="electricians-pill">EV Charger</span>
+        <span class="electricians-pill">Breaker Issues</span>
+        <span class="electricians-pill">Emergency Electrical</span>
       </div>
     </div>
 
     <div class="electricians-card">
       <strong>Get matched</strong>
       <p style="margin:8px 0 0">Tell us what you need and we’ll connect you with electricians.</p>
-      <a class="electricians-cta" href="request-service.html?category=electricians">Start electrical request</a>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="electricians-cta" href="request-service.html?category=electricians">Start electrical request</a>
+        <a class="electricians-cta" href="contractor-onboarding.html">Join as Electrical Contractor</a>
+        <a class="electricians-cta" href="my-leads.html">My Leads</a>
+      </div>
     </div>
+
+    <div class="electricians-card">
+      <strong>Post a Job</strong>
+      <p style="margin:8px 0 14px">Add an electrical job or opportunity to the board.</p>
+
+      <form id="postJobForm" class="post-load-form">
+        <input id="pjTitle" placeholder="Job Title" required />
+        <input id="pjCompany" placeholder="Company Name" required />
+        <input id="pjLocation" placeholder="Location" required />
+        <input id="pjPay" placeholder="Pay / Budget (example: $650 panel service)" required />
+
+        <select id="pjType" required>
+          <option value="">Select job type</option>
+          <option>Full-Time</option>
+          <option>Part-Time</option>
+          <option>Contract</option>
+          <option>Residential</option>
+          <option>Commercial</option>
+          <option>Emergency</option>
+        </select>
+
+        <input id="pjCategory" value="electricians" readonly />
+        <input id="pjDescription" placeholder="Short job description" required />
+
+        <button type="submit" class="electricians-cta">Post Job</button>
+      </form>
+    </div>
+
+    <section style="margin-top:24px">
+      <h2 style="margin:0 0 10px;font-weight:900">Electrical Job Board</h2>
+      <p style="margin:0 0 14px">
+        Find electrical service calls, installs, repairs, and contractor opportunities.
+      </p>
+
+      <div class="electricians-card">
+        <strong>Featured Opportunities</strong>
+
+        <div id="jobBoardList" class="job-board-list">
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    let unsubscribeJobsListener = null;
+
+    function getCurrentUser() {
+      return window.AKOUser || null;
+    }
+
+    function isAdminUser() {
+      return !!window.AKOUser && window.AKOUser.tier === "admin";
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
+    function renderJobs(list) {
+      if (!jobBoardList) return;
+
+      if (!list.length) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">No electrical jobs posted right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      jobBoardList.innerHTML = list.map(job => `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${job.title || ""}</h3>
+              <p class="job-company">${job.company || ""}</p>
+            </div>
+            <span class="job-badge">${job.type || "Job"}</span>
+          </div>
+
+          <div class="job-meta">
+            <span>📍 ${job.location || ""}</span>
+            <span>💵 ${job.pay || ""}</span>
+            <span>⚡ ${job.category || ""}</span>
+          </div>
+
+          <p class="job-desc">${job.description || "Apply for this electrical opportunity."}</p>
+
+          <div class="lb-actions">
+            <a
+              href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Electrical Job"}`)}"
+              class="electricians-cta"
+            >
+              Apply Now
+            </a>
+
+            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
+              <button
+                type="button"
+                class="lb-delete-job-btn"
+                data-jobid="${job._docId || ""}"
+                data-jobtitle="${job.title || "this job"}"
+              >
+                Delete
+              </button>
+            ` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function startElectriciansJobsListener() {
+      if (!jobBoardList) return;
+
+      if (unsubscribeJobsListener) {
+        unsubscribeJobsListener();
+      }
+
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
+      `;
+
+      unsubscribeJobsListener = onSnapshot(
+        collection(db, "jobs"),
+        (snapshot) => {
+          let jobs = snapshot.docs.map(d => ({
+            _docId: d.id,
+            ...d.data()
+          }));
+
+          jobs = jobs
+            .filter(job => (job.category || "").toLowerCase() === "electricians")
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          renderJobs(jobs);
+        },
+        (err) => {
+          console.error(err);
+          jobBoardList.innerHTML = `
+            <div class="job-card">
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+            </div>
+          `;
+        }
+      );
+    }
+
+    if (jobBoardList) {
+      jobBoardList.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".lb-delete-job-btn");
+        if (!deleteBtn) return;
+
+        const jobId = deleteBtn.getAttribute("data-jobid");
+        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+
+        if (!jobId) {
+          alert("Could not delete this job.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "jobs", jobId));
+          alert("Job deleted.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postJobForm) {
+      postJobForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+          alert("You must be logged in to post a job.");
+          return;
+        }
+
+        const newJob = {
+          title: (pjTitle.value || "").trim(),
+          company: (pjCompany.value || "").trim(),
+          location: (pjLocation.value || "").trim(),
+          pay: (pjPay.value || "").trim(),
+          type: (pjType.value || "").trim(),
+          category: (pjCategory.value || "").trim(),
+          description: (pjDescription.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now()
+        };
+
+        try {
+          await addDoc(collection(db, "jobs"), newJob);
+          postJobForm.reset();
+          if (pjCategory) pjCategory.value = "electricians";
+          alert("Job posted successfully.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    try {
+      await waitForAKOAuth();
+      startElectriciansJobsListener();
+    } catch (err) {
+      console.error(err);
+      if (jobBoardList) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Could not load page data: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
