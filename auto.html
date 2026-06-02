@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Auto Services</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
   <section class="auto-hero">
@@ -44,16 +44,295 @@
     </div>
 
     <div class="auto-card">
-      <strong>How it works</strong>
+      <strong>Get matched</strong>
       <p style="margin:8px 0 0">
         Tell us what your vehicle needs. We connect you with trusted local auto pros —
         shops or mobile mechanics — ready to help.
       </p>
-      <a class="auto-cta" href="request-service.html?category=auto">Request auto help</a>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="auto-cta" href="request-service.html?category=auto">Request auto help</a>
+        <a class="auto-cta" href="contractor-onboarding.html">Join as Auto Contractor</a>
+      </div>
     </div>
+
+    <div class="auto-card">
+      <strong>Post an Auto Job</strong>
+      <p style="margin:8px 0 14px">Add an auto service job opening to the board.</p>
+
+      <form id="postJobForm" class="post-load-form">
+        <input id="pjTitle" placeholder="Job Title" required />
+        <input id="pjCompany" placeholder="Shop or Company Name" required />
+        <input id="pjLocation" placeholder="Location" required />
+        <input id="pjPay" placeholder="Pay (example: $28/hr or $1200/week)" required />
+
+        <select id="pjType" required>
+          <option value="">Select job type</option>
+          <option>Full-Time</option>
+          <option>Part-Time</option>
+          <option>Contract</option>
+          <option>Mobile</option>
+          <option>In-Shop</option>
+        </select>
+
+        <input id="pjCategory" value="auto" readonly />
+        <input id="pjDescription" placeholder="Short job description" required />
+
+        <button type="submit" class="auto-cta">Post Job</button>
+      </form>
+    </div>
+
+    <section style="margin-top:24px">
+      <h2 style="margin:0 0 10px;font-weight:900">Auto Job Board</h2>
+      <p style="margin:0 0 14px">
+        Find mechanic, tire, diagnostics, service writer, and mobile auto opportunities.
+      </p>
+
+      <div class="auto-card">
+        <strong>Featured Auto Jobs</strong>
+
+        <div id="jobBoardList" class="job-board-list">
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
+    let unsubscribeJobsListener = null;
+
+    function getCurrentUser() {
+      return window.AKOUser || null;
+    }
+
+    function isAdminUser() {
+      return !!window.AKOUser && window.AKOUser.tier === "admin";
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function renderJobs(list) {
+      if (!jobBoardList) return;
+
+      if (!list.length) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">No auto jobs posted right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      jobBoardList.innerHTML = list.map(job => `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${escapeHtml(job.title || "")}</h3>
+              <p class="job-company">${escapeHtml(job.company || "")}</p>
+            </div>
+            <span class="job-badge">${escapeHtml(job.type || "Job")}</span>
+          </div>
+
+          <div class="job-meta">
+            <span>📍 ${escapeHtml(job.location || "")}</span>
+            <span>💵 ${escapeHtml(job.pay || "")}</span>
+            <span>🚗 ${escapeHtml(job.category || "")}</span>
+          </div>
+
+          <p class="job-desc">${escapeHtml(job.description || "Apply for this auto opportunity.")}</p>
+
+          <div class="lb-actions">
+            <a
+              href="mailto:${job.ownerEmail || ""}?subject=${encodeURIComponent(`Application: ${job.title || "Auto Job"}`)}"
+              class="auto-cta"
+            >
+              Apply Now
+            </a>
+
+            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
+              <button
+                type="button"
+                class="lb-delete-job-btn"
+                data-jobid="${escapeHtml(job._docId || "")}"
+                data-jobtitle="${escapeHtml(job.title || "this job")}"
+              >
+                Delete
+              </button>
+            ` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function startAutoJobsListener() {
+      if (!jobBoardList) return;
+
+      if (unsubscribeJobsListener) {
+        unsubscribeJobsListener();
+      }
+
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
+      `;
+
+      unsubscribeJobsListener = onSnapshot(
+        collection(db, "jobs"),
+        (snapshot) => {
+          let jobs = snapshot.docs.map(d => ({
+            _docId: d.id,
+            ...d.data()
+          }));
+
+          jobs = jobs
+            .filter(job => (job.category || "").toLowerCase() === "auto")
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          renderJobs(jobs);
+        },
+        (err) => {
+          console.error(err);
+          jobBoardList.innerHTML = `
+            <div class="job-card">
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      );
+    }
+
+    if (jobBoardList) {
+      jobBoardList.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".lb-delete-job-btn");
+        if (!deleteBtn) return;
+
+        const jobId = deleteBtn.getAttribute("data-jobid");
+        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+
+        if (!jobId) {
+          alert("Could not delete this job.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "jobs", jobId));
+          alert("Job deleted.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postJobForm) {
+      postJobForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+          alert("You must be logged in to post a job.");
+          return;
+        }
+
+        const newJob = {
+          title: (pjTitle.value || "").trim(),
+          company: (pjCompany.value || "").trim(),
+          location: (pjLocation.value || "").trim(),
+          pay: (pjPay.value || "").trim(),
+          type: (pjType.value || "").trim(),
+          category: (pjCategory.value || "").trim(),
+          description: (pjDescription.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now()
+        };
+
+        try {
+          await addDoc(collection(db, "jobs"), newJob);
+          postJobForm.reset();
+          if (pjCategory) pjCategory.value = "auto";
+          alert("Auto job posted successfully.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    try {
+      await waitForAKOAuth();
+      startAutoJobsListener();
+    } catch (err) {
+      console.error(err);
+      if (jobBoardList) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Could not load Firestore data: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
