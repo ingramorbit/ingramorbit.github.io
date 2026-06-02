@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Financial Help</title>
-  <link rel="stylesheet" href="styles.css?v=11">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
-  <section class="financial-hero">
+  <section class="auto-hero">
 
     <div class="login-button">
       <div id="authArea">
@@ -16,35 +16,315 @@
       </div>
     </div>
 
-    <a class="financial-back financial-back-floating" href="index.html">← Back to Home</a>
+    <a class="auto-back auto-back-floating" href="index.html">← Back Home</a>
 
     <div class="container">
-      <div class="financial-hero-content">
-        <div class="financial-brand">AssistKingOnline</div>
-        <h1 class="financial-title">💳 Financial Help</h1>
-        <p>Bookkeepers, tax prep, and business financial services.</p>
+      <div class="auto-hero-content">
+        <div class="auto-brand">AssistKingOnline</div>
+        <h1 class="auto-title">💵 Financial Help</h1>
+        <p class="auto-subtitle">
+          Get connected with professionals for budgeting, credit guidance, bookkeeping,
+          tax prep support, and financial education.
+        </p>
       </div>
     </div>
   </section>
 
-  <main class="container financial-wrap">
-    <div class="financial-card">
-      <strong>Popular requests</strong>
+  <main class="container auto-wrap">
+
+    <div class="auto-card">
+      <strong>Popular financial help</strong>
       <div>
-        <span class="financial-pill">Bookkeeping</span>
-        <span class="financial-pill">Tax prep</span>
-        <span class="financial-pill">Payroll</span>
-        <span class="financial-pill">Invoicing</span>
+        <span class="auto-pill">Budget Planning</span>
+        <span class="auto-pill">Credit Help</span>
+        <span class="auto-pill">Tax Prep Support</span>
+        <span class="auto-pill">Bookkeeping</span>
+        <span class="auto-pill">Debt Strategy</span>
+        <span class="auto-pill">Business Setup Help</span>
       </div>
     </div>
 
-    <div class="financial-card">
+    <div class="auto-card">
       <strong>Get matched</strong>
-      <p style="margin:8px 0 0">Tell us your needs and business size.</p>
-      <a class="financial-cta" href="request-service.html?category=financial-help">Start financial request</a>
+      <p style="margin:8px 0 0">
+        Tell us what kind of financial help you need and we will connect you with the right provider.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="auto-cta" href="request-service.html?category=financial-help">Request financial help</a>
+        <a class="auto-cta" href="contractor-onboarding.html">Join as Financial Help Provider</a>
+        <a class="auto-cta" href="my-leads.html">My Leads</a>
+      </div>
     </div>
+
+    <div class="auto-card">
+      <strong>Post a Job</strong>
+      <p style="margin:8px 0 14px">Add a financial help job or opportunity to the board.</p>
+
+      <form id="postJobForm" class="post-load-form">
+        <input id="pjTitle" placeholder="Job Title" required />
+        <input id="pjCompany" placeholder="Company Name" required />
+        <input id="pjLocation" placeholder="Location" required />
+        <input id="pjPay" placeholder="Pay / Budget (example: $500 project)" required />
+
+        <select id="pjType" required>
+          <option value="">Select job type</option>
+          <option>Full-Time</option>
+          <option>Part-Time</option>
+          <option>Contract</option>
+          <option>Remote</option>
+          <option>Consulting</option>
+        </select>
+
+        <input id="pjCategory" value="financial-help" readonly />
+        <input id="pjDescription" placeholder="Short job description" required />
+
+        <button type="submit" class="auto-cta">Post Job</button>
+      </form>
+    </div>
+
+    <section style="margin-top:24px">
+      <h2 style="margin:0 0 10px;font-weight:900">Financial Help Job Board</h2>
+      <p style="margin:0 0 14px">
+        Find bookkeeping, consulting, tax support, credit, and business finance opportunities.
+      </p>
+
+      <div class="auto-card">
+        <strong>Featured Opportunities</strong>
+
+        <div id="jobBoardList" class="job-board-list">
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    let unsubscribeJobsListener = null;
+
+    function getCurrentUser() {
+      return window.AKOUser || null;
+    }
+
+    function isAdminUser() {
+      return !!window.AKOUser && window.AKOUser.tier === "admin";
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
+    function renderJobs(list) {
+      if (!jobBoardList) return;
+
+      if (!list.length) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">No financial help jobs posted right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      jobBoardList.innerHTML = list.map(job => `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${job.title || ""}</h3>
+              <p class="job-company">${job.company || ""}</p>
+            </div>
+            <span class="job-badge">${job.type || "Job"}</span>
+          </div>
+
+          <div class="job-meta">
+            <span>📍 ${job.location || ""}</span>
+            <span>💵 ${job.pay || ""}</span>
+            <span>📊 ${job.category || ""}</span>
+          </div>
+
+          <p class="job-desc">${job.description || "Apply for this financial help opportunity."}</p>
+
+          <div class="lb-actions">
+            <a
+              href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Financial Help Job"}`)}"
+              class="auto-cta"
+            >
+              Apply Now
+            </a>
+
+            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
+              <button
+                type="button"
+                class="lb-delete-job-btn"
+                data-jobid="${job._docId || ""}"
+                data-jobtitle="${job.title || "this job"}"
+              >
+                Delete
+              </button>
+            ` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function startFinancialHelpJobsListener() {
+      if (!jobBoardList) return;
+
+      if (unsubscribeJobsListener) {
+        unsubscribeJobsListener();
+      }
+
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
+      `;
+
+      unsubscribeJobsListener = onSnapshot(
+        collection(db, "jobs"),
+        (snapshot) => {
+          let jobs = snapshot.docs.map(d => ({
+            _docId: d.id,
+            ...d.data()
+          }));
+
+          jobs = jobs
+            .filter(job => (job.category || "").toLowerCase() === "financial-help")
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+          renderJobs(jobs);
+        },
+        (err) => {
+          console.error(err);
+          jobBoardList.innerHTML = `
+            <div class="job-card">
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+            </div>
+          `;
+        }
+      );
+    }
+
+    if (jobBoardList) {
+      jobBoardList.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".lb-delete-job-btn");
+        if (!deleteBtn) return;
+
+        const jobId = deleteBtn.getAttribute("data-jobid");
+        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+
+        if (!jobId) {
+          alert("Could not delete this job.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "jobs", jobId));
+          alert("Job deleted.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postJobForm) {
+      postJobForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+          alert("You must be logged in to post a job.");
+          return;
+        }
+
+        const newJob = {
+          title: (pjTitle.value || "").trim(),
+          company: (pjCompany.value || "").trim(),
+          location: (pjLocation.value || "").trim(),
+          pay: (pjPay.value || "").trim(),
+          type: (pjType.value || "").trim(),
+          category: (pjCategory.value || "").trim(),
+          description: (pjDescription.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now()
+        };
+
+        try {
+          await addDoc(collection(db, "jobs"), newJob);
+          postJobForm.reset();
+          if (pjCategory) pjCategory.value = "financial-help";
+          alert("Job posted successfully.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    try {
+      await waitForAKOAuth();
+      startFinancialHelpJobsListener();
+    } catch (err) {
+      console.error(err);
+      if (jobBoardList) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Could not load page data: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
