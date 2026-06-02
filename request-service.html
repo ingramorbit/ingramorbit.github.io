@@ -107,6 +107,11 @@
 
     reqCategory.value = formatCategory(category);
 
+if (!category) {
+  requestStatus.textContent = "No service category was selected. Please go back and choose a service.";
+  form.querySelector("button[type='submit']").disabled = true;
+}
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
