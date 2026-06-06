@@ -1,6 +1,11 @@
 // ===== AssistKingOnline Shared Auth / Tier System =====
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  initializeApp,
+  getApp,
+  getApps
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -10,6 +15,7 @@ import {
   sendPasswordResetEmail,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   getFirestore,
   doc,
@@ -29,7 +35,7 @@ const firebaseConfig = {
 };
 
 // ===== Firebase Init =====
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -56,12 +62,14 @@ const plansBtn = document.getElementById("plansBtn");
 const authUrlParams = new URLSearchParams(window.location.search);
 const shouldOpenAuthFromUrl = authUrlParams.get("auth") === "1";
 const returnToPage = authUrlParams.get("return");
+
 // ===== Helpers =====
 function closeAuthModal() {
   if (!authModal) return;
   authModal.classList.remove("show");
   authModal.setAttribute("aria-hidden", "true");
 }
+
 function openAuthModal() {
   if (!authModal) return;
   authModal.classList.add("show");
@@ -72,10 +80,41 @@ function isHomePage() {
   const path = window.location.pathname;
   return path.endsWith("/") || path.endsWith("/index.html") || path === "/index.html";
 }
+
 function resetLoginPasswordVisibility() {
   if (showPasswordToggle) showPasswordToggle.checked = false;
   if (loginPassword) loginPassword.type = "password";
 }
+
+function getCurrentRelativePage() {
+  const path = window.location.pathname.split("/").pop() || "index.html";
+  const search = window.location.search || "";
+  const hash = window.location.hash || "";
+  return `${path}${search}${hash}`;
+}
+
+function normalizeReturnPath(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return null;
+
+  try {
+    const parsed = new URL(raw, window.location.origin);
+
+    if (parsed.origin !== window.location.origin) {
+      return null;
+    }
+
+    const normalizedPath = parsed.pathname.startsWith("/")
+      ? parsed.pathname.slice(1)
+      : parsed.pathname;
+
+    return `${normalizedPath}${parsed.search}${parsed.hash}`;
+  } catch {
+    return null;
+  }
+}
+
+const safeReturnToPage = normalizeReturnPath(returnToPage);
 
 function applyTierUI(user) {
   if (!plansBtn) return;
@@ -99,9 +138,9 @@ function applyTierUI(user) {
   }
 
   if (user.tier === "admin") {
-  plansBtn.textContent = "Admin Panel";
-  plansBtn.href = "all-requests.html";
-  return;
+    plansBtn.textContent = "Admin Panel";
+    plansBtn.href = "all-requests.html";
+    return;
   }
 
   plansBtn.textContent = "View Plans";
@@ -292,13 +331,12 @@ if (openAuthBtn) {
       return;
     }
 
-    const currentPage = window.location.pathname.split("/").pop() || "index.html";
-
     if (authModal) {
       openAuthModal();
       return;
     }
 
+    const currentPage = getCurrentRelativePage();
     window.location.assign(`index.html?auth=1&return=${encodeURIComponent(currentPage)}`);
   });
 }
@@ -310,26 +348,26 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   }
 
   if (!firebaseUser) {
-  window.AKOUser = null;
-  window.AKOReady = true;
-  resetLoginPasswordVisibility();
-  applyTierUI(null);
+    window.AKOUser = null;
+    window.AKOReady = true;
+    resetLoginPasswordVisibility();
+    applyTierUI(null);
 
-  if (welcomeUser) {
-    welcomeUser.textContent = "";
-  }
+    if (welcomeUser) {
+      welcomeUser.textContent = "";
+    }
 
-  if (shouldOpenAuthFromUrl && isHomePage()) {
-    openAuthModal();
-  }
+    if (shouldOpenAuthFromUrl && isHomePage()) {
+      openAuthModal();
+    }
 
-  document.dispatchEvent(
-    new CustomEvent("ako-auth-ready", {
-      detail: { user: null }
-    })
-  );
+    document.dispatchEvent(
+      new CustomEvent("ako-auth-ready", {
+        detail: { user: null }
+      })
+    );
 
-  return;
+    return;
   }
 
   const userData = await loadUserDoc(firebaseUser);
@@ -345,17 +383,21 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   console.log("AKO user loaded:", window.AKOUser);
 
-closeAuthModal();
-applyTierUI(userData);
+  closeAuthModal();
+  applyTierUI(userData);
 
-if (isHomePage() && returnToPage && returnToPage !== "index.html") {
-  window.location.href = returnToPage;
-  return;
-}
+  if (
+    isHomePage() &&
+    safeReturnToPage &&
+    !safeReturnToPage.startsWith("index.html")
+  ) {
+    window.location.href = safeReturnToPage;
+    return;
+  }
 
-document.dispatchEvent(
-  new CustomEvent("ako-auth-ready", {
-    detail: { user: userData }
-  })
-);
+  document.dispatchEvent(
+    new CustomEvent("ako-auth-ready", {
+      detail: { user: userData }
+    })
+  );
 });
