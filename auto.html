@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Auto Services</title>
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
   <section class="auto-hero">
@@ -16,21 +16,20 @@
       </div>
     </div>
 
-    <a class="auto-back auto-back-floating" href="index.html">← Back Home</a>
+    <a class="auto-back auto-back-floating" href="index.html">← Back to Home</a>
 
     <div class="container">
       <div class="auto-hero-content">
         <div class="auto-brand">AssistKingOnline</div>
         <h1 class="auto-title">🚗 Auto Services</h1>
         <p class="auto-subtitle">
-          Reliable auto professionals for repairs, maintenance, and mobile services.
+          Reliable auto professionals for repairs, maintenance, diagnostics, and mobile service needs.
         </p>
       </div>
     </div>
   </section>
 
   <main class="container auto-wrap">
-
     <div class="auto-card">
       <strong>Popular auto services</strong>
       <div>
@@ -46,17 +45,29 @@
     <div class="auto-card">
       <strong>Get matched</strong>
       <p style="margin:8px 0 0">
-        Tell us what your vehicle needs. We connect you with trusted local auto pros —
-        shops or mobile mechanics — ready to help.
+        Tell us what your vehicle needs and we’ll help connect you with trusted local auto professionals.
       </p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="auto-cta" href="request-service.html?category=auto">Request auto help</a>
-        <a class="auto-cta" href="contractor-onboarding.html">Join as Auto Contractor</a>
+        <a class="auto-cta" href="request-service.html?category=auto">Start Auto Request</a>
+        <a class="auto-cta" href="my-requests.html">My Requests</a>
       </div>
     </div>
 
     <div class="auto-card">
+      <strong>Own an auto business?</strong>
+      <p style="margin:8px 0 0">
+        Grow visibility for your business, request more customer leads, and post jobs for mechanics and service staff.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="auto-cta" href="lead.html">Get Leads</a>
+        <a class="auto-cta" href="#postAutoJob">Post a Job</a>
+        <a class="auto-cta" href="my-leads.html">My Leads</a>
+      </div>
+    </div>
+
+    <div class="auto-card" id="postAutoJob">
       <strong>Post an Auto Job</strong>
       <p style="margin:8px 0 14px">Add an auto service job opening to the board.</p>
 
@@ -85,7 +96,7 @@
     <section style="margin-top:24px">
       <h2 style="margin:0 0 10px;font-weight:900">Auto Job Board</h2>
       <p style="margin:0 0 14px">
-        Find mechanic, tire, diagnostics, service writer, and mobile auto opportunities.
+        Find mechanic, diagnostics, tire, service writer, and mobile auto opportunities.
       </p>
 
       <div class="auto-card">
@@ -98,7 +109,6 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
@@ -129,6 +139,15 @@
 
     let unsubscribeJobsListener = null;
 
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
     function getCurrentUser() {
       return window.AKOUser || null;
     }
@@ -150,15 +169,6 @@
       });
     }
 
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
     function renderJobs(list) {
       if (!jobBoardList) return;
 
@@ -171,45 +181,69 @@
         return;
       }
 
-      jobBoardList.innerHTML = list.map(job => `
-        <div class="job-card">
-          <div class="job-card-top">
-            <div>
-              <h3 class="job-title">${escapeHtml(job.title || "")}</h3>
-              <p class="job-company">${escapeHtml(job.company || "")}</p>
+      jobBoardList.innerHTML = list.map(job => {
+        const title = escapeHtml(job.title || "");
+        const company = escapeHtml(job.company || "");
+        const location = escapeHtml(job.location || "");
+        const pay = escapeHtml(job.pay || "");
+        const type = escapeHtml(job.type || "Job");
+        const category = escapeHtml(job.category || "auto");
+        const description = escapeHtml(job.description || "Apply for this auto opportunity.");
+        const ownerEmail = String(job.ownerEmail || "").trim();
+        const applyHref = ownerEmail
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Auto Job"}`)}`
+          : "";
+        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
+
+        return `
+          <div class="job-card">
+            <div class="job-card-top">
+              <div>
+                <h3 class="job-title">${title}</h3>
+                <p class="job-company">${company}</p>
+              </div>
+              <span class="job-badge">${type}</span>
             </div>
-            <span class="job-badge">${escapeHtml(job.type || "Job")}</span>
+
+            <div class="job-meta">
+              <span>📍 ${location || "—"}</span>
+              <span>💵 ${pay || "—"}</span>
+              <span>🚗 ${category}</span>
+            </div>
+
+            <p class="job-desc">${description}</p>
+
+            <div class="lb-actions">
+              ${
+                ownerEmail
+                  ? `
+                    <a href="${applyHref}" class="auto-cta">
+                      Apply Now
+                    </a>
+                  `
+                  : `
+                    <span class="assignment-note assignment-note-muted">No contact email available.</span>
+                  `
+              }
+
+              ${
+                canDelete
+                  ? `
+                    <button
+                      type="button"
+                      class="lb-delete-job-btn"
+                      data-jobid="${escapeHtml(job._docId || "")}"
+                      data-jobtitle="${title || "this job"}"
+                    >
+                      Delete
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
           </div>
-
-          <div class="job-meta">
-            <span>📍 ${escapeHtml(job.location || "")}</span>
-            <span>💵 ${escapeHtml(job.pay || "")}</span>
-            <span>🚗 ${escapeHtml(job.category || "")}</span>
-          </div>
-
-          <p class="job-desc">${escapeHtml(job.description || "Apply for this auto opportunity.")}</p>
-
-          <div class="lb-actions">
-            <a
-              href="mailto:${job.ownerEmail || ""}?subject=${encodeURIComponent(`Application: ${job.title || "Auto Job"}`)}"
-              class="auto-cta"
-            >
-              Apply Now
-            </a>
-
-            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
-              <button
-                type="button"
-                class="lb-delete-job-btn"
-                data-jobid="${escapeHtml(job._docId || "")}"
-                data-jobtitle="${escapeHtml(job.title || "this job")}"
-              >
-                Delete
-              </button>
-            ` : ""}
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function startAutoJobsListener() {
@@ -228,14 +262,14 @@
       unsubscribeJobsListener = onSnapshot(
         collection(db, "jobs"),
         (snapshot) => {
-          let jobs = snapshot.docs.map(d => ({
-            _docId: d.id,
-            ...d.data()
+          let jobs = snapshot.docs.map((docSnap) => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
           }));
 
           jobs = jobs
-            .filter(job => (job.category || "").toLowerCase() === "auto")
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            .filter((job) => String(job.category || "").toLowerCase() === "auto")
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
           renderJobs(jobs);
         },
@@ -254,6 +288,12 @@
       jobBoardList.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".lb-delete-job-btn");
         if (!deleteBtn) return;
+
+        const currentUser = await waitForAKOAuth();
+        if (!currentUser) {
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("auto.html")}`;
+          return;
+        }
 
         const jobId = deleteBtn.getAttribute("data-jobid");
         const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
@@ -284,10 +324,10 @@
       postJobForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const currentUser = getCurrentUser();
+        const currentUser = await waitForAKOAuth();
 
         if (!currentUser) {
-          alert("You must be logged in to post a job.");
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("auto.html")}`;
           return;
         }
 
@@ -303,6 +343,19 @@
           ownerEmail: currentUser.email || "",
           createdAt: Date.now()
         };
+
+        if (
+          !newJob.title ||
+          !newJob.company ||
+          !newJob.location ||
+          !newJob.pay ||
+          !newJob.type ||
+          !newJob.category ||
+          !newJob.description
+        ) {
+          alert("Please complete all job fields.");
+          return;
+        }
 
         try {
           await addDoc(collection(db, "jobs"), newJob);
