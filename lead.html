@@ -1,47 +1,86 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Get Leads — AssistKingOnline</title>
-<style>
-  body{font-family:system-ui;margin:0;background:#fafafa;color:#222}
-  .container{max-width:800px;margin:0 auto;padding:20px}
-  h1{color:#1E3A8A}
-  form{background:#fff;padding:20px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.1)}
-  label{display:block;font-weight:700;margin-top:12px}
-  input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:16px;margin-top:4px}
-  button{margin-top:16px;padding:12px 20px;font-size:16px;font-weight:800;color:#fff;background:#1E3A8A;border:0;border-radius:8px;cursor:pointer}
-  button:hover{background:#0A2A66}
-  a{color:#1E3A8A;text-decoration:none;font-weight:700}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Get Leads</title>
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
-  <div class="container">
-    <h1>Get Leads</h1>
-    <p>Tell us about your service or business — we’ll connect customers to you!</p>
+  <section class="lead-hero">
 
-    <form action="https://formspree.io/f/mgvpwola" method="POST">
-      <input type="hidden" name="_subject" value="New Lead from AssistKingOnline">
-      <label for="name">Full Name</label>
-      <input id="name" name="name" required>
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
 
-      <label for="email">Email</label>
-      <input id="email" name="email" type="email" required>
+    <a class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
 
-      <label for="service">Service Type</label>
-      <input id="service" name="service" placeholder="Example: Plumbing, Lawn Care, Trucking…" required>
+    <div class="container">
+      <div class="lead-hero-content">
+        <div class="lead-brand">AssistKingOnline</div>
+        <h1 class="lead-title">📈 Get Leads</h1>
+        <p>Tell us about your business so we can help connect you with customers.</p>
+      </div>
+    </div>
+  </section>
 
-      <label for="message">Message / Description</label>
-      <textarea id="message" name="message" rows="4" required></textarea>
+  <main class="container lead-wrap">
+    <div class="lead-card">
+      <strong>Business lead form</strong>
+      <p style="margin:8px 0 14px">
+        Complete the form below and tell us what type of customers you want to reach.
+      </p>
 
-      <!-- optional redirect after submit -->
-      <input type="hidden" name="_redirect" value="thank-you.html">
+      <form action="https://formspree.io/f/mgvpwola" method="POST" class="lead-form">
+        <input type="hidden" name="_subject" value="New Lead Request from AssistKingOnline">
+        <input type="hidden" name="_redirect" value="thank-you.html">
 
-      <button type="submit">Send Lead</button>
-    </form>
+        <input id="leadFullName" name="name" placeholder="Full Name" required />
+        <input id="leadBusinessName" name="business_name" placeholder="Business Name" required />
+        <input id="leadEmail" name="email" type="email" placeholder="Email" required />
+        <input id="leadPhone" name="phone" type="tel" placeholder="Phone Number" required />
+        <input id="leadCity" name="city" placeholder="City / Primary Service Area" required />
 
-    <p><a href="index.html">← Back to Home</a></p>
-  </div>
+        <select id="leadCategory" name="category" required>
+          <option value="">Select service category</option>
+          <option>Plumbing</option>
+          <option>Electricians</option>
+          <option>Carpentry</option>
+          <option>Trucking</option>
+          <option>Auto</option>
+          <option>HVAC</option>
+          <option>Financial Help</option>
+          <option>Food Services</option>
+          <option>Other</option>
+        </select>
+
+        <input
+          id="leadService"
+          name="service"
+          placeholder="Main service offered (example: Drain cleaning, OTR freight, Brake repair)"
+          required
+        />
+
+        <textarea
+          id="leadMessage"
+          name="message"
+          rows="5"
+          placeholder="Describe your business, service area, ideal customers, and anything else we should know..."
+          required
+        ></textarea>
+
+        <button type="submit" class="lead-cta">Send Lead Request</button>
+      </form>
+
+      <p class="lead-note" style="margin:14px 0 0">
+        Want faster visibility? Visit our <a href="plans.html">Plans</a> page to see options.
+      </p>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=16"></script>
 </body>
 </html>
