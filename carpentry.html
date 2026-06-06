@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Carpentry</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
-  <section class="auto-hero">
+  <section class="carpentry-hero">
 
     <div class="login-button">
       <div id="authArea">
@@ -16,47 +16,56 @@
       </div>
     </div>
 
-    <a class="auto-back auto-back-floating" href="index.html">← Back Home</a>
+    <a class="carpentry-back carpentry-back-floating" href="index.html">← Back to Home</a>
 
     <div class="container">
-      <div class="auto-hero-content">
-        <div class="auto-brand">AssistKingOnline</div>
-        <h1 class="auto-title">🪚 Carpentry</h1>
-        <p class="auto-subtitle">
-          Skilled carpenters for repairs, framing, trim work, custom builds, and home projects.
-        </p>
+      <div class="carpentry-hero-content">
+        <div class="carpentry-brand">AssistKingOnline</div>
+        <h1 class="carpentry-title">🪚 Carpentry</h1>
+        <p>Skilled carpenters for repairs, framing, trim work, custom builds, installations, and home projects.</p>
       </div>
     </div>
   </section>
 
-  <main class="container auto-wrap">
-
-    <div class="auto-card">
+  <main class="container carpentry-wrap">
+    <div class="carpentry-card">
       <strong>Popular carpentry services</strong>
       <div>
-        <span class="auto-pill">Trim Work</span>
-        <span class="auto-pill">Cabinet Repair</span>
-        <span class="auto-pill">Door Installation</span>
-        <span class="auto-pill">Framing</span>
-        <span class="auto-pill">Deck Repair</span>
-        <span class="auto-pill">Custom Woodwork</span>
+        <span class="carpentry-pill">Trim Work</span>
+        <span class="carpentry-pill">Cabinet Repair</span>
+        <span class="carpentry-pill">Door Installation</span>
+        <span class="carpentry-pill">Framing</span>
+        <span class="carpentry-pill">Deck Repair</span>
+        <span class="carpentry-pill">Custom Woodwork</span>
       </div>
     </div>
 
-    <div class="auto-card">
+    <div class="carpentry-card">
       <strong>Get matched</strong>
       <p style="margin:8px 0 0">
-        Tell us what carpentry help you need and we will connect you with the right contractor.
+        Tell us what carpentry help you need and we’ll connect you with the right professional.
       </p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="auto-cta" href="request-service.html?category=carpentry">Request carpentry help</a>
-        <a class="auto-cta" href="contractor-onboarding.html">Join as Carpentry Contractor</a>
-        <a class="auto-cta" href="my-leads.html">My Leads</a>
+        <a class="carpentry-cta" href="request-service.html?category=carpentry">Start Carpentry Request</a>
+        <a class="carpentry-cta" href="my-requests.html">My Requests</a>
       </div>
     </div>
 
-    <div class="auto-card">
+    <div class="carpentry-card">
+      <strong>Own a carpentry business?</strong>
+      <p style="margin:8px 0 0">
+        Grow visibility for your business, request more customer leads, and post carpentry opportunities for your team.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="carpentry-cta" href="lead.html">Get Leads</a>
+        <a class="carpentry-cta" href="#postCarpentryJob">Post a Job</a>
+        <a class="carpentry-cta" href="my-leads.html">My Leads</a>
+      </div>
+    </div>
+
+    <div class="carpentry-card" id="postCarpentryJob">
       <strong>Post a Job</strong>
       <p style="margin:8px 0 14px">Add a carpentry job or opportunity to the board.</p>
 
@@ -78,17 +87,17 @@
         <input id="pjCategory" value="carpentry" readonly />
         <input id="pjDescription" placeholder="Short job description" required />
 
-        <button type="submit" class="auto-cta">Post Job</button>
+        <button type="submit" class="carpentry-cta">Post Job</button>
       </form>
     </div>
 
     <section style="margin-top:24px">
       <h2 style="margin:0 0 10px;font-weight:900">Carpentry Job Board</h2>
       <p style="margin:0 0 14px">
-        Find framing, finish carpentry, repairs, installation, and woodworking opportunities.
+        Find framing, finish carpentry, repairs, installation, trim, decking, and woodworking opportunities.
       </p>
 
-      <div class="auto-card">
+      <div class="carpentry-card">
         <strong>Featured Opportunities</strong>
 
         <div id="jobBoardList" class="job-board-list">
@@ -98,7 +107,6 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
@@ -116,7 +124,27 @@
     const app = getApp();
     const db = getFirestore(app);
 
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
     let unsubscribeJobsListener = null;
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
 
     function getCurrentUser() {
       return window.AKOUser || null;
@@ -139,17 +167,6 @@
       });
     }
 
-    const jobBoardList = document.getElementById("jobBoardList");
-
-    const postJobForm = document.getElementById("postJobForm");
-    const pjTitle = document.getElementById("pjTitle");
-    const pjCompany = document.getElementById("pjCompany");
-    const pjLocation = document.getElementById("pjLocation");
-    const pjPay = document.getElementById("pjPay");
-    const pjType = document.getElementById("pjType");
-    const pjCategory = document.getElementById("pjCategory");
-    const pjDescription = document.getElementById("pjDescription");
-
     function renderJobs(list) {
       if (!jobBoardList) return;
 
@@ -162,45 +179,69 @@
         return;
       }
 
-      jobBoardList.innerHTML = list.map(job => `
-        <div class="job-card">
-          <div class="job-card-top">
-            <div>
-              <h3 class="job-title">${job.title || ""}</h3>
-              <p class="job-company">${job.company || ""}</p>
+      jobBoardList.innerHTML = list.map(job => {
+        const title = escapeHtml(job.title || "");
+        const company = escapeHtml(job.company || "");
+        const location = escapeHtml(job.location || "");
+        const pay = escapeHtml(job.pay || "");
+        const type = escapeHtml(job.type || "Job");
+        const category = escapeHtml(job.category || "carpentry");
+        const description = escapeHtml(job.description || "Apply for this carpentry opportunity.");
+        const ownerEmail = String(job.ownerEmail || "").trim();
+        const applyHref = ownerEmail
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Carpentry Job"}`)}`
+          : "";
+        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
+
+        return `
+          <div class="job-card">
+            <div class="job-card-top">
+              <div>
+                <h3 class="job-title">${title}</h3>
+                <p class="job-company">${company}</p>
+              </div>
+              <span class="job-badge">${type}</span>
             </div>
-            <span class="job-badge">${job.type || "Job"}</span>
+
+            <div class="job-meta">
+              <span>📍 ${location || "—"}</span>
+              <span>💵 ${pay || "—"}</span>
+              <span>🪚 ${category}</span>
+            </div>
+
+            <p class="job-desc">${description}</p>
+
+            <div class="lb-actions">
+              ${
+                ownerEmail
+                  ? `
+                    <a href="${applyHref}" class="carpentry-cta">
+                      Apply Now
+                    </a>
+                  `
+                  : `
+                    <span class="assignment-note assignment-note-muted">No contact email available.</span>
+                  `
+              }
+
+              ${
+                canDelete
+                  ? `
+                    <button
+                      type="button"
+                      class="lb-delete-job-btn"
+                      data-jobid="${escapeHtml(job._docId || "")}"
+                      data-jobtitle="${title || "this job"}"
+                    >
+                      Delete
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
           </div>
-
-          <div class="job-meta">
-            <span>📍 ${job.location || ""}</span>
-            <span>💵 ${job.pay || ""}</span>
-            <span>🪚 ${job.category || ""}</span>
-          </div>
-
-          <p class="job-desc">${job.description || "Apply for this carpentry opportunity."}</p>
-
-          <div class="lb-actions">
-            <a
-              href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Carpentry Job"}`)}"
-              class="auto-cta"
-            >
-              Apply Now
-            </a>
-
-            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
-              <button
-                type="button"
-                class="lb-delete-job-btn"
-                data-jobid="${job._docId || ""}"
-                data-jobtitle="${job.title || "this job"}"
-              >
-                Delete
-              </button>
-            ` : ""}
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function startCarpentryJobsListener() {
@@ -219,14 +260,14 @@
       unsubscribeJobsListener = onSnapshot(
         collection(db, "jobs"),
         (snapshot) => {
-          let jobs = snapshot.docs.map(d => ({
-            _docId: d.id,
-            ...d.data()
+          let jobs = snapshot.docs.map((docSnap) => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
           }));
 
           jobs = jobs
-            .filter(job => (job.category || "").toLowerCase() === "carpentry")
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            .filter((job) => String(job.category || "").toLowerCase() === "carpentry")
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
           renderJobs(jobs);
         },
@@ -234,7 +275,7 @@
           console.error(err);
           jobBoardList.innerHTML = `
             <div class="job-card">
-              <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
             </div>
           `;
         }
@@ -245,6 +286,12 @@
       jobBoardList.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".lb-delete-job-btn");
         if (!deleteBtn) return;
+
+        const currentUser = await waitForAKOAuth();
+        if (!currentUser) {
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("carpentry.html")}`;
+          return;
+        }
 
         const jobId = deleteBtn.getAttribute("data-jobid");
         const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
@@ -275,10 +322,10 @@
       postJobForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const currentUser = getCurrentUser();
+        const currentUser = await waitForAKOAuth();
 
         if (!currentUser) {
-          alert("You must be logged in to post a job.");
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("carpentry.html")}`;
           return;
         }
 
@@ -294,6 +341,19 @@
           ownerEmail: currentUser.email || "",
           createdAt: Date.now()
         };
+
+        if (
+          !newJob.title ||
+          !newJob.company ||
+          !newJob.location ||
+          !newJob.pay ||
+          !newJob.type ||
+          !newJob.category ||
+          !newJob.description
+        ) {
+          alert("Please complete all job fields.");
+          return;
+        }
 
         try {
           await addDoc(collection(db, "jobs"), newJob);
@@ -319,7 +379,7 @@
       if (jobBoardList) {
         jobBoardList.innerHTML = `
           <div class="job-card">
-            <p style="margin:0;font-weight:800;">Could not load page data: ${err.message}</p>
+            <p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p>
           </div>
         `;
       }
