@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Request Service</title>
-  <link rel="stylesheet" href="styles.css?v=12">
+  <link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
   <section class="request-hero">
@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <a class="request-back request-back-floating" href="index.html">← Back to Home</a>
+    <a id="requestBackLink" class="request-back request-back-floating" href="index.html">← Back to Home</a>
 
     <div class="container">
       <div class="request-hero-content">
@@ -30,11 +30,25 @@
   <main class="container request-wrap">
     <div class="request-card">
       <strong>Service Request Form</strong>
-      <p style="margin:8px 0 14px">Fill out the details below to submit your request.</p>
+      <p style="margin:8px 0 14px;">Fill out the details below to submit your request.</p>
 
       <form id="serviceRequestForm" class="request-form">
-        <input id="reqCategory" placeholder="Category" readonly />
-        <input id="reqServiceType" placeholder="Service type (example: AC repair)" required />
+        <select id="reqCategory" required>
+          <option value="">Select category</option>
+          <option value="residential">Residential</option>
+          <option value="commercial">Commercial</option>
+          <option value="plumbing">Plumbing</option>
+          <option value="electricians">Electricians</option>
+          <option value="carpentry">Carpentry</option>
+          <option value="lawn-care">Lawn Care</option>
+          <option value="trucking">Trucking</option>
+          <option value="auto">Auto</option>
+          <option value="hvac">HVAC</option>
+          <option value="financial-help">Financial Help</option>
+          <option value="food">Food Services</option>
+        </select>
+
+        <input id="reqServiceType" placeholder="Service type" required />
         <input id="reqName" placeholder="Full name" required />
         <input id="reqEmail" type="email" placeholder="Email" required />
         <input id="reqPhone" type="tel" placeholder="Phone number" required />
@@ -51,7 +65,7 @@
 
         <textarea id="reqDescription" placeholder="Describe what you need..." required></textarea>
 
-        <button type="submit" class="request-cta">Submit Request</button>
+        <button type="submit" class="request-cta" id="requestSubmitBtn">Submit Request</button>
       </form>
 
       <p id="requestStatus" class="request-status" aria-live="polite"></p>
@@ -72,7 +86,87 @@
     const db = getFirestore(app);
 
     const params = new URLSearchParams(window.location.search);
-    const category = (params.get("category") || "").trim();
+    const categoryParam = (params.get("category") || "").trim();
+
+    const CATEGORY_CONFIG = {
+      residential: {
+        label: "Residential",
+        backHref: "residential.html",
+        backText: "← Back to Residential",
+        servicePlaceholder: "Service type (example: plumbing repair, lawn mowing, deck repair)",
+        descriptionPlaceholder: "Describe the household service you need, where it is needed, and when you want it done."
+      },
+      commercial: {
+        label: "Commercial",
+        backHref: "commercial.html",
+        backText: "← Back to Commercial",
+        servicePlaceholder: "Service type (example: facility plumbing, office lawn care, warehouse HVAC)",
+        descriptionPlaceholder: "Describe the business or facility service you need, location details, and urgency."
+      },
+      plumbing: {
+        label: "Plumbing",
+        backHref: "plumbing.html",
+        backText: "← Back to Plumbing",
+        servicePlaceholder: "Service type (example: drain unclogging, leak repair, water heater issue)",
+        descriptionPlaceholder: "Describe the plumbing issue, where it is happening, and how urgent it is."
+      },
+      electricians: {
+        label: "Electricians",
+        backHref: "electricians.html",
+        backText: "← Back to Electricians",
+        servicePlaceholder: "Service type (example: outlet repair, breaker issue, rewiring)",
+        descriptionPlaceholder: "Describe the electrical issue, where it is located, and any urgent safety concerns."
+      },
+      carpentry: {
+        label: "Carpentry",
+        backHref: "carpentry.html",
+        backText: "← Back to Carpentry",
+        servicePlaceholder: "Service type (example: deck repair, trim work, door installation)",
+        descriptionPlaceholder: "Describe the carpentry work needed, measurements if known, and timing."
+      },
+      "lawn-care": {
+        label: "Lawn Care",
+        backHref: "lawn-care.html",
+        backText: "← Back to Lawn Care",
+        servicePlaceholder: "Service type (example: mowing, hedge trimming, mulch install)",
+        descriptionPlaceholder: "Describe the outdoor work needed, property size if known, and timing."
+      },
+      trucking: {
+        label: "Trucking",
+        backHref: "trucking.html",
+        backText: "← Back to Trucking",
+        servicePlaceholder: "Service type (example: freight move, delivery, hotshot load)",
+        descriptionPlaceholder: "Describe the load or trucking need, pickup/dropoff area, and urgency."
+      },
+      auto: {
+        label: "Auto",
+        backHref: "auto.html",
+        backText: "← Back to Auto",
+        servicePlaceholder: "Service type (example: brake repair, oil leak, battery issue)",
+        descriptionPlaceholder: "Describe the vehicle problem, vehicle type if helpful, and urgency."
+      },
+      hvac: {
+        label: "HVAC",
+        backHref: "hvac.html",
+        backText: "← Back to HVAC",
+        servicePlaceholder: "Service type (example: AC repair, heating issue, unit maintenance)",
+        descriptionPlaceholder: "Describe the HVAC issue, what system is affected, and urgency."
+      },
+      "financial-help": {
+        label: "Financial Help",
+        backHref: "financial-help.html",
+        backText: "← Back to Financial Help",
+        servicePlaceholder: "Service type (example: credit help, loan guidance, budgeting support)",
+        descriptionPlaceholder: "Describe the kind of financial help you want and what outcome you are looking for."
+      },
+      food: {
+        label: "Food Services",
+        backHref: "food2.html",
+        backText: "← Back to Food Services",
+        servicePlaceholder: "Service type (example: catering, event staffing, meal prep)",
+        descriptionPlaceholder: "Describe the food service need, guest count or scope, location, and timing."
+      }
+    };
 
     const form = document.getElementById("serviceRequestForm");
     const reqCategory = document.getElementById("reqCategory");
@@ -84,12 +178,18 @@
     const reqUrgency = document.getElementById("reqUrgency");
     const reqDescription = document.getElementById("reqDescription");
     const requestStatus = document.getElementById("requestStatus");
+    const requestSubmitBtn = document.getElementById("requestSubmitBtn");
+    const requestBackLink = document.getElementById("requestBackLink");
 
-    function formatCategory(value) {
-      if (!value) return "";
-      return value
-        .replace(/[-_]+/g, " ")
-        .replace(/\b\w/g, (m) => m.toUpperCase());
+    function normalizeCategoryKey(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+    }
+
+    function getCategoryConfig(key) {
+      return CATEGORY_CONFIG[key] || null;
     }
 
     function waitForAKOAuth() {
@@ -105,27 +205,66 @@
       });
     }
 
-    reqCategory.value = formatCategory(category);
+    function applyCategoryUI() {
+      const key = normalizeCategoryKey(reqCategory.value);
+      const config = getCategoryConfig(key);
 
-if (!category) {
-  requestStatus.textContent = "No service category was selected. Please go back and choose a service.";
-  form.querySelector("button[type='submit']").disabled = true;
-}
+      if (config) {
+        reqServiceType.placeholder = config.servicePlaceholder;
+        reqDescription.placeholder = config.descriptionPlaceholder;
+        requestBackLink.href = config.backHref;
+        requestBackLink.textContent = config.backText;
+        return;
+      }
+
+      reqServiceType.placeholder = "Service type (example: AC repair)";
+      reqDescription.placeholder = "Describe what you need...";
+      requestBackLink.href = "index.html";
+      requestBackLink.textContent = "← Back to Home";
+    }
+
+    async function prefillLoggedInUser() {
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) return;
+
+      if (!reqName.value.trim()) {
+        reqName.value = currentUser.name || currentUser.displayName || "";
+      }
+
+      if (!reqEmail.value.trim()) {
+        reqEmail.value = currentUser.email || "";
+      }
+    }
+
+    const initialCategoryKey = normalizeCategoryKey(categoryParam);
+    if (initialCategoryKey && getCategoryConfig(initialCategoryKey)) {
+      reqCategory.value = initialCategoryKey;
+    }
+
+    applyCategoryUI();
+    prefillLoggedInUser();
+
+    reqCategory.addEventListener("change", () => {
+      applyCategoryUI();
+      requestStatus.textContent = "";
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const currentUser = await waitForAKOAuth();
+      const categoryKey = normalizeCategoryKey(reqCategory.value);
+      const categoryConfig = getCategoryConfig(categoryKey);
 
       if (!currentUser) {
-        const returnUrl = `request-service.html?category=${encodeURIComponent(category)}`;
+        const returnUrl = `request-service.html?category=${encodeURIComponent(categoryKey || initialCategoryKey || "")}`;
         window.location.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
         return;
       }
 
       const payload = {
-        category: category || "",
-        categoryLabel: reqCategory.value || "",
+        category: categoryKey,
+        categoryLabel: categoryConfig?.label || "",
         serviceType: reqServiceType.value.trim(),
         name: reqName.value.trim(),
         email: reqEmail.value.trim(),
@@ -136,10 +275,12 @@ if (!category) {
         ownerUid: currentUser.uid,
         ownerEmail: currentUser.email || "",
         createdAt: Date.now(),
+        updatedAt: Date.now(),
         status: "new"
       };
 
       if (
+        !payload.category ||
         !payload.categoryLabel ||
         !payload.serviceType ||
         !payload.name ||
@@ -155,13 +296,27 @@ if (!category) {
 
       try {
         requestStatus.textContent = "Submitting request...";
+        requestSubmitBtn.disabled = true;
+        requestSubmitBtn.textContent = "Submitting...";
+
         await addDoc(collection(db, "serviceRequests"), payload);
+
+        requestStatus.textContent = "Request submitted successfully. Redirecting to My Requests...";
         form.reset();
-        reqCategory.value = formatCategory(category);
-        requestStatus.textContent = "Request submitted successfully.";
+
+        reqCategory.value = payload.category;
+        applyCategoryUI();
+        await prefillLoggedInUser();
+
+        setTimeout(() => {
+          window.location.href = "my-requests.html";
+        }, 900);
       } catch (err) {
         console.error(err);
         requestStatus.textContent = `Could not submit request: ${err.message}`;
+      } finally {
+        requestSubmitBtn.disabled = false;
+        requestSubmitBtn.textContent = "Submit Request";
       }
     });
   </script>
