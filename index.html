@@ -5,13 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline</title>
 
-  <!-- Crown Favicon (inline SVG) -->
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2712%27%20fill%3D%27%235A2D82%27/%3E%3Cpath%20d%3D%27M8%2020l8%208%208-12%208%2012%208-12%208%2012%208-8v24H8V20z%27%20fill%3D%27%23FFD700%27%20stroke%3D%27%23B8860B%27%20stroke-width%3D%272%27/%3E%3C/svg%3E">
 
   <style>
-    
 :root{
-  /* Brand */
   --gold:#FFD700;
   --gold-deep:#e0b800;
   --royal:#5A2D82;
@@ -20,18 +17,17 @@
   --crimson:#B2331C;
   --crimson-deep:#8e2817;
 
-  /* Neutrals */
   --text:#161616;
   --card:#ffffff;
   --shadow:0 10px 30px rgba(0,0,0,.15);
 
-  /* Categories */
   --cat-plumbing:#C03A2B;
   --cat-electric:#1F68FF;
   --cat-carpentry:#f2b705;
   --cat-trucking:#005f73;
   --cat-auto:#2E7D32;
   --cat-finance:#B1432F;
+  --cat-hvac:#2563eb;
 }
 
 *{box-sizing:border-box}
@@ -41,26 +37,22 @@ body{
   color:var(--text);
   background:#fff;
 }
-
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* Utility */
 .sr-only{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0,0,0,0);border:0;
 }
 
-/* ===== HERO (search-first) ===== */
 .hero-wrap{
   background:
     radial-gradient(1200px 500px at 20% -40%, rgba(255,215,0,.12), transparent 60%),
     linear-gradient(180deg, #1E3A8A 0%, #0A2A66 55%, #061b3f 100%);
   color:#fff;
-  padding:18px 0 12px;
+  padding:84px 0 12px;
   position:relative;
 }
 
-/* King + Title */
 .hero-header{
   display:flex;
   flex-direction:column;
@@ -93,7 +85,6 @@ body{
   to{opacity:1; transform:translateY(0);}
 }
 
-/* ===== Search Bar With Icons ===== */
 .search{
   margin:8px auto 10px;
   display:flex;
@@ -119,7 +110,6 @@ body{
   align-items:center;
   gap:10px;
 }
-
 .icon-btn{
   width:34px;
   height:34px;
@@ -141,7 +131,6 @@ body{
   box-shadow:0 4px 10px rgba(0,0,0,.25);
 }
 
-/* If you ever make Search button visible, this styling is ready */
 #searchBtn:not(.sr-only){
   border:0;
   border-radius:12px;
@@ -154,7 +143,51 @@ body{
   white-space:nowrap;
 }
 
-/* ===== Pills row (Residential / Commercial / Food) ===== */
+.suggestions{
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:calc(100% - 2px);
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 12px 30px rgba(0,0,0,.18);
+  overflow:hidden;
+  z-index:80;
+  max-height:320px;
+  overflow-y:auto;
+}
+.suggestion-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  border:0;
+  background:#fff;
+  padding:14px 16px;
+  font-size:15px;
+  cursor:pointer;
+  text-align:left;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+.suggestion-item:last-child{border-bottom:none}
+.suggestion-item:hover,
+.suggestion-item.active{
+  background:#f7f8fc;
+}
+.suggestion-item strong{
+  color:#1E3A8A;
+}
+.suggestion-tag{
+  font-size:12px;
+  font-weight:800;
+  color:#555;
+  background:#f0f0f0;
+  border-radius:999px;
+  padding:5px 8px;
+  white-space:nowrap;
+}
+
 .pill-row{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -182,7 +215,6 @@ body{
 .pill.blue{background:var(--blue)}
 .pill.red{background:#B1432F}
 
-/* ===== CRIMSON CTA BAND ===== */
 .crimson{
   background:linear-gradient(180deg, var(--crimson) 0%, var(--crimson-deep) 100%);
   color:#fff;
@@ -203,7 +235,6 @@ body{
   text-decoration:none;
 }
 
-/* ===== TESTIMONIAL STRIP ===== */
 .testi{
   background:#fff5f0;
   border-top:1px solid rgba(0,0,0,.05);
@@ -227,7 +258,6 @@ body{
 .stars{color:var(--gold);font-size:20px}
 .tcopy{font-weight:700}
 
-/* ===== NATIONWIDE / GOLD BANNER ===== */
 .gold-banner{
   background:linear-gradient(180deg, #f8dc59 0%, #e4b629 100%);
   text-align:center;
@@ -236,7 +266,6 @@ body{
   box-shadow: inset 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* ===== Footer ===== */
 footer{background:#faf6ff;border-top:1px solid #eee}
 .foot{
   display:flex;
@@ -248,14 +277,12 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 .foot a{color:inherit;text-decoration:none}
 .foot a:hover{text-decoration:underline}
 
-/* ===== Top-left auth button ===== */
 .login-button{
   position:absolute;
   top:16px;
   left:20px;
   z-index:110;
 }
-
 #authArea{
   display:flex;
   align-items:center;
@@ -267,7 +294,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   backdrop-filter:blur(6px);
   box-shadow:0 8px 24px rgba(0,0,0,.18);
 }
-
 .welcome-user{
   color:#fff;
   font-size:14px;
@@ -276,7 +302,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   white-space:nowrap;
   text-shadow:0 2px 8px rgba(0,0,0,.35);
 }
-
 .auth-main-btn{
   padding:8px 16px;
   background:linear-gradient(180deg, #FFD700 0%, #e0b800 100%);
@@ -288,44 +313,11 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   cursor:pointer;
   transition:transform .15s ease, box-shadow .15s ease;
 }
-
 .auth-main-btn:hover{
   transform:translateY(-1px);
   box-shadow:0 0 14px rgba(255,255,255,.35);
 }
-@media (max-width: 640px){
-  .login-button{
-    top:12px;
-    left:12px;
-    max-width:calc(100% - 70px);
-  }
 
-  #authArea{
-    gap:8px;
-    padding:5px 7px 5px 10px;
-    max-width:100%;
-  }
-
-  .welcome-user{
-    font-size:12px;
-    max-width:90px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
-  }
-
-  .auth-main-btn{
-    padding:7px 10px;
-    font-size:12px;
-    white-space:nowrap;
-  }
-
-  .menu-button{
-    top:12px;
-    right:12px;
-  }
-}
-/* ===== Hamburger ===== */
 .menu-button{
   position:absolute;
   top:16px;
@@ -358,7 +350,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 }
 .menu-button:hover .bar{ background-color:#fff; }
 
-/* ===== Hamburger dropdown ===== */
 .menu-dropdown{
   position:absolute;
   top:60px;
@@ -386,7 +377,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 }
 .menu-dropdown a:last-child{ border-bottom:none; }
 
-/* ===== Modal ===== */
 .modal{
   position:fixed;
   inset:0;
@@ -448,7 +438,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   color:#1c1c1c;
   border-color:#f0d35a;
 }
-
 .panel{ display:none; }
 .panel.active{ display:block; }
 .panel[hidden]{ display:none !important; }
@@ -489,8 +478,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   text-decoration:none;
   font-weight:700;
 }
-
-/* ===== AUTH RECOVERY LINKS ===== */
 .auth-row-between{
   display:flex;
   align-items:center;
@@ -499,7 +486,6 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   margin-top:-2px;
   margin-bottom:6px;
 }
-
 .show-password-label{
   display:inline-flex;
   align-items:center;
@@ -509,14 +495,12 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   color:#444;
   cursor:pointer;
 }
-
 .show-password-label input{
   margin:0;
   width:16px;
   height:16px;
   accent-color:#1F68FF;
 }
-
 .auth-link-btn{
   background:none;
   border:none;
@@ -526,30 +510,72 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   color:#1F68FF;
   cursor:pointer;
 }
-
 .auth-link-btn:hover{
   text-decoration:underline;
 }
-
 .auth-help-note{
   margin:8px 0 0;
   font-size:12px;
   color:#666;
   line-height:1.4;
 }
+
+@media (max-width: 640px){
+  .login-button{
+    top:12px;
+    left:12px;
+    max-width:calc(100% - 70px);
+  }
+  #authArea{
+    gap:8px;
+    padding:5px 7px 5px 10px;
+    max-width:100%;
+  }
+  .welcome-user{
+    font-size:12px;
+    max-width:90px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .auth-main-btn{
+    padding:7px 10px;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  .menu-button{
+    top:12px;
+    right:12px;
+  }
+  .hero-wrap{
+    padding-top:78px;
+  }
+  .hero-title{
+    font-size:34px;
+  }
+  .king-img{
+    width:160px;
+  }
+  .pill-row{
+    grid-template-columns:1fr;
+  }
+  .foot{
+    flex-direction:column;
+    gap:10px;
+    text-align:center;
+  }
+}
   </style>
-  
+
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- ===== HERO ===== -->
-  <!-- ===== HERO (search-first) ===== -->
 <section class="hero-wrap">
   <div class="login-button">
     <div id="authArea">
-  <span id="welcomeUser" class="welcome-user"></span>
-  <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      <span id="welcomeUser" class="welcome-user"></span>
+      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
   </div>
 
@@ -559,127 +585,115 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     <span class="bar"></span>
   </div>
 
-<!-- Dropdown menu (hidden by default) -->
-<nav id="dropdownMenu" class="menu-dropdown" aria-hidden="true">
-  <a href="index.html">Home</a>
-  <a href="residential.html">Residential</a>
-  <a href="commercial.html">Commercial</a>
-  <a href="food2.html">Food</a>
-  <a href="plumbing.html">Plumbing</a>
-  <a href="electricians.html">Electricians</a>
-  <a href="carpentry.html">Carpentry</a>
-  <a href="trucking.html">Trucking</a>
-  <a href="auto.html">Auto</a>
-  <a href="financial-help.html">Financial Help</a>
-  <a href="help.html">Help</a>
-</nav>
+  <nav id="dropdownMenu" class="menu-dropdown" aria-hidden="true">
+    <a href="index.html">Home</a>
+    <a href="residential.html">Residential</a>
+    <a href="commercial.html">Commercial</a>
+    <a href="food2.html">Food</a>
+    <a href="plumbing.html">Plumbing</a>
+    <a href="electricians.html">Electricians</a>
+    <a href="carpentry.html">Carpentry</a>
+    <a href="trucking.html">Trucking</a>
+    <a href="auto.html">Auto</a>
+    <a href="hvac.html">HVAC</a>
+    <a href="financial-help.html">Financial Help</a>
+    <a href="help.html">Help</a>
+  </nav>
 
-<div class="container">
+  <div class="container">
+    <div class="hero-header">
+      <img src="king.png" alt="Assist King" class="king-img">
+      <h1 class="hero-title">AssistKingOnline</h1>
+    </div>
 
-    <!-- Search ONLY -->
-    <!-- KING + TITLE -->
-<div class="hero-header">
-  <img src="king.png" alt="Assist King" class="king-img">
-  <h1 class="hero-title">AssistKingOnline</h1>
-</div>
     <form class="search" id="searchForm">
-  <label class="sr-only" for="q">Ask the King</label>
+      <label class="sr-only" for="q">Ask the King</label>
+      <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
 
-  <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
+      <div id="suggestions" class="suggestions" hidden></div>
 
-  <div id="suggestions" class="suggestions" hidden></div>
+      <div class="search-right">
+        <button type="button" class="icon-btn mic-btn" id="micBtn" aria-label="Use your voice">
+          🎤
+        </button>
 
-  <div class="search-right">
-    <button type="button" class="icon-btn mic-btn" id="micBtn" aria-label="Use your voice">
-      🎤
-    </button>
+        <label class="icon-btn cam-btn" for="imgInput" aria-label="Upload a photo">
+          📷
+        </label>
 
-    <label class="icon-btn cam-btn" for="imgInput" aria-label="Upload a photo">
-      📷
-    </label>
+        <input
+          type="file"
+          id="imgInput"
+          accept="image/*"
+          capture="environment"
+          style="display:none;"
+        >
 
-    <input
-      type="file"
-      id="imgInput"
-      accept="image/*"
-      capture="environment"
-      style="display:none;"
-    >
+        <button id="searchBtn" type="submit" class="sr-only">Search</button>
+      </div>
+    </form>
 
-    <button id="searchBtn" type="submit" class="sr-only">Search</button>
-  </div>
-</form>
     <div class="pill-row">
-  <a class="pill gold" href="residential.html">Residential</a>
-  <a class="pill blue" href="commercial.html">Commercial</a>
-  <a class="pill red" href="food2.html">Food</a>
-</div>
+      <a class="pill gold" href="residential.html">Residential</a>
+      <a class="pill blue" href="commercial.html">Commercial</a>
+      <a class="pill red" href="food2.html">Food</a>
+    </div>
 
-<div style="text-align:center; margin:10px 0 16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-  <a href="all-requests.html" class="trucking-cta" id="plansBtn">View Plans</a>
-  <a href="plans.html" class="trucking-cta">View Plans</a>
-  <a href="financial-help.html" class="trucking-cta">Financial Help</a>
-  <a href="my-requests.html" class="trucking-cta">My Requests</a>
-</div>
+    <div style="text-align:center; margin:10px 0 16px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <a href="plans.html" class="trucking-cta">View Plans</a>
+      <a href="financial-help.html" class="trucking-cta">Financial Help</a>
+      <a href="my-requests.html" class="trucking-cta">My Requests</a>
+      <a href="all-requests.html" class="trucking-cta" id="adminRequestsBtn" hidden>Admin Requests</a>
+    </div>
 
-<!-- Categories -->
-<div class="categories">
-  <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
-  <a class="cat cat-electric" href="electricians.html"><span class="top">⚡ Electricians</span></a>
-  <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
-  <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
-  <a class="cat cat-auto" href="auto.html"><span class="top">🚗 Auto</span></a>
-  <a class="cat cat-hvac" href="hvac.html"><span class="top">❄️ HVAC</span></a>
-</div>
-</div>
+    <div class="categories">
+      <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
+      <a class="cat cat-electric" href="electricians.html"><span class="top">⚡ Electricians</span></a>
+      <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
+      <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
+      <a class="cat cat-auto" href="auto.html"><span class="top">🚗 Auto</span></a>
+      <a class="cat cat-hvac" href="hvac.html"><span class="top">❄️ HVAC</span></a>
+    </div>
+  </div>
 </section>
 
-  <!-- ===== CRIMSON CTA BAND ===== -->
-  <section class="crimson">
-    <div class="container">
-      <h3>Grow your business with AssistKingOnline</h3>
-      <a href="lead.html" class="big-cta">Get Leads Now</a>
-    </div>
-  </section>
-
-  <!-- ===== TESTIMONIAL STRIP ===== -->
-  <section class="testi">
-    <div class="testi-row">
-  <img class="avatar" src="https://i.pravatar.cc/80?img=13" alt="Customer face" />
-  <div class="stars">★ ★ ★ ★ ★</div>
-  <div class="tcopy">Always great contractors on AssistKing.</div>
-</div>
-    </div>
-  </section>
-  <!-- ===== NATIONWIDE COVERAGE BANNER ===== -->
-<section class="gold-banner" style="
-  background: linear-gradient(180deg, #f8dc59 0%, #e4b629 100%);
-  text-align: center;
-  color: #3f2f00;
-  padding: 48px 0;
-  box-shadow: inset 0 4px 8px rgba(0,0,0,0.1);
-">
+<section class="crimson">
   <div class="container">
-    <h4 style="margin: 0; font-size: 26px; font-weight: 900;">
+    <h3>Grow your business with AssistKingOnline</h3>
+    <a href="lead.html" class="big-cta">Get Leads Now</a>
+  </div>
+</section>
+
+<section class="testi">
+  <div class="testi-row">
+    <img class="avatar" src="https://i.pravatar.cc/80?img=13" alt="Customer face" />
+    <div class="stars">★ ★ ★ ★ ★</div>
+    <div class="tcopy">Always great contractors on AssistKing.</div>
+  </div>
+</section>
+
+<section class="gold-banner">
+  <div class="container">
+    <h4 style="margin:0; font-size:26px; font-weight:900;">
       Available Everywhere Across the Nation 🇺🇸
     </h4>
-    <p style="margin: 12px 0 0; font-size: 16px; font-weight: 600;">
+    <p style="margin:12px 0 0; font-size:16px; font-weight:600;">
       Trusted professionals coast to coast — your home, your business, your King.
     </p>
   </div>
 </section>
-  <!-- ===== FOOTER ===== -->
-  <footer>
-    <div class="container foot">
-      <span>© AssistKingOnline</span>
-      <span>
-  <a href="privacy.html">Privacy</a> • 
-  <a href="terms.html">Terms</a> • 
-  <a href="contact.html">Contact</a>
-</span>
-    </div>
-  </footer>
-  <!-- Auth Modal -->
+
+<footer>
+  <div class="container foot">
+    <span>© AssistKingOnline</span>
+    <span>
+      <a href="privacy.html">Privacy</a> •
+      <a href="terms.html">Terms</a> •
+      <a href="contact.html">Contact</a>
+    </span>
+  </div>
+</footer>
+
 <div id="authModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="authTitle" aria-modal="true">
   <div class="modal-backdrop" data-close></div>
 
@@ -688,61 +702,60 @@ footer{background:#faf6ff;border-top:1px solid #eee}
 
     <h2 id="authTitle" class="modal-title">Welcome to AssistKingOnline</h2>
 
-    <!-- Tabs -->
     <div class="tabs" role="tablist">
       <button class="tab active" role="tab" aria-selected="true" data-tab="login">Log In</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="signup">Sign Up</button>
     </div>
 
-    <!-- Panels -->
     <div class="panel active" id="panel-login" role="tabpanel">
-  <form class="auth-form" id="loginForm">
-    <label>Email</label>
-    <input id="loginEmail" type="email" placeholder="you@example.com" required />
+      <form class="auth-form" id="loginForm">
+        <label>Email</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com" required />
 
-    <label>Password</label>
-    <input id="loginPassword" type="password" placeholder="••••••••" required />
+        <label>Password</label>
+        <input id="loginPassword" type="password" placeholder="••••••••" required />
 
-    <div class="auth-row-between">
-      <label class="show-password-label">
-        <input id="showPasswordToggle" type="checkbox" />
-        <span>Show password</span>
-      </label>
+        <div class="auth-row-between">
+          <label class="show-password-label">
+            <input id="showPasswordToggle" type="checkbox" />
+            <span>Show password</span>
+          </label>
 
-      <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
-    </div>
+          <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
+        </div>
 
-    <button class="primary" type="submit">Log In</button>
+        <button class="primary" type="submit">Log In</button>
 
-    <p class="auth-help-note">
-      Trouble signing in? Enter your email above and reset your password.
-    </p>
-  </form>
+        <p class="auth-help-note">
+          Trouble signing in? Enter your email above and reset your password.
+        </p>
+      </form>
     </div>
 
     <div class="panel" id="panel-signup" role="tabpanel" hidden>
-  <form class="auth-form" id="signupForm">
-    <label>Full name</label>
-    <input id="signupName" type="text" placeholder="Your name" required />
+      <form class="auth-form" id="signupForm">
+        <label>Full name</label>
+        <input id="signupName" type="text" placeholder="Your name" required />
 
-    <label>Email</label>
-    <input id="signupEmail" type="email" placeholder="you@example.com" required />
+        <label>Email</label>
+        <input id="signupEmail" type="email" placeholder="you@example.com" required />
 
-    <label>Password</label>
-    <input id="signupPassword" type="password" placeholder="Create a password" required />
+        <label>Password</label>
+        <input id="signupPassword" type="password" placeholder="Create a password" required />
 
-    <button class="primary" type="submit">Create Account</button>
+        <button class="primary" type="submit">Create Account</button>
 
-    <p class="auth-help-note">
-      Create your account to save access to jobs, leads, and future features.
-    </p>
-  </form>
+        <p class="auth-help-note">
+          Create your account to save access to jobs, leads, and future features.
+        </p>
+      </form>
     </div>
 
-    <p class="tiny-note">By continuing, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+    <p class="tiny-note">By continuing, you agree to our <a href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a>.</p>
   </div>
 </div>
-  <script>
+
+<script>
 (function(){
   const modal = document.getElementById('authModal');
   const openBtn = document.getElementById('openAuth');
@@ -753,210 +766,217 @@ footer{background:#faf6ff;border-top:1px solid #eee}
     signup: document.getElementById('panel-signup')
   };
 
-  function openModal(){
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    // default to login tab
-    setTab('login');
-    // focus first input for accessibility
-    setTimeout(() => {
-      const first = modal.querySelector('.panel.active input');
-      first && first.focus();
-    }, 50);
-  }
-  function closeModal(){
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-  }
   function setTab(name){
-    tabs.forEach(t=>{
+    tabs.forEach(t => {
       const active = t.dataset.tab === name;
       t.classList.toggle('active', active);
       t.setAttribute('aria-selected', active ? 'true' : 'false');
     });
-    Object.keys(panels).forEach(k=>{
+
+    Object.keys(panels).forEach(k => {
       const active = k === name;
       panels[k].classList.toggle('active', active);
       panels[k].hidden = !active;
     });
   }
 
+  function openModal(){
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    setTab('login');
+    setTimeout(() => {
+      const first = modal.querySelector('.panel.active input');
+      if (first) first.focus();
+    }, 50);
+  }
+
+  function closeModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  }
+
   openBtn.addEventListener('click', () => {
     if (openBtn.textContent.trim() === 'Log Out') return;
     openModal();
   });
+
   closeEls.forEach(el => el.addEventListener('click', closeModal));
-  modal.addEventListener('click', e => { if(e.target === modal) closeModal(); });
-  window.addEventListener('keydown', e => { if(e.key === 'Escape' && modal.classList.contains('show')) closeModal(); });
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeModal();
+  });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      closeModal();
+    }
+  });
 
   tabs.forEach(tab => {
     tab.addEventListener('click', () => setTab(tab.dataset.tab));
   });
 })();
-  </script>
-  <script>
-  (function(){
-    const menuBtn = document.querySelector('.menu-button');
-    const menuDropdown = document.getElementById('dropdownMenu');
+</script>
 
-    function toggleMenu() {
-      const open = menuDropdown.style.display === 'flex';
-      menuDropdown.style.display = open ? 'none' : 'flex';
-      menuDropdown.setAttribute('aria-hidden', open ? 'true' : 'false');
-    }
-
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation(); // don’t trigger document click
-      toggleMenu();
-    });
-
-    // Close when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
-        menuDropdown.style.display = 'none';
-        menuDropdown.setAttribute('aria-hidden','true');
-      }
-    });
-
-    // Close on ESC
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        menuDropdown.style.display = 'none';
-        menuDropdown.setAttribute('aria-hidden','true');
-      }
-    });
-  })();
-  </script>
-  <script>
+<script>
 (function(){
+  const menuBtn = document.querySelector('.menu-button');
+  const menuDropdown = document.getElementById('dropdownMenu');
+
+  function closeMenu(){
+    menuDropdown.style.display = 'none';
+    menuDropdown.setAttribute('aria-hidden','true');
+  }
+
+  function toggleMenu() {
+    const open = menuDropdown.style.display === 'flex';
+    if (open) {
+      closeMenu();
+    } else {
+      menuDropdown.style.display = 'flex';
+      menuDropdown.setAttribute('aria-hidden','false');
+    }
+  }
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMenu();
+    }
+  });
+})();
+</script>
+
+<script>
+(function(){
+  const form = document.getElementById("searchForm");
   const input = document.getElementById("q");
   const box = document.getElementById("suggestions");
-  const form = document.getElementById("searchForm");
 
-  if (!input || !box || !form) return;
+  if (!form || !input || !box) return;
 
-  // 1) Your suggestion items
-  // text = what user sees
-  // page = where clicking should go (optional)
-  const SUGGESTIONS = [
+  const suggestions = [
     { text: "Plumbing leak", page: "plumbing.html", tag: "Plumbing" },
     { text: "Clogged drain", page: "plumbing.html", tag: "Plumbing" },
-    { text: "Water heater", page: "plumbing.html", tag: "Plumbing" },
+    { text: "Water heater repair", page: "plumbing.html", tag: "Plumbing" },
 
     { text: "Oil leak", page: "auto.html", tag: "Auto" },
     { text: "Brake repair", page: "auto.html", tag: "Auto" },
-    { text: "Flat tire", page: "auto.html", tag: "Auto" },
+    { text: "Flat tire help", page: "auto.html", tag: "Auto" },
+    { text: "Battery replacement", page: "auto.html", tag: "Auto" },
 
     { text: "Outlet not working", page: "electricians.html", tag: "Electric" },
     { text: "Breaker keeps tripping", page: "electricians.html", tag: "Electric" },
+    { text: "EV charger install", page: "electricians.html", tag: "Electric" },
 
     { text: "Build a deck", page: "carpentry.html", tag: "Carpentry" },
     { text: "Door repair", page: "carpentry.html", tag: "Carpentry" },
+    { text: "Cabinet work", page: "carpentry.html", tag: "Carpentry" },
 
+    { text: "Freight delivery", page: "trucking.html", tag: "Trucking" },
+    { text: "Hotshot load", page: "trucking.html", tag: "Trucking" },
     { text: "Moving help", page: "trucking.html", tag: "Trucking" },
-    { text: "Delivery service", page: "trucking.html", tag: "Trucking" },
+
+    { text: "AC repair", page: "hvac.html", tag: "HVAC" },
+    { text: "Heating issue", page: "hvac.html", tag: "HVAC" },
+    { text: "Air conditioning service", page: "hvac.html", tag: "HVAC" },
 
     { text: "Credit card help", page: "financial-help.html", tag: "Finance" },
-    { text: "Bank account", page: "financial-help.html", tag: "Finance" }
+    { text: "Loan help", page: "financial-help.html", tag: "Finance" },
+    { text: "Bank account help", page: "financial-help.html", tag: "Finance" }
   ];
 
-  // 2) This ranks suggestions
-  // starts-with > contains
-  function getMatches(query, list, limit = 6){
-    const q = (query || "").toLowerCase().trim();
-    if (!q) return [];
+  let activeIndex = -1;
+  let currentMatches = [];
 
-    const scored = list.map(item => {
-      const text = (item.text || "").toLowerCase();
-      let score = 0;
-
-      if (text.startsWith(q)) score += 100;     // best match
-      if (text.includes(q)) score += 40;        // still good
-      score -= Math.min(text.length, 60) * 0.1; // slight preference for shorter text
-
-      return { ...item, score };
-    }).filter(x => x.score > 0);
-
-    scored.sort((a,b) => b.score - a.score);
-    return scored.slice(0, limit);
+  function escapeHtml(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
   }
 
-  function hide(){
+  function highlightText(text, query) {
+    if (!query) return escapeHtml(text);
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp("(" + escaped + ")", "ig");
+    return escapeHtml(text).replace(regex, "<strong>$1</strong>");
+  }
+
+  function hideSuggestions(){
     box.hidden = true;
     box.innerHTML = "";
+    activeIndex = -1;
+    currentMatches = [];
   }
 
-  function show(matches){
-    if (!matches.length) return hide();
+  function renderSuggestions(list, query){
+    currentMatches = list;
 
-    box.innerHTML = matches.map(m => `
-      <button type="button" data-page="${m.page || ""}" data-text="${m.text}">
-        <span>${m.text}</span>
-        ${m.tag ? `<span class="tag">${m.tag}</span>` : ""}
+    if (!list.length) {
+      hideSuggestions();
+      return;
+    }
+
+    box.innerHTML = list.map((item, index) => `
+      <button
+        type="button"
+        class="suggestion-item ${index === activeIndex ? "active" : ""}"
+        data-index="${index}"
+        data-page="${item.page}"
+        data-text="${escapeHtml(item.text)}"
+      >
+        <span>${highlightText(item.text, query)}</span>
+        <span class="suggestion-tag">${escapeHtml(item.tag || "")}</span>
       </button>
     `).join("");
 
     box.hidden = false;
   }
 
-  // 3) Update dropdown while typing
-  input.addEventListener("input", () => {
-    const matches = getMatches(input.value, SUGGESTIONS, 6);
-    show(matches);
-  });
+  function getMatches(queryText, limit = 7){
+    const q = (queryText || "").toLowerCase().trim();
+    if (!q) return [];
 
-  // 4) Clicking a suggestion:
-  // If it has a page -> go there
-  // If not -> just fills input and submits your normal routing
-  box.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
+    const scored = suggestions.map(item => {
+      const t = item.text.toLowerCase();
+      let score = 0;
 
-    const text = btn.getAttribute("data-text") || "";
-    const page = btn.getAttribute("data-page");
+      if (t.startsWith(q)) score += 100;
+      if (t.includes(q)) score += 40;
 
-    input.value = text;
-    hide();
+      return { ...item, score };
+    }).filter(item => item.score > 0);
 
-    if (page) {
-      window.location.href = page;
-    } else {
-      form.requestSubmit();
-    }
-  });
-
-  // 5) Close dropdown when clicking outside
-  document.addEventListener("click", (e) => {
-    if (!box.contains(e.target) && e.target !== input) hide();
-  });
-
-  // 6) Close on escape
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") hide();
-  });
-
-})();
-  </script>
-
-  <script>
-(function(){
-  const form = document.getElementById("searchForm");
-  const input = document.getElementById("q");
-  if (!form || !input) return;
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, limit);
+  }
 
   function scoreMatch(s, rules){
     let score = 0;
 
-    for (const r of rules) {
-      if (r.phrase && s.includes(r.phrase)) score += (r.points ?? 2);
-      if (r.words && r.words.some(w => s.includes(w))) score += (r.points ?? 1);
+    for (const rule of rules) {
+      if (rule.phrase && s.includes(rule.phrase)) score += (rule.points ?? 2);
+      if (rule.words && rule.words.some(word => s.includes(word))) score += (rule.points ?? 1);
     }
 
     return score;
   }
 
-  function routeQuery(q){
-    const s = (q || "").toLowerCase().trim();
+  function routeQuery(queryText){
+    const s = (queryText || "").toLowerCase().trim();
 
     const categories = [
       {
@@ -973,14 +993,14 @@ footer{background:#faf6ff;border-top:1px solid #eee}
         rules: [
           { phrase: "water leak", points: 5 },
           { phrase: "pipe leak", points: 5 },
-          { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer"], points: 2 }
+          { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer","water heater"], points: 2 }
         ]
       },
       {
         page: "electricians.html",
         min: 2,
         rules: [
-          { words: ["electric","outlet","breaker","wiring","switch","panel"], points: 2 }
+          { words: ["electric","outlet","breaker","wiring","switch","panel","charger","ev"], points: 2 }
         ]
       },
       {
@@ -994,7 +1014,14 @@ footer{background:#faf6ff;border-top:1px solid #eee}
         page: "trucking.html",
         min: 2,
         rules: [
-          { words: ["truck","moving","delivery","freight","transport"], points: 2 }
+          { words: ["truck","moving","delivery","freight","transport","load","ltl","hotshot"], points: 2 }
+        ]
+      },
+      {
+        page: "hvac.html",
+        min: 2,
+        rules: [
+          { words: ["hvac","ac","a/c","air","cooling","heating","furnace","thermostat"], points: 2 }
         ]
       },
       {
@@ -1014,36 +1041,100 @@ footer{background:#faf6ff;border-top:1px solid #eee}
       }
     ];
 
-    let best = { page: null, score: 0 };
+    let best = { page: "", score: 0 };
 
-    for (const c of categories) {
-      const score = scoreMatch(s, c.rules);
-      if (score > best.score) best = { page: c.page, score };
+    for (const category of categories) {
+      const score = scoreMatch(s, category.rules);
+      if (score > best.score) {
+        best = { page: category.page, score };
+      }
     }
 
     const winner = categories.find(c => c.page === best.page);
-    if (winner && best.score >= winner.min) return best.page;
+    if (winner && best.score >= winner.min) {
+      return best.page;
+    }
 
-    return "search.html?q=" + encodeURIComponent(q) + "&intent=unknown";
+    return "request-service.html?category=general";
   }
+
+  input.addEventListener("input", () => {
+    const value = input.value.trim();
+    if (!value) {
+      hideSuggestions();
+      return;
+    }
+
+    const matches = getMatches(value);
+    activeIndex = matches.length ? 0 : -1;
+    renderSuggestions(matches, value);
+  });
+
+  input.addEventListener("keydown", (e) => {
+    if (box.hidden || !currentMatches.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % currentMatches.length;
+      renderSuggestions(currentMatches, input.value.trim());
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + currentMatches.length) % currentMatches.length;
+      renderSuggestions(currentMatches, input.value.trim());
+    }
+
+    if (e.key === "Enter" && activeIndex >= 0 && currentMatches[activeIndex]) {
+      e.preventDefault();
+      window.location.href = currentMatches[activeIndex].page;
+    }
+
+    if (e.key === "Escape") {
+      hideSuggestions();
+    }
+  });
+
+  box.addEventListener("click", (e) => {
+    const btn = e.target.closest(".suggestion-item");
+    if (!btn) return;
+
+    const page = btn.getAttribute("data-page") || "";
+    const text = btn.getAttribute("data-text") || "";
+
+    input.value = text;
+    hideSuggestions();
+
+    if (page) {
+      window.location.href = page;
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!box.contains(e.target) && e.target !== input) {
+      hideSuggestions();
+    }
+  });
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = input.value.trim();
     if (!q) return;
+    hideSuggestions();
     window.location.href = routeQuery(q);
   });
 })();
-  </script>
+</script>
+
 <script>
 (function () {
   const micBtn = document.getElementById('micBtn');
   const qInput = document.getElementById('q');
+  const searchForm = document.getElementById('searchForm');
 
-  if (!micBtn || !qInput) return;
+  if (!micBtn || !qInput || !searchForm) return;
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
     micBtn.addEventListener('click', () => {
@@ -1067,10 +1158,10 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   });
 
   recognition.addEventListener('result', (event) => {
-  const text = event.results[0][0].transcript;
-  qInput.value = text;
-  document.getElementById("searchForm").requestSubmit();
-});
+    const text = event.results[0][0].transcript;
+    qInput.value = text;
+    searchForm.requestSubmit();
+  });
 
   recognition.addEventListener('end', () => {
     micBtn.style.background = '#f3f3f3';
@@ -1082,77 +1173,37 @@ footer{background:#faf6ff;border-top:1px solid #eee}
   });
 })();
 </script>
-  <script>
+
+<script>
 (function(){
-  const input = document.getElementById("q");
-  const box = document.getElementById("suggestions");
-  const form = document.getElementById("searchForm");
+  const imgInput = document.getElementById("imgInput");
+  if (!imgInput) return;
 
-  if (!input || !box) return;
+  imgInput.addEventListener("change", () => {
+    const file = imgInput.files?.[0];
+    if (!file) return;
 
-  const suggestions = [
-    { label: "🔧 Plumbing (leak, toilet, drain)", page: "plumbing.html" },
-    { label: "🚗 Auto (oil leak, brakes, tires)", page: "auto.html" },
-    { label: "⚡ Electricians (outlet, breaker, wiring)", page: "electricians.html" },
-    { label: "🪚 Carpentry (deck, cabinet, trim)", page: "carpentry.html" },
-    { label: "🚚 Trucking (moving, freight, delivery)", page: "trucking.html" },
-    { label: "💳 Financial Help (credit card, loan, bank)", page: "financial-help.html" },
-    { label: "🍽 Food (catering, chef, meal)", page: "food2.html" }
-  ];
-
-  let activeIndex = -1;
-
-  function highlightText(text, query) {
-    if (!query) return text;
-    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp("(" + escaped + ")", "ig");
-    return text.replace(regex, "<strong>$1</strong>");
-  }
-
-  function render(list, query){
-    if (!list.length) {
-      box.hidden = true;
-      box.innerHTML = "";
-      activeIndex = -1;
-      return;
-    }
-
-    box.innerHTML = list.map((s, i) =>
-      `<div class="suggestion-item ${i === activeIndex ? "active" : ""}"
-            data-index="${i}" data-page="${s.page}">
-         ${highlightText(s.label, query)}
-       </div>`
-    ).join("");
-
-    box.hidden = false;
-  }
-
-  function getFiltered(){
-    const value = input.value.trim().toLowerCase();
-    if (!value) return { value, list: [] };
-
-    const list = suggestions.filter(s => s.label.toLowerCase().includes(value));
-    return { value, list };
-  }
-
-  function goToActive(list){
-    if (activeIndex < 0 || activeIndex >= list.length) return false;
-    window.location.href = list[activeIndex].page;
-    return true;
-  }
-
-  input.addEventListener("input", () => {
-    const { value, list } = getFiltered();
-
-    if (!value || !list.length) {
-      render([], value);
-      return;
-    }
-
-    activeIndex = 0; // auto select first item
-    render(list, value);
+    alert("Photo selected. Image-based matching is not live yet. Use the search bar or choose a service category for now.");
+    imgInput.value = "";
   });
+})();
+</script>
 
+<script>
+(function(){
+  const adminBtn = document.getElementById("adminRequestsBtn");
+  if (!adminBtn) return;
+
+  function syncAdminButton() {
+    const isAdmin = !!window.AKOUser && window.AKOUser.tier === "admin";
+    adminBtn.hidden = !isAdmin;
+  }
+
+  if (window.AKOReady) {
+    syncAdminButton();
+  }
+
+  document.addEventListener("ako-auth-ready", syncAdminButton);
 })();
 </script>
 
