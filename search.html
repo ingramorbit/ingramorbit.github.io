@@ -78,6 +78,7 @@
       gap:10px;
       flex-wrap:wrap;
       margin-top:12px;
+      position:relative;
     }
 
     .search-results-input{
@@ -156,6 +157,70 @@
       box-shadow:0 12px 24px rgba(0,0,0,.16);
     }
 
+    .search-best-match{
+      margin:16px 0 14px;
+      padding:16px;
+      border-radius:16px;
+      border:1px solid rgba(30,58,138,.12);
+      background:#f8fbff;
+      display:none;
+    }
+
+    .search-best-match.show{
+      display:block;
+    }
+
+    .search-best-match-label{
+      display:inline-block;
+      margin-bottom:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#dbeafe;
+      color:#1e40af;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .search-best-match-title{
+      margin:0 0 8px;
+      font-size:24px;
+      font-weight:900;
+      color:#111;
+    }
+
+    .search-best-match-copy{
+      margin:0 0 14px;
+      color:#444;
+      font-weight:700;
+      line-height:1.5;
+    }
+
+    .search-best-match-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .search-best-match-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 14px;
+      border-radius:10px;
+      background:var(--royal);
+      color:#fff;
+      font-weight:800;
+      text-decoration:none;
+      box-shadow:0 8px 18px rgba(0,0,0,.14);
+    }
+
+    .search-best-match-btn.secondary{
+      background:#fff;
+      color:#111;
+      border:1px solid rgba(0,0,0,.12);
+      box-shadow:none;
+    }
+
     .search-results-help{
       margin:14px 0 0;
       color:#555;
@@ -211,9 +276,9 @@
   <main class="container search-results-wrap">
     <div class="search-results-card">
       <strong>Search services</strong>
-      <p style="margin:8px 0 14px">Try typing what you need help with and we’ll point you in the right direction.</p>
+      <p style="margin:8px 0 14px;">Try typing what you need help with and we’ll point you in the right direction.</p>
 
-      <form id="searchForm" class="search-results-form">
+      <form id="searchForm" class="search-results-form" autocomplete="off">
         <input
           id="q"
           name="q"
@@ -222,10 +287,21 @@
           autocomplete="off"
         />
         <button type="submit" class="search-results-btn">Search</button>
+        <div id="searchSuggestions" class="suggestions" hidden></div>
       </form>
 
-      <div id="searchMessage" class="search-results-message">Searching...</div>
-      <p id="searchSubtext" class="search-results-subtext"></p>
+      <div id="searchMessage" class="search-results-message">Type a search above to get started.</div>
+      <p id="searchSubtext" class="search-results-subtext">Or choose one of the service categories below.</p>
+
+      <div id="searchBestMatch" class="search-best-match">
+        <div class="search-best-match-label">Best match</div>
+        <h2 id="searchBestMatchTitle" class="search-best-match-title"></h2>
+        <p id="searchBestMatchCopy" class="search-best-match-copy"></p>
+        <div class="search-best-match-actions">
+          <a id="searchBestMatchPrimary" class="search-best-match-btn" href="#">Open page</a>
+          <a id="searchBestMatchSecondary" class="search-best-match-btn secondary" href="#">Request this service</a>
+        </div>
+      </div>
 
       <div id="searchChips" class="search-results-chips"></div>
 
@@ -252,11 +328,19 @@
     (function(){
       const params = new URLSearchParams(window.location.search);
       const qParam = (params.get("q") || "").trim();
+
       const input = document.getElementById("q");
       const form = document.getElementById("searchForm");
+      const suggestionsBox = document.getElementById("searchSuggestions");
       const messageEl = document.getElementById("searchMessage");
       const subtextEl = document.getElementById("searchSubtext");
       const chipsEl = document.getElementById("searchChips");
+
+      const bestMatchBox = document.getElementById("searchBestMatch");
+      const bestMatchTitle = document.getElementById("searchBestMatchTitle");
+      const bestMatchCopy = document.getElementById("searchBestMatchCopy");
+      const bestMatchPrimary = document.getElementById("searchBestMatchPrimary");
+      const bestMatchSecondary = document.getElementById("searchBestMatchSecondary");
 
       const chipData = [
         { label: "Plumbing", href: "plumbing.html" },
@@ -270,6 +354,149 @@
         { label: "Residential", href: "residential.html" },
         { label: "Commercial", href: "commercial.html" },
         { label: "Food", href: "food2.html" }
+      ];
+
+      const suggestionData = [
+        { text: "clogged drain", page: "plumbing.html", tag: "Plumbing" },
+        { text: "water leak", page: "plumbing.html", tag: "Plumbing" },
+        { text: "toilet repair", page: "plumbing.html", tag: "Plumbing" },
+        { text: "outlet not working", page: "electricians.html", tag: "Electricians" },
+        { text: "breaker keeps tripping", page: "electricians.html", tag: "Electricians" },
+        { text: "build a deck", page: "carpentry.html", tag: "Carpentry" },
+        { text: "door repair", page: "carpentry.html", tag: "Carpentry" },
+        { text: "lawn mowing", page: "lawn-care.html", tag: "Lawn Care" },
+        { text: "mulching", page: "lawn-care.html", tag: "Lawn Care" },
+        { text: "moving help", page: "trucking.html", tag: "Trucking" },
+        { text: "freight delivery", page: "trucking.html", tag: "Trucking" },
+        { text: "brake repair", page: "auto.html", tag: "Auto" },
+        { text: "oil leak", page: "auto.html", tag: "Auto" },
+        { text: "ac repair", page: "hvac.html", tag: "HVAC" },
+        { text: "heating issue", page: "hvac.html", tag: "HVAC" },
+        { text: "credit card help", page: "financial-help.html", tag: "Financial Help" },
+        { text: "loan help", page: "financial-help.html", tag: "Financial Help" },
+        { text: "catering", page: "food2.html", tag: "Food" },
+        { text: "restaurant staffing", page: "food2.html", tag: "Food" }
+      ];
+
+      const categoryRoutes = [
+        {
+          page: "plumbing.html",
+          label: "Plumbing",
+          requestCategory: "plumbing",
+          description: "Leaks, clogs, drains, toilets, sinks, faucets, sewer, and water line problems.",
+          rules: [
+            { phrase: "water leak", points: 7 },
+            { phrase: "pipe leak", points: 7 },
+            { phrase: "clogged drain", points: 7 },
+            { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer","pipe","water heater"], points: 2 }
+          ]
+        },
+        {
+          page: "electricians.html",
+          label: "Electricians",
+          requestCategory: "electricians",
+          description: "Outlets, breakers, wiring, panels, switches, lighting, and electrical troubleshooting.",
+          rules: [
+            { phrase: "outlet not working", points: 7 },
+            { phrase: "breaker keeps tripping", points: 7 },
+            { words: ["electric","outlet","breaker","wiring","switch","panel","light","lighting"], points: 2 }
+          ]
+        },
+        {
+          page: "carpentry.html",
+          label: "Carpentry",
+          requestCategory: "carpentry",
+          description: "Decks, trim, framing, cabinets, doors, and general wood repair or build work.",
+          rules: [
+            { phrase: "build a deck", points: 7 },
+            { phrase: "door repair", points: 6 },
+            { words: ["carp","wood","cabinet","deck","door","trim","frame","framing","shelving"], points: 2 }
+          ]
+        },
+        {
+          page: "lawn-care.html",
+          label: "Lawn Care",
+          requestCategory: "lawn-care",
+          description: "Grass cutting, edging, mulching, shrubs, hedges, cleanup, and general yard care.",
+          rules: [
+            { phrase: "lawn mowing", points: 7 },
+            { phrase: "yard cleanup", points: 6 },
+            { words: ["lawn","grass","mow","mowing","yard","hedge","mulch","bush","shrubs","landscap","edging"], points: 2 }
+          ]
+        },
+        {
+          page: "trucking.html",
+          label: "Trucking",
+          requestCategory: "trucking",
+          description: "Moving help, freight, transport, delivery, hotshot loads, and trucking services.",
+          rules: [
+            { phrase: "moving help", points: 7 },
+            { phrase: "freight delivery", points: 7 },
+            { words: ["truck","moving","delivery","freight","transport","ltl","hotshot","carrier"], points: 2 }
+          ]
+        },
+        {
+          page: "auto.html",
+          label: "Auto",
+          requestCategory: "auto",
+          description: "Brake work, tires, oil leaks, batteries, towing, and general vehicle repair needs.",
+          rules: [
+            { phrase: "oil leak", points: 7 },
+            { phrase: "brake repair", points: 7 },
+            { words: ["oil","engine","car","vehicle","mechanic","tow","towing","brake","brakes","tire","tires","battery","auto"], points: 2 }
+          ]
+        },
+        {
+          page: "hvac.html",
+          label: "HVAC",
+          requestCategory: "hvac",
+          description: "Heating and cooling issues, AC repair, furnace problems, and ventilation needs.",
+          rules: [
+            { phrase: "ac repair", points: 7 },
+            { phrase: "air conditioning", points: 6 },
+            { words: ["hvac","ac","air","cooling","heating","heat","furnace","thermostat"], points: 2 }
+          ]
+        },
+        {
+          page: "financial-help.html",
+          label: "Financial Help",
+          requestCategory: "financial-help",
+          description: "Credit cards, banks, loans, debt questions, and other financial guidance needs.",
+          rules: [
+            { phrase: "credit card", points: 7 },
+            { phrase: "loan help", points: 6 },
+            { words: ["finance","credit","bank","loan","debt","interest","budget"], points: 2 }
+          ]
+        },
+        {
+          page: "food2.html",
+          label: "Food Services",
+          requestCategory: "food",
+          description: "Catering, chef services, event food support, staffing, and food service help.",
+          rules: [
+            { phrase: "food truck", points: 7 },
+            { phrase: "meal prep", points: 6 },
+            { words: ["food","catering","chef","meal","restaurant","kitchen","staffing"], points: 2 }
+          ]
+        },
+        {
+          page: "residential.html",
+          label: "Residential",
+          requestCategory: "residential",
+          description: "General home and household service needs across residential categories.",
+          rules: [
+            { words: ["home","house","residential"], points: 2 }
+          ]
+        },
+        {
+          page: "commercial.html",
+          label: "Commercial",
+          requestCategory: "commercial",
+          description: "Business, office, warehouse, and facility service needs across commercial categories.",
+          rules: [
+            { words: ["commercial","business","office","warehouse","facility"], points: 2 }
+          ]
+        }
       ];
 
       function escapeHtml(value){
@@ -291,134 +518,125 @@
         let score = 0;
 
         for (const rule of rules) {
-          if (rule.phrase && searchText.includes(rule.phrase)) score += (rule.points ?? 2);
-          if (rule.words && rule.words.some(word => searchText.includes(word))) score += (rule.points ?? 1);
+          if (rule.phrase && searchText.includes(rule.phrase)) {
+            score += (rule.points ?? 2);
+          }
+
+          if (rule.words && rule.words.some(word => searchText.includes(word))) {
+            score += (rule.points ?? 1);
+          }
         }
 
         return score;
       }
 
-      function routeQuery(queryText){
-        const s = (queryText || "").toLowerCase().trim();
+      function getBestRoute(queryText){
+        const s = String(queryText || "").toLowerCase().trim();
+        if (!s) return null;
 
-        const categories = [
-          {
-            page: "auto.html",
-            min: 2,
-            rules: [
-              { phrase: "oil leak", points: 5 },
-              { words: ["oil","engine","car","vehicle","mechanic","tow","towing","brake","brakes","tire","tires","battery"], points: 2 }
-            ]
-          },
-          {
-            page: "plumbing.html",
-            min: 2,
-            rules: [
-              { phrase: "water leak", points: 5 },
-              { phrase: "pipe leak", points: 5 },
-              { words: ["plumb","leak","clog","toilet","drain","sink","faucet","sewer"], points: 2 }
-            ]
-          },
-          {
-            page: "electricians.html",
-            min: 2,
-            rules: [
-              { words: ["electric","outlet","breaker","wiring","switch","panel"], points: 2 }
-            ]
-          },
-          {
-            page: "carpentry.html",
-            min: 2,
-            rules: [
-              { words: ["carp","wood","cabinet","deck","door","trim","frame"], points: 2 }
-            ]
-          },
-          {
-            page: "lawn-care.html",
-            min: 2,
-            rules: [
-              { words: ["lawn","grass","mow","mowing","yard","hedge","mulch","bush","shrubs","landscap"], points: 2 }
-            ]
-          },
-          {
-            page: "trucking.html",
-            min: 2,
-            rules: [
-              { words: ["truck","moving","delivery","freight","transport","ltl","hotshot"], points: 2 }
-            ]
-          },
-          {
-            page: "auto.html",
-            min: 2,
-            rules: [
-              { words: ["auto"], points: 2 }
-            ]
-          },
-          {
-            page: "hvac.html",
-            min: 2,
-            rules: [
-              { words: ["hvac","ac","air","cooling","heating","heat","furnace"], points: 2 }
-            ]
-          },
-          {
-            page: "financial-help.html",
-            min: 2,
-            rules: [
-              { phrase: "credit card", points: 5 },
-              { words: ["finance","credit","bank","loan","debt","interest"], points: 2 }
-            ]
-          },
-          {
-            page: "food2.html",
-            min: 2,
-            rules: [
-              { words: ["food","catering","chef","meal","restaurant"], points: 2 }
-            ]
-          },
-          {
-            page: "residential.html",
-            min: 2,
-            rules: [
-              { words: ["home","house","residential"], points: 2 }
-            ]
-          },
-          {
-            page: "commercial.html",
-            min: 2,
-            rules: [
-              { words: ["commercial","business","office","warehouse"], points: 2 }
-            ]
-          }
-        ];
+        let best = null;
 
-        let best = { page: null, score: 0 };
-
-        for (const category of categories) {
+        for (const category of categoryRoutes) {
           const score = scoreMatch(s, category.rules);
-          if (score > best.score) {
-            best = { page: category.page, score };
+
+          if (!best || score > best.score) {
+            best = {
+              ...category,
+              score
+            };
           }
         }
 
-        const winner = categories.find(category => category.page === best.page);
-
-        if (winner && best.score >= winner.min) {
-          return best.page;
+        if (!best || best.score < 2) {
+          return null;
         }
 
-        return null;
+        return best;
       }
 
-      function updateSearchMessage(queryText){
+      function updateSearchMessage(queryText, bestMatch){
         if (!queryText) {
           messageEl.textContent = "Type a search above to get started.";
           subtextEl.textContent = "Or choose one of the service categories below.";
           return;
         }
 
+        if (bestMatch) {
+          messageEl.textContent = `Best match for “${queryText}”`;
+          subtextEl.textContent = `We think ${bestMatch.label} is the strongest match for what you searched.`;
+          return;
+        }
+
         messageEl.textContent = `We found no exact match for “${queryText}”.`;
         subtextEl.textContent = "Try one of these categories below, or search with a more specific service keyword.";
+      }
+
+      function updateBestMatchCard(queryText, bestMatch){
+        if (!bestMatch) {
+          bestMatchBox.classList.remove("show");
+          bestMatchTitle.textContent = "";
+          bestMatchCopy.textContent = "";
+          bestMatchPrimary.href = "#";
+          bestMatchSecondary.href = "#";
+          return;
+        }
+
+        bestMatchBox.classList.add("show");
+        bestMatchTitle.textContent = bestMatch.label;
+        bestMatchCopy.textContent = bestMatch.description;
+        bestMatchPrimary.href = bestMatch.page;
+        bestMatchPrimary.textContent = `Open ${bestMatch.label}`;
+        bestMatchSecondary.href = `request-service.html?category=${encodeURIComponent(bestMatch.requestCategory)}`;
+        bestMatchSecondary.textContent = `Request ${bestMatch.label}`;
+      }
+
+      function getSuggestionMatches(queryText){
+        const q = String(queryText || "").toLowerCase().trim();
+        if (!q) return [];
+
+        return suggestionData
+          .map(item => {
+            const text = item.text.toLowerCase();
+            let score = 0;
+
+            if (text.startsWith(q)) score += 100;
+            if (text.includes(q)) score += 40;
+
+            return {
+              ...item,
+              score
+            };
+          })
+          .filter(item => item.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 6);
+      }
+
+      function hideSuggestions(){
+        suggestionsBox.hidden = true;
+        suggestionsBox.innerHTML = "";
+      }
+
+      function showSuggestions(matches){
+        if (!matches.length) {
+          hideSuggestions();
+          return;
+        }
+
+        suggestionsBox.innerHTML = matches.map(item => `
+          <button type="button" data-page="${item.page}" data-text="${escapeHtml(item.text)}">
+            <span>${escapeHtml(item.text)}</span>
+            <span class="tag">${escapeHtml(item.tag)}</span>
+          </button>
+        `).join("");
+
+        suggestionsBox.hidden = false;
+      }
+
+      function refreshSearchView(queryText){
+        const bestMatch = getBestRoute(queryText);
+        updateSearchMessage(queryText, bestMatch);
+        updateBestMatchCard(queryText, bestMatch);
       }
 
       renderChips();
@@ -427,7 +645,41 @@
         input.value = qParam;
       }
 
-      updateSearchMessage(qParam);
+      refreshSearchView(qParam);
+
+      input.addEventListener("input", () => {
+        const value = input.value || "";
+        const matches = getSuggestionMatches(value);
+        showSuggestions(matches);
+        refreshSearchView(value.trim());
+      });
+
+      suggestionsBox.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+
+        const page = btn.getAttribute("data-page");
+        const text = btn.getAttribute("data-text") || "";
+
+        input.value = text;
+        hideSuggestions();
+
+        if (page) {
+          window.location.href = page;
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!form.contains(e.target)) {
+          hideSuggestions();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          hideSuggestions();
+        }
+      });
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -435,10 +687,10 @@
         const queryText = (input.value || "").trim();
         if (!queryText) return;
 
-        const route = routeQuery(queryText);
+        const bestMatch = getBestRoute(queryText);
 
-        if (route) {
-          window.location.href = route;
+        if (bestMatch) {
+          window.location.href = bestMatch.page;
           return;
         }
 
