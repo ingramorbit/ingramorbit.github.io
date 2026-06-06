@@ -24,21 +24,27 @@
       </button>
     </div>
 
-    <a class="contractor-back contractor-back-floating" href="trucking.html">← Back to Trucking</a>
+    <a
+      id="contractorBackLink"
+      class="contractor-back contractor-back-floating"
+      href="trucking.html"
+    >← Back to Trucking</a>
 
     <div class="container">
       <div class="contractor-hero-content">
         <div class="contractor-brand">AssistKingOnline</div>
-        <h1 class="contractor-title">🚚 Contractor Onboarding</h1>
-        <p>Set up your contractor profile so you can start receiving leads.</p>
+        <h1 id="contractorHeroTitle" class="contractor-title">🚚 Trucking Contractor Onboarding</h1>
+        <p id="contractorHeroSubtitle">Set up your contractor profile so you can start receiving leads.</p>
       </div>
     </div>
   </section>
 
   <main class="container contractor-wrap">
     <div class="contractor-card">
-      <strong>Contractor Profile</strong>
-      <p style="margin:8px 0 14px">For now, we are focusing this onboarding flow on trucking contractors.</p>
+      <strong id="contractorProfileHeading">Contractor Profile</strong>
+      <p id="contractorIntroText" style="margin:8px 0 14px">
+        Complete this form to join as a trucking contractor.
+      </p>
 
       <div id="contractorReviewStatusBox" class="contractor-review-status-box">
         <div class="contractor-review-status-top">
@@ -88,44 +94,44 @@
       </div>
 
       <div class="contractor-docs-box">
-        <div class="contractor-docs-title">Required documents for trucking approval</div>
-        <p class="contractor-docs-note">
-          Upload these files so admin can review your contractor profile. Admin will still verify your contact info, service area, and checklist items separately.
+        <div id="contractorDocsTitle" class="contractor-docs-title">Required documents for trucking approval</div>
+        <p id="contractorDocsNote" class="contractor-docs-note">
+          Upload these files so admin can review your contractor profile.
         </p>
 
-        <ul class="contractor-docs-required-list">
+        <ul id="contractorDocsRequiredList" class="contractor-docs-required-list">
           <li>Legal business / identity document — required</li>
           <li>Insurance certificate — required</li>
           <li>USDOT / MC proof — required</li>
-          <li>Equipment / truck proof — recommended</li>
+          <li>Equipment / truck proof — optional</li>
         </ul>
 
-        <div class="contractor-doc-upload-row">
-          <label class="contractor-doc-upload-label" for="coDocBusinessIdentity">
+        <div id="docRowBusinessIdentity" class="contractor-doc-upload-row">
+          <label id="docLabelBusinessIdentity" class="contractor-doc-upload-label" for="coDocBusinessIdentity">
             1. Legal business / identity document
           </label>
           <input id="coDocBusinessIdentity" type="file" accept=".pdf,image/*" />
           <div id="coDocBusinessIdentityStatus" class="contractor-doc-upload-status"></div>
         </div>
 
-        <div class="contractor-doc-upload-row">
-          <label class="contractor-doc-upload-label" for="coDocInsuranceProof">
+        <div id="docRowInsuranceProof" class="contractor-doc-upload-row">
+          <label id="docLabelInsuranceProof" class="contractor-doc-upload-label" for="coDocInsuranceProof">
             2. Insurance certificate
           </label>
           <input id="coDocInsuranceProof" type="file" accept=".pdf,image/*" />
           <div id="coDocInsuranceProofStatus" class="contractor-doc-upload-status"></div>
         </div>
 
-        <div class="contractor-doc-upload-row">
-          <label class="contractor-doc-upload-label" for="coDocMcDotProof">
+        <div id="docRowMcDotProof" class="contractor-doc-upload-row">
+          <label id="docLabelMcDotProof" class="contractor-doc-upload-label" for="coDocMcDotProof">
             3. USDOT / MC proof
           </label>
           <input id="coDocMcDotProof" type="file" accept=".pdf,image/*" />
           <div id="coDocMcDotProofStatus" class="contractor-doc-upload-status"></div>
         </div>
 
-        <div class="contractor-doc-upload-row">
-          <label class="contractor-doc-upload-label" for="coDocEquipmentProof">
+        <div id="docRowEquipmentProof" class="contractor-doc-upload-row">
+          <label id="docLabelEquipmentProof" class="contractor-doc-upload-label" for="coDocEquipmentProof">
             4. Equipment / truck proof
           </label>
           <input id="coDocEquipmentProof" type="file" accept=".pdf,image/*" />
@@ -145,16 +151,17 @@
 
         <select id="coBusinessType" required>
           <option value="">Select business type</option>
-          <option>Owner-Operator</option>
-          <option>Carrier</option>
-          <option>Dispatcher</option>
-          <option>Hotshot</option>
-          <option>Broker</option>
         </select>
 
-        <input id="coMcDot" placeholder="MC / DOT number (optional)" />
+        <div id="coLicenseWrap" hidden>
+          <input id="coLicenseNumber" placeholder="License number (optional)" />
+        </div>
 
-        <div class="contractor-checkbox-group">
+        <div id="coMcDotWrap">
+          <input id="coMcDot" placeholder="MC / DOT number (optional)" />
+        </div>
+
+        <div id="coEquipmentWrap" class="contractor-checkbox-group">
           <label><input type="checkbox" name="equipment" value="Dry Van"> Dry Van</label>
           <label><input type="checkbox" name="equipment" value="Reefer"> Reefer</label>
           <label><input type="checkbox" name="equipment" value="Flatbed"> Flatbed</label>
@@ -198,6 +205,182 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
+    const params = new URLSearchParams(window.location.search);
+
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      const aliases = {
+        electric: "electricians",
+        electrical: "electricians",
+        electrician: "electricians",
+        lawncare: "lawn-care",
+        lawn: "lawn-care",
+        finance: "financial-help",
+        financial: "financial-help",
+        "financialhelp": "financial-help",
+        "food-service": "food",
+        "food-services": "food",
+        food2: "food"
+      };
+
+      return aliases[raw] || raw;
+    }
+
+    const CATEGORY_CONFIGS = {
+      trucking: {
+        slug: "trucking",
+        label: "Trucking",
+        emoji: "🚚",
+        backHref: "trucking.html",
+        backText: "Back to Trucking",
+        heroSubtitle: "Set up your trucking contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as a trucking contractor.",
+        docTitle: "Required documents for trucking approval",
+        docNote: "Upload these files so admin can review your trucking contractor profile. Admin will still verify your contact info, service area, and checklist items separately.",
+        businessTypeOptions: ["Owner-Operator", "Carrier", "Dispatcher", "Hotshot", "Broker"],
+        showLicense: false,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: true,
+        showEquipment: true,
+        notesPlaceholder: "Tell us about your operation, lanes, availability, or anything else useful.",
+        documentKeys: ["businessIdentity", "insuranceProof", "mcDotProof", "equipmentProof"]
+      },
+      plumbing: {
+        slug: "plumbing",
+        label: "Plumbing",
+        emoji: "🔧",
+        backHref: "plumbing.html",
+        backText: "Back to Plumbing",
+        heroSubtitle: "Set up your plumbing contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as a plumbing contractor.",
+        docTitle: "Required documents for plumbing approval",
+        docNote: "Upload the required files so admin can review your plumbing contractor profile.",
+        businessTypeOptions: ["Independent Contractor", "Licensed Plumbing Company", "Residential Service", "Commercial Service", "Emergency Service"],
+        showLicense: true,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your plumbing services, service area, availability, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      electricians: {
+        slug: "electricians",
+        label: "Electricians",
+        emoji: "⚡",
+        backHref: "electricians.html",
+        backText: "Back to Electricians",
+        heroSubtitle: "Set up your electrical contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as an electrical contractor.",
+        docTitle: "Required documents for electrical approval",
+        docNote: "Upload the required files so admin can review your electrical contractor profile.",
+        businessTypeOptions: ["Independent Contractor", "Licensed Electrical Company", "Residential Service", "Commercial Service", "Emergency Service"],
+        showLicense: true,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your electrical services, service area, availability, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      carpentry: {
+        slug: "carpentry",
+        label: "Carpentry",
+        emoji: "🪚",
+        backHref: "carpentry.html",
+        backText: "Back to Carpentry",
+        heroSubtitle: "Set up your carpentry contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as a carpentry contractor.",
+        docTitle: "Required documents for carpentry approval",
+        docNote: "Upload the required files so admin can review your carpentry contractor profile.",
+        businessTypeOptions: ["Independent Contractor", "Carpentry Company", "Residential Service", "Commercial Service", "Custom Builder"],
+        showLicense: false,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your carpentry services, service area, availability, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      auto: {
+        slug: "auto",
+        label: "Auto",
+        emoji: "🚗",
+        backHref: "auto.html",
+        backText: "Back to Auto",
+        heroSubtitle: "Set up your auto contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as an auto service provider.",
+        docTitle: "Required documents for auto approval",
+        docNote: "Upload the required files so admin can review your auto service profile.",
+        businessTypeOptions: ["Independent Contractor", "Auto Shop", "Mobile Mechanic", "Tire Service", "Diagnostics Service"],
+        showLicense: false,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your auto services, service area, availability, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      hvac: {
+        slug: "hvac",
+        label: "HVAC",
+        emoji: "❄️",
+        backHref: "hvac.html",
+        backText: "Back to HVAC",
+        heroSubtitle: "Set up your HVAC contractor profile so you can start receiving leads.",
+        introText: "Complete this form to join as an HVAC contractor.",
+        docTitle: "Required documents for HVAC approval",
+        docNote: "Upload the required files so admin can review your HVAC contractor profile.",
+        businessTypeOptions: ["Independent Contractor", "HVAC Company", "Residential Service", "Commercial Service", "Install Crew", "Service Tech Company"],
+        showLicense: true,
+        licensePlaceholder: "State license number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your HVAC services, service area, availability, certifications, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      "financial-help": {
+        slug: "financial-help",
+        label: "Financial Help",
+        emoji: "💵",
+        backHref: "financial-help.html",
+        backText: "Back to Financial Help",
+        heroSubtitle: "Set up your financial help provider profile so you can start receiving leads.",
+        introText: "Complete this form to join as a financial help provider.",
+        docTitle: "Required documents for financial help approval",
+        docNote: "Upload the required files so admin can review your financial help provider profile.",
+        businessTypeOptions: ["Independent Contractor", "Consultant", "Bookkeeper", "Tax Preparer", "Financial Educator", "Business Services"],
+        showLicense: false,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your services, service area, availability, credentials, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      },
+      food: {
+        slug: "food",
+        label: "Food Services",
+        emoji: "🍽️",
+        backHref: "food2.html",
+        backText: "Back to Food",
+        heroSubtitle: "Set up your food services profile so you can start receiving leads.",
+        introText: "Complete this form to join as a food service provider.",
+        docTitle: "Required documents for food services approval",
+        docNote: "Upload the required files so admin can review your food service provider profile.",
+        businessTypeOptions: ["Caterer", "Chef", "Food Truck", "Event Staffing", "Restaurant Service", "Meal Prep"],
+        showLicense: false,
+        licensePlaceholder: "License number (optional)",
+        showMcDot: false,
+        showEquipment: false,
+        notesPlaceholder: "Tell us about your services, service area, availability, event types, or specialties.",
+        documentKeys: ["businessIdentity", "insuranceProof"]
+      }
+    };
+
+    let explicitCategorySlug = normalizeCategory(params.get("category"));
+    let currentPageCategorySlug = CATEGORY_CONFIGS[explicitCategorySlug] ? explicitCategorySlug : "trucking";
+    let categoryWasExplicit = !!CATEGORY_CONFIGS[explicitCategorySlug];
+
     const form = document.getElementById("contractorOnboardingForm");
     const coCategory = document.getElementById("coCategory");
     const coCompanyName = document.getElementById("coCompanyName");
@@ -208,10 +391,25 @@
     const coState = document.getElementById("coState");
     const coRadius = document.getElementById("coRadius");
     const coBusinessType = document.getElementById("coBusinessType");
+    const coLicenseNumber = document.getElementById("coLicenseNumber");
     const coMcDot = document.getElementById("coMcDot");
     const coNotes = document.getElementById("coNotes");
     const contractorStatus = document.getElementById("contractorStatus");
     const contractorSubmitBtn = form?.querySelector('button[type="submit"]');
+
+    const contractorBackLink = document.getElementById("contractorBackLink");
+    const contractorHeroTitle = document.getElementById("contractorHeroTitle");
+    const contractorHeroSubtitle = document.getElementById("contractorHeroSubtitle");
+    const contractorProfileHeading = document.getElementById("contractorProfileHeading");
+    const contractorIntroText = document.getElementById("contractorIntroText");
+
+    const contractorDocsTitle = document.getElementById("contractorDocsTitle");
+    const contractorDocsNote = document.getElementById("contractorDocsNote");
+    const contractorDocsRequiredList = document.getElementById("contractorDocsRequiredList");
+
+    const coLicenseWrap = document.getElementById("coLicenseWrap");
+    const coMcDotWrap = document.getElementById("coMcDotWrap");
+    const coEquipmentWrap = document.getElementById("coEquipmentWrap");
 
     const contractorReviewStatusPill = document.getElementById("contractorReviewStatusPill");
     const contractorReviewStatusMessage = document.getElementById("contractorReviewStatusMessage");
@@ -238,6 +436,55 @@
     const coDocMcDotProofStatus = document.getElementById("coDocMcDotProofStatus");
     const coDocEquipmentProofStatus = document.getElementById("coDocEquipmentProofStatus");
 
+    const docRowBusinessIdentity = document.getElementById("docRowBusinessIdentity");
+    const docRowInsuranceProof = document.getElementById("docRowInsuranceProof");
+    const docRowMcDotProof = document.getElementById("docRowMcDotProof");
+    const docRowEquipmentProof = document.getElementById("docRowEquipmentProof");
+
+    const docLabelBusinessIdentity = document.getElementById("docLabelBusinessIdentity");
+    const docLabelInsuranceProof = document.getElementById("docLabelInsuranceProof");
+    const docLabelMcDotProof = document.getElementById("docLabelMcDotProof");
+    const docLabelEquipmentProof = document.getElementById("docLabelEquipmentProof");
+
+    const DOCUMENT_FIELDS = {
+      businessIdentity: {
+        key: "businessIdentity",
+        label: "Legal business / identity document",
+        required: true,
+        input: coDocBusinessIdentity,
+        statusEl: coDocBusinessIdentityStatus,
+        rowEl: docRowBusinessIdentity,
+        labelEl: docLabelBusinessIdentity
+      },
+      insuranceProof: {
+        key: "insuranceProof",
+        label: "Insurance certificate",
+        required: true,
+        input: coDocInsuranceProof,
+        statusEl: coDocInsuranceProofStatus,
+        rowEl: docRowInsuranceProof,
+        labelEl: docLabelInsuranceProof
+      },
+      mcDotProof: {
+        key: "mcDotProof",
+        label: "USDOT / MC proof",
+        required: true,
+        input: coDocMcDotProof,
+        statusEl: coDocMcDotProofStatus,
+        rowEl: docRowMcDotProof,
+        labelEl: docLabelMcDotProof
+      },
+      equipmentProof: {
+        key: "equipmentProof",
+        label: "Equipment / truck proof",
+        required: false,
+        input: coDocEquipmentProof,
+        statusEl: coDocEquipmentProofStatus,
+        rowEl: docRowEquipmentProof,
+        labelEl: docLabelEquipmentProof
+      }
+    };
+
     let contractorNotificationItems = [];
     let unsubscribeContractorReviewListener = null;
     let unsubscribeContractorNotificationsListener = null;
@@ -255,13 +502,8 @@
       });
     }
 
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
+    function getCurrentCategoryConfig() {
+      return CATEGORY_CONFIGS[currentPageCategorySlug] || CATEGORY_CONFIGS.trucking;
     }
 
     function formatDocDate(value) {
@@ -277,37 +519,136 @@
       return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
     }
 
+    function setEquipmentSelections(values = []) {
+      const safeValues = Array.isArray(values) ? values : [];
+      document.querySelectorAll('input[name="equipment"]').forEach((el) => {
+        el.checked = safeValues.includes(el.value);
+      });
+    }
+
+    function populateBusinessTypeOptions(selectedValue = "") {
+      const config = getCurrentCategoryConfig();
+      const options = [...config.businessTypeOptions];
+      const hasSelectedInList = selectedValue && options.includes(selectedValue);
+
+      coBusinessType.innerHTML = [
+        `<option value="">Select business type</option>`,
+        ...options.map(option => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`),
+        ...(selectedValue && !hasSelectedInList
+          ? [`<option value="${escapeHtml(selectedValue)}">${escapeHtml(selectedValue)}</option>`]
+          : [])
+      ].join("");
+
+      coBusinessType.value = selectedValue || "";
+      if (!coBusinessType.value) {
+        coBusinessType.selectedIndex = 0;
+      }
+    }
+
     function getRequiredDocumentConfig() {
-      return [
-        {
-          key: "businessIdentity",
-          label: "Legal business / identity document",
-          required: true,
-          input: coDocBusinessIdentity,
-          statusEl: coDocBusinessIdentityStatus
-        },
-        {
-          key: "insuranceProof",
-          label: "Insurance certificate",
-          required: true,
-          input: coDocInsuranceProof,
-          statusEl: coDocInsuranceProofStatus
-        },
-        {
-          key: "mcDotProof",
-          label: "USDOT / MC proof",
-          required: true,
-          input: coDocMcDotProof,
-          statusEl: coDocMcDotProofStatus
-        },
-        {
-          key: "equipmentProof",
-          label: "Equipment / truck proof",
-          required: false,
-          input: coDocEquipmentProof,
-          statusEl: coDocEquipmentProofStatus
+      const config = getCurrentCategoryConfig();
+      return config.documentKeys.map((key) => DOCUMENT_FIELDS[key]).filter(Boolean);
+    }
+
+    function renderDocumentFields() {
+      const activeEntries = getRequiredDocumentConfig();
+      const activeKeys = new Set(activeEntries.map(entry => entry.key));
+
+      Object.values(DOCUMENT_FIELDS).forEach((entry) => {
+        if (!entry.rowEl) return;
+        const isActive = activeKeys.has(entry.key);
+        entry.rowEl.hidden = !isActive;
+
+        if (!isActive) {
+          if (entry.input) entry.input.value = "";
+          if (entry.statusEl) entry.statusEl.innerHTML = "";
         }
-      ];
+      });
+
+      activeEntries.forEach((entry, index) => {
+        if (entry.labelEl) {
+          entry.labelEl.textContent = `${index + 1}. ${entry.label}`;
+        }
+      });
+
+      if (contractorDocsRequiredList) {
+        contractorDocsRequiredList.innerHTML = activeEntries.map(entry => `
+          <li>${escapeHtml(entry.label)} — ${entry.required ? "required" : "optional"}</li>
+        `).join("");
+      }
+    }
+
+    function renderPageCategory() {
+      const config = getCurrentCategoryConfig();
+
+      document.title = `AssistKingOnline — ${config.label} Contractor Onboarding`;
+
+      if (contractorBackLink) {
+        contractorBackLink.href = config.backHref;
+        contractorBackLink.textContent = `← ${config.backText}`;
+      }
+
+      if (contractorHeroTitle) {
+        contractorHeroTitle.textContent = `${config.emoji} ${config.label} Contractor Onboarding`;
+      }
+
+      if (contractorHeroSubtitle) {
+        contractorHeroSubtitle.textContent = config.heroSubtitle;
+      }
+
+      if (contractorProfileHeading) {
+        contractorProfileHeading.textContent = `${config.label} Contractor Profile`;
+      }
+
+      if (contractorIntroText) {
+        contractorIntroText.textContent = config.introText;
+      }
+
+      if (contractorDocsTitle) {
+        contractorDocsTitle.textContent = config.docTitle;
+      }
+
+      if (contractorDocsNote) {
+        contractorDocsNote.textContent = config.docNote;
+      }
+
+      if (coCategory) {
+        coCategory.value = config.label;
+      }
+
+      if (coNotes) {
+        coNotes.placeholder = config.notesPlaceholder;
+      }
+
+      if (coLicenseWrap) {
+        coLicenseWrap.hidden = !config.showLicense;
+      }
+
+      if (coMcDotWrap) {
+        coMcDotWrap.hidden = !config.showMcDot;
+      }
+
+      if (coEquipmentWrap) {
+        coEquipmentWrap.hidden = !config.showEquipment;
+      }
+
+      if (coLicenseNumber) {
+        coLicenseNumber.placeholder = config.licensePlaceholder || "License number (optional)";
+        if (!config.showLicense) {
+          coLicenseNumber.value = "";
+        }
+      }
+
+      if (coMcDot && !config.showMcDot) {
+        coMcDot.value = "";
+      }
+
+      if (!config.showEquipment) {
+        setEquipmentSelections([]);
+      }
+
+      renderDocumentFields();
+      populateBusinessTypeOptions(coBusinessType?.value || "");
     }
 
     function renderDocumentUploadStatus(documents = {}, documentReview = {}) {
@@ -415,75 +756,33 @@
     }
 
     function getContractorChecklistConfig(profileData) {
-      const rawCategory = String(profileData?.category || profileData?.categoryLabel || "").toLowerCase();
+      const rawCategory = String(profileData?.category || "").toLowerCase();
 
       if (rawCategory.includes("trucking")) {
         return [
-          {
-            key: "legalIdentityVerified",
-            contractorText: "Be ready to verify your legal company and primary contact details."
-          },
-          {
-            key: "mcDotVerified",
-            contractorText: "Make sure your USDOT / MC information is correct and ready for review."
-          },
-          {
-            key: "insuranceVerified",
-            contractorText: "Provide current insurance proof for review."
-          },
-          {
-            key: "equipmentVerified",
-            contractorText: "Make sure your listed equipment matches what you actually operate."
-          },
-          {
-            key: "serviceAreaVerified",
-            contractorText: "Confirm your service area or lanes."
-          },
-          {
-            key: "contactVerified",
-            contractorText: "Make sure your phone and email are correct and reachable."
-          }
+          { key: "legalIdentityVerified", contractorText: "Be ready to verify your legal company and primary contact details." },
+          { key: "mcDotVerified", contractorText: "Make sure your USDOT / MC information is correct and ready for review." },
+          { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
+          { key: "equipmentVerified", contractorText: "Make sure your listed equipment matches what you actually operate." },
+          { key: "serviceAreaVerified", contractorText: "Confirm your service area or lanes." },
+          { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
         ];
       }
 
       if (rawCategory.includes("hvac")) {
         return [
-          {
-            key: "stateLicenseVerified",
-            contractorText: "Provide your state license information for review."
-          },
-          {
-            key: "epa608Verified",
-            contractorText: "Provide your EPA 608 or required certification details."
-          },
-          {
-            key: "insuranceVerified",
-            contractorText: "Provide current insurance proof for review."
-          },
-          {
-            key: "serviceAreaVerified",
-            contractorText: "Confirm your service area."
-          },
-          {
-            key: "contactVerified",
-            contractorText: "Make sure your phone and email are correct and reachable."
-          }
+          { key: "stateLicenseVerified", contractorText: "Provide your state license information for review." },
+          { key: "epa608Verified", contractorText: "Provide your EPA 608 or required certification details." },
+          { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
+          { key: "serviceAreaVerified", contractorText: "Confirm your service area." },
+          { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
         ];
       }
 
       return [
-        {
-          key: "identityVerified",
-          contractorText: "Be ready to verify your business identity."
-        },
-        {
-          key: "insuranceVerified",
-          contractorText: "Provide current insurance proof for review."
-        },
-        {
-          key: "contactVerified",
-          contractorText: "Make sure your phone and email are correct and reachable."
-        }
+        { key: "identityVerified", contractorText: "Be ready to verify your business identity." },
+        { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
+        { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
       ];
     }
 
@@ -500,7 +799,7 @@
       }
 
       const items = [];
-      const category = String(profileData?.category || "trucking").toLowerCase();
+      const category = String(profileData?.category || "").toLowerCase();
       const equipmentTypes = Array.isArray(profileData?.equipmentTypes) ? profileData.equipmentTypes : [];
 
       if (!profileData?.companyName) items.push("Add your company name.");
@@ -614,25 +913,6 @@
       }
     }
 
-    function startProfileReviewListener(currentUser) {
-      if (unsubscribeContractorReviewListener) {
-        unsubscribeContractorReviewListener();
-      }
-
-      const contractorRef = doc(db, "contractors", currentUser.uid);
-
-      unsubscribeContractorReviewListener = onSnapshot(
-        contractorRef,
-        (snap) => {
-          const liveData = snap.exists() ? snap.data() : null;
-          applyLiveProfileReviewState(liveData);
-        },
-        (err) => {
-          console.error("Live contractor review listener failed:", err);
-        }
-      );
-    }
-
     function renderContractorNotifications(items = []) {
       contractorNotificationItems = [...items].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
@@ -724,45 +1004,118 @@
       );
     }
 
+    function startProfileReviewListener(currentUser) {
+      if (unsubscribeContractorReviewListener) {
+        unsubscribeContractorReviewListener();
+      }
+
+      const contractorRef = doc(db, "contractors", currentUser.uid);
+
+      unsubscribeContractorReviewListener = onSnapshot(
+        contractorRef,
+        (snap) => {
+          if (!snap.exists()) {
+            applyLiveProfileReviewState(null);
+            return;
+          }
+
+          const liveData = snap.data();
+          const liveCategory = normalizeCategory(liveData.category);
+
+          if (!categoryWasExplicit && CATEGORY_CONFIGS[liveCategory]) {
+            currentPageCategorySlug = liveCategory;
+            renderPageCategory();
+          }
+
+          if (liveCategory !== currentPageCategorySlug) {
+            applyLiveProfileReviewState(null);
+            return;
+          }
+
+          applyLiveProfileReviewState(liveData);
+        },
+        (err) => {
+          console.error("Live contractor review listener failed:", err);
+        }
+      );
+    }
+
+    function getReturnUrl() {
+      return `contractor-onboarding.html?category=${encodeURIComponent(currentPageCategorySlug)}`;
+    }
+
     async function loadProfile() {
       const currentUser = await waitForAKOAuth();
 
       if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent(getReturnUrl())}`;
         return null;
       }
 
       const ref = doc(db, "contractors", currentUser.uid);
       const snap = await getDoc(ref);
 
+      if (!categoryWasExplicit && snap.exists()) {
+        const savedCategory = normalizeCategory(snap.data().category);
+        if (CATEGORY_CONFIGS[savedCategory]) {
+          currentPageCategorySlug = savedCategory;
+        }
+      }
+
+      renderPageCategory();
+
       if (snap.exists()) {
         const data = snap.data();
+        const savedCategory = normalizeCategory(data.category);
+        const sameCategoryProfile = savedCategory === currentPageCategorySlug;
 
-        coCategory.value = data.categoryLabel || "Trucking";
-        coCompanyName.value = data.companyName || "";
-        coContactName.value = data.contactName || currentUser.name || "";
-        coEmail.value = data.email || currentUser.email || "";
-        coPhone.value = data.phone || "";
-        coCity.value = data.city || "";
-        coState.value = data.state || "";
-        coRadius.value = data.serviceRadiusMiles || "";
-        coBusinessType.value = data.businessType || "";
-        coMcDot.value = data.mcDotNumber || "";
-        coNotes.value = data.notes || "";
+        if (sameCategoryProfile) {
+          coCategory.value = data.categoryLabel || getCurrentCategoryConfig().label;
+          coCompanyName.value = data.companyName || "";
+          coContactName.value = data.contactName || currentUser.name || "";
+          coEmail.value = data.email || currentUser.email || "";
+          coPhone.value = data.phone || "";
+          coCity.value = data.city || "";
+          coState.value = data.state || "";
+          coRadius.value = data.serviceRadiusMiles || "";
+          populateBusinessTypeOptions(data.businessType || "");
+          coLicenseNumber.value = data.licenseNumber || data.stateLicenseNumber || "";
+          coMcDot.value = data.mcDotNumber || "";
+          coNotes.value = data.notes || "";
 
-        const equipmentTypes = Array.isArray(data.equipmentTypes) ? data.equipmentTypes : [];
-        document.querySelectorAll('input[name="equipment"]').forEach((el) => {
-          el.checked = equipmentTypes.includes(el.value);
-        });
+          const equipmentTypes = Array.isArray(data.equipmentTypes) ? data.equipmentTypes : [];
+          setEquipmentSelections(equipmentTypes);
 
-        applyLiveProfileReviewState(data);
-        contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+          applyLiveProfileReviewState(data);
+          contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
+        } else {
+          coCategory.value = getCurrentCategoryConfig().label;
+          coCompanyName.value = "";
+          coContactName.value = data.contactName || currentUser.name || "";
+          coEmail.value = data.email || currentUser.email || "";
+          coPhone.value = data.phone || "";
+          coCity.value = data.city || "";
+          coState.value = data.state || "";
+          coRadius.value = "";
+          populateBusinessTypeOptions("");
+          coLicenseNumber.value = "";
+          coMcDot.value = "";
+          coNotes.value = "";
+          setEquipmentSelections([]);
+
+          applyLiveProfileReviewState(null);
+
+          contractorStatus.textContent =
+            `You currently have a ${data.categoryLabel || data.category || "different"} contractor profile saved. ` +
+            `Saving this page will switch your profile to ${getCurrentCategoryConfig().label}.`;
+        }
       } else {
-        coCategory.value = "Trucking";
+        coCategory.value = getCurrentCategoryConfig().label;
         coContactName.value = currentUser.name || "";
         coEmail.value = currentUser.email || "";
+        populateBusinessTypeOptions("");
         applyLiveProfileReviewState(null);
-        contractorStatus.textContent = "Complete your contractor profile to submit it for review.";
+        contractorStatus.textContent = `Complete your ${getCurrentCategoryConfig().label} contractor profile to submit it for review.`;
       }
 
       startProfileReviewListener(currentUser);
@@ -776,13 +1129,18 @@
       const currentUser = await waitForAKOAuth();
 
       if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractor-onboarding.html")}`;
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent(getReturnUrl())}`;
         return;
       }
 
+      const categoryConfig = getCurrentCategoryConfig();
       const contractorRef = doc(db, "contractors", currentUser.uid);
       const existingSnap = await getDoc(contractorRef);
       const existingData = existingSnap.exists() ? existingSnap.data() : null;
+      const sameCategoryProfile =
+        existingData && normalizeCategory(existingData.category) === currentPageCategorySlug
+          ? existingData
+          : null;
 
       const companyName = coCompanyName.value.trim();
       const contactName = coContactName.value.trim();
@@ -792,8 +1150,9 @@
       const state = coState.value.trim();
       const serviceRadiusMiles = Number(coRadius.value || 0);
       const businessType = coBusinessType.value.trim();
-      const mcDotNumber = coMcDot.value.trim();
-      const equipmentTypes = getSelectedEquipment();
+      const licenseNumber = categoryConfig.showLicense ? coLicenseNumber.value.trim() : "";
+      const mcDotNumber = categoryConfig.showMcDot ? coMcDot.value.trim() : "";
+      const equipmentTypes = categoryConfig.showEquipment ? getSelectedEquipment() : [];
       const notes = coNotes.value.trim();
 
       if (
@@ -810,12 +1169,12 @@
         return;
       }
 
-      if (!equipmentTypes.length) {
+      if (categoryConfig.showEquipment && !equipmentTypes.length) {
         contractorStatus.textContent = "Select at least one equipment type.";
         return;
       }
 
-      const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents || {});
+      const missingRequiredDocuments = getMissingRequiredDocumentLabels(sameCategoryProfile?.documents || {});
       if (missingRequiredDocuments.length) {
         contractorStatus.textContent = `Please upload required documents: ${missingRequiredDocuments.join(", ")}.`;
         return;
@@ -826,11 +1185,11 @@
 
         const { nextDocuments: uploadedDocuments, replacedKeys } = await uploadSelectedDocuments(
           currentUser,
-          existingData?.documents || {}
+          sameCategoryProfile?.documents || {}
         );
 
         const nextDocumentReview = {
-          ...(existingData?.documentReview || {})
+          ...(sameCategoryProfile?.documentReview || {})
         };
 
         replacedKeys.forEach((key) => {
@@ -845,7 +1204,7 @@
 
         const now = Date.now();
         const currentStatus = String(
-          window.currentContractorProfileStatus || existingData?.status || "not-submitted"
+          window.currentContractorProfileStatus || sameCategoryProfile?.status || "not-submitted"
         ).toLowerCase();
 
         const requiredDocumentKeys = getRequiredDocumentConfig()
@@ -861,8 +1220,8 @@
 
         const payload = {
           ownerUid: currentUser.uid,
-          category: "trucking",
-          categoryLabel: "Trucking",
+          category: currentPageCategorySlug,
+          categoryLabel: categoryConfig.label,
           companyName,
           contactName,
           email,
@@ -871,37 +1230,40 @@
           state,
           serviceRadiusMiles,
           businessType,
-          mcDotNumber,
-          equipmentTypes,
+          licenseNumber: categoryConfig.showLicense ? licenseNumber : "",
+          stateLicenseNumber: currentPageCategorySlug === "hvac" ? licenseNumber : "",
+          mcDotNumber: categoryConfig.showMcDot ? mcDotNumber : "",
+          equipmentTypes: categoryConfig.showEquipment ? equipmentTypes : [],
           notes,
           documents: uploadedDocuments,
           documentReview: nextDocumentReview,
+          reviewChecklist: sameCategoryProfile?.reviewChecklist || {},
+          reviewChecklistUpdatedAt: sameCategoryProfile?.reviewChecklistUpdatedAt || null,
+          reviewChecklistUpdatedBy: sameCategoryProfile?.reviewChecklistUpdatedBy || "",
+          reviewFeedback: sameCategoryProfile?.reviewFeedback || "",
+          reviewFeedbackManual: sameCategoryProfile?.reviewFeedbackManual || "",
+          reviewFeedbackUpdatedAt: sameCategoryProfile?.reviewFeedbackUpdatedAt || null,
+          reviewFeedbackUpdatedBy: sameCategoryProfile?.reviewFeedbackUpdatedBy || "",
+          reviewFeedbackUpdatedByName: sameCategoryProfile?.reviewFeedbackUpdatedByName || "",
           status: nextStatus,
-          createdAt: existingData?.createdAt || now,
-          updatedAt: now
+          createdAt: sameCategoryProfile?.createdAt || now,
+          updatedAt: now,
+          submittedForReviewAt: sameCategoryProfile?.submittedForReviewAt || now,
+          resubmittedForReviewAt: sameCategoryProfile?.submittedForReviewAt
+            ? (nextStatus === "pending" ? now : sameCategoryProfile?.resubmittedForReviewAt || null)
+            : null,
+          approvedAt: nextStatus === "approved" ? (sameCategoryProfile?.approvedAt || now) : null,
+          rejectedAt: nextStatus === "rejected" ? (sameCategoryProfile?.rejectedAt || now) : null,
+          statusAutoResetAt: sameCategoryProfile?.statusAutoResetAt || null,
+          statusAutoResetReason: sameCategoryProfile?.statusAutoResetReason || ""
         };
 
-        const isFirstSubmit = !existingData?.submittedForReviewAt;
+        await setDoc(contractorRef, payload);
 
-        if (isFirstSubmit) {
-          payload.submittedForReviewAt = now;
-        } else if (nextStatus === "pending") {
-          payload.resubmittedForReviewAt = now;
-        }
-
-        if (nextStatus === "pending") {
-          payload.approvedAt = null;
-          payload.rejectedAt = null;
-        }
-
-        await setDoc(contractorRef, payload, { merge: true });
-
-        const displayProfile = {
-          ...(existingData || {}),
-          ...payload
-        };
+        const displayProfile = { ...payload };
 
         window.currentContractorProfileStatus = payload.status;
+        renderPageCategory();
         renderApprovalStatus(displayProfile);
         renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
 
@@ -916,11 +1278,11 @@
         }
 
         if (payload.status === "approved") {
-          contractorStatus.textContent = "Contractor profile saved. Your approved status is still active.";
-        } else if (isFirstSubmit) {
-          contractorStatus.textContent = "Contractor profile saved and submitted for review.";
+          contractorStatus.textContent = `${categoryConfig.label} contractor profile saved. Your approved status is still active.`;
+        } else if (!sameCategoryProfile?.submittedForReviewAt) {
+          contractorStatus.textContent = `${categoryConfig.label} contractor profile saved and submitted for review.`;
         } else {
-          contractorStatus.textContent = "Contractor profile updated and resubmitted for review.";
+          contractorStatus.textContent = `${categoryConfig.label} contractor profile updated and resubmitted for review.`;
         }
       } catch (err) {
         console.error(err);
@@ -965,6 +1327,7 @@
       });
     }
 
+    renderPageCategory();
     loadProfile();
   </script>
 </body>
