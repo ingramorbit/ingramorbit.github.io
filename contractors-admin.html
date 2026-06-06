@@ -4,33 +4,33 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=30">
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
-<section class="contractors-admin-hero">
+  <section class="contractors-admin-hero">
 
-  <div class="login-button">
-    <div id="authArea">
-      <span id="welcomeUser" class="welcome-user"></span>
-      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
     </div>
-  </div>
 
-  <a class="contractors-admin-back contractors-admin-back-floating" href="all-requests.html">← Back to All Requests</a>
+    <a class="contractors-admin-back contractors-admin-back-floating" href="all-requests.html">← Back to All Requests</a>
 
-  <div class="container">
-    <div class="contractors-admin-hero-content">
-      <div class="contractors-admin-brand">AssistKingOnline</div>
-      <h1 class="contractors-admin-title">✅ Contractor Approval</h1>
-      <p>Review contractor profiles and control who appears in assignment recommendations.</p>
+    <div class="container">
+      <div class="contractors-admin-hero-content">
+        <div class="contractors-admin-brand">AssistKingOnline</div>
+        <h1 class="contractors-admin-title">✅ Contractor Approval</h1>
+        <p>Review contractor profiles and control who appears in assignment recommendations.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <main class="container contractors-admin-wrap">
     <div class="contractors-admin-card">
       <strong>Contractor review queue</strong>
-      <p style="margin:8px 0 14px">
+      <p style="margin:8px 0 14px;">
         Only <strong>approved</strong> contractors will appear in trucking assignment recommendations and dropdowns.
       </p>
 
@@ -53,18 +53,18 @@
       <p id="contractorsAdminSummary" class="contractors-admin-summary">Loading contractors...</p>
 
       <div class="contractors-admin-activity-card">
-  <div class="contractors-admin-activity-top">
-    <div class="contractors-admin-activity-title">Review activity log</div>
-    <div class="contractors-admin-activity-subtitle">
-      Recent admin actions across contractor approvals, feedback, checklist reviews, and document reviews.
-    </div>
-  </div>
+        <div class="contractors-admin-activity-top">
+          <div class="contractors-admin-activity-title">Review activity log</div>
+          <div class="contractors-admin-activity-subtitle">
+            Recent admin actions across contractor approvals, feedback, checklist reviews, and document reviews.
+          </div>
+        </div>
 
-  <div id="contractorReviewActivityList" class="contractor-review-activity-list">
-    <div class="contractor-review-activity-item">
-      <p style="margin:0;font-weight:800;">Loading activity...</p>
-    </div>
-  </div>
+        <div id="contractorReviewActivityList" class="contractor-review-activity-list">
+          <div class="contractor-review-activity-item">
+            <p style="margin:0;font-weight:800;">Loading activity...</p>
+          </div>
+        </div>
       </div>
 
       <div id="contractorsAdminList" class="contractors-admin-list">
@@ -79,29 +79,29 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-  getFirestore,
-  collection,
-  query,
-  orderBy,
-  limit,
-  updateDoc,
-  addDoc,
-  doc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      getFirestore,
+      collection,
+      query,
+      orderBy,
+      limit,
+      updateDoc,
+      addDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const app = getApp();
     const db = getFirestore(app);
 
     const contractorsAdminSearch = document.getElementById("contractorsAdminSearch");
-const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
-const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
-const contractorsAdminList = document.getElementById("contractorsAdminList");
-const contractorReviewActivityList = document.getElementById("contractorReviewActivityList");
+    const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
+    const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
+    const contractorsAdminList = document.getElementById("contractorsAdminList");
+    const contractorReviewActivityList = document.getElementById("contractorReviewActivityList");
 
-let contractors = [];
-let unsubscribeContractorsListener = null;
-let unsubscribeContractorReviewActivityListener = null;
+    let contractors = [];
+    let unsubscribeContractorsListener = null;
+    let unsubscribeContractorReviewActivityListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -135,98 +135,98 @@ let unsubscribeContractorReviewActivityListener = null;
     }
 
     function renderContractorReviewActivity(items = []) {
-  if (!contractorReviewActivityList) return;
+      if (!contractorReviewActivityList) return;
 
-  if (!items.length) {
-    contractorReviewActivityList.innerHTML = `
-      <div class="contractor-review-activity-item">
-        <p style="margin:0;font-weight:800;">No activity yet.</p>
-      </div>
-    `;
-    return;
-  }
-
-  contractorReviewActivityList.innerHTML = items.map(item => `
-    <div class="contractor-review-activity-item">
-      <div class="contractor-review-activity-row">
-        <div class="contractor-review-activity-action">${escapeHtml(item.summary || "Activity update")}</div>
-        <div class="contractor-review-activity-time">${escapeHtml(formatDate(item.createdAt))}</div>
-      </div>
-
-      <div class="contractor-review-activity-meta">
-        <span><strong>Contractor:</strong> ${escapeHtml(item.contractorCompanyName || item.contractorContactName || "—")}</span>
-        <span><strong>Admin:</strong> ${escapeHtml(item.actorName || "Admin")}</span>
-      </div>
-
-      ${
-        item.details
-          ? `<div class="contractor-review-activity-details">${escapeHtml(item.details)}</div>`
-          : ""
-      }
-    </div>
-  `).join("");
-}
-
-async function logContractorReviewActivity({
-  currentUser,
-  contractor,
-  actionType,
-  summary,
-  details = "",
-  statusAtTime = ""
-}) {
-  if (!contractor?._docId || !summary) return;
-
-  await addDoc(collection(db, "contractorReviewActivity"), {
-    contractorUid: contractor._docId,
-    contractorCompanyName: contractor.companyName || "",
-    contractorContactName: contractor.contactName || "",
-    contractorEmail: contractor.email || "",
-    actorUid: currentUser?.uid || "",
-    actorName: currentUser?.name || currentUser?.email || "Admin",
-    actionType: actionType || "general",
-    summary: String(summary).trim(),
-    details: String(details || "").trim(),
-    category: contractor.category || contractor.categoryLabel || "",
-    statusAtTime: statusAtTime || contractor.status || "",
-    createdAt: Date.now()
-  });
-}
-    
-function startContractorReviewActivityListener() {
-  if (unsubscribeContractorReviewActivityListener) {
-    unsubscribeContractorReviewActivityListener();
-  }
-
-  const activityQuery = query(
-    collection(db, "contractorReviewActivity"),
-    orderBy("createdAt", "desc"),
-    limit(40)
-  );
-
-  unsubscribeContractorReviewActivityListener = onSnapshot(
-    activityQuery,
-    (snapshot) => {
-      const items = snapshot.docs.map(docSnap => ({
-        _docId: docSnap.id,
-        ...docSnap.data()
-      }));
-
-      renderContractorReviewActivity(items);
-    },
-    (err) => {
-      console.error(err);
-
-      if (contractorReviewActivityList) {
+      if (!items.length) {
         contractorReviewActivityList.innerHTML = `
           <div class="contractor-review-activity-item">
-            <p style="margin:0;font-weight:800;">Could not load activity: ${escapeHtml(err.message)}</p>
+            <p style="margin:0;font-weight:800;">No activity yet.</p>
           </div>
         `;
+        return;
       }
+
+      contractorReviewActivityList.innerHTML = items.map(item => `
+        <div class="contractor-review-activity-item">
+          <div class="contractor-review-activity-row">
+            <div class="contractor-review-activity-action">${escapeHtml(item.summary || "Activity update")}</div>
+            <div class="contractor-review-activity-time">${escapeHtml(formatDate(item.createdAt))}</div>
+          </div>
+
+          <div class="contractor-review-activity-meta">
+            <span><strong>Contractor:</strong> ${escapeHtml(item.contractorCompanyName || item.contractorContactName || "—")}</span>
+            <span><strong>Admin:</strong> ${escapeHtml(item.actorName || "Admin")}</span>
+          </div>
+
+          ${
+            item.details
+              ? `<div class="contractor-review-activity-details">${escapeHtml(item.details)}</div>`
+              : ""
+          }
+        </div>
+      `).join("");
     }
-  );
-}
+
+    async function logContractorReviewActivity({
+      currentUser,
+      contractor,
+      actionType,
+      summary,
+      details = "",
+      statusAtTime = ""
+    }) {
+      if (!contractor?._docId || !summary) return;
+
+      await addDoc(collection(db, "contractorReviewActivity"), {
+        contractorUid: contractor._docId,
+        contractorCompanyName: contractor.companyName || "",
+        contractorContactName: contractor.contactName || "",
+        contractorEmail: contractor.email || "",
+        actorUid: currentUser?.uid || "",
+        actorName: currentUser?.name || currentUser?.email || "Admin",
+        actionType: actionType || "general",
+        summary: String(summary).trim(),
+        details: String(details || "").trim(),
+        category: contractor.category || contractor.categoryLabel || "",
+        statusAtTime: statusAtTime || contractor.status || "",
+        createdAt: Date.now()
+      });
+    }
+
+    function startContractorReviewActivityListener() {
+      if (unsubscribeContractorReviewActivityListener) {
+        unsubscribeContractorReviewActivityListener();
+      }
+
+      const activityQuery = query(
+        collection(db, "contractorReviewActivity"),
+        orderBy("createdAt", "desc"),
+        limit(40)
+      );
+
+      unsubscribeContractorReviewActivityListener = onSnapshot(
+        activityQuery,
+        (snapshot) => {
+          const items = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          renderContractorReviewActivity(items);
+        },
+        (err) => {
+          console.error(err);
+
+          if (contractorReviewActivityList) {
+            contractorReviewActivityList.innerHTML = `
+              <div class="contractor-review-activity-item">
+                <p style="margin:0;font-weight:800;">Could not load activity: ${escapeHtml(err.message)}</p>
+              </div>
+            `;
+          }
+        }
+      );
+    }
 
     function getCategoryKey(item) {
       const raw = String(item.category || item.categoryLabel || "").toLowerCase();
@@ -284,181 +284,181 @@ function startContractorReviewActivityListener() {
     }
 
     function getRequiredContractorDocumentKeys(item) {
-  const rawCategory = String(item.category || item.categoryLabel || "").toLowerCase();
+      const rawCategory = String(item.category || item.categoryLabel || "").toLowerCase();
 
-  if (rawCategory.includes("trucking")) {
-    return ["businessIdentity", "insuranceProof", "mcDotProof"];
-  }
+      if (rawCategory.includes("trucking")) {
+        return ["businessIdentity", "insuranceProof", "mcDotProof"];
+      }
 
-  if (rawCategory.includes("hvac")) {
-    return ["businessIdentity", "insuranceProof"];
-  }
+      if (rawCategory.includes("hvac")) {
+        return ["businessIdentity", "insuranceProof"];
+      }
 
-  return ["businessIdentity", "insuranceProof"];
-}
-
-function getRequiredContractorDocumentLabelMap() {
-  return {
-    businessIdentity: "Business / identity",
-    insuranceProof: "Insurance certificate",
-    mcDotProof: "USDOT / MC proof",
-    equipmentProof: "Equipment / truck proof"
-  };
-}
-
-function getRequiredDocumentApprovalSummary(item) {
-  const requiredKeys = getRequiredContractorDocumentKeys(item);
-  const documents = item.documents || {};
-  const documentReview = item.documentReview || {};
-
-  let uploaded = 0;
-  let approved = 0;
-
-  requiredKeys.forEach(key => {
-    if (documents?.[key]?.url) {
-      uploaded += 1;
+      return ["businessIdentity", "insuranceProof"];
     }
 
-    if (String(documentReview?.[key]?.status || "").toLowerCase() === "approved") {
-      approved += 1;
-    }
-  });
-
-  return {
-    requiredTotal: requiredKeys.length,
-    uploaded,
-    approved
-  };
-}
-
-function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) {
-  const requiredKeys = getRequiredContractorDocumentKeys(item);
-  const documents = item.documents || {};
-  const documentReview = documentReviewOverride || item.documentReview || {};
-  const labelMap = getRequiredContractorDocumentLabelMap();
-
-  return requiredKeys.flatMap(key => {
-    const label = labelMap[key] || key;
-    const hasUploadedFile = !!documents?.[key]?.url;
-    const reviewStatus = String(documentReview?.[key]?.status || "pending").toLowerCase();
-
-    if (!hasUploadedFile) {
-      return [`${label} — missing upload`];
+    function getRequiredContractorDocumentLabelMap() {
+      return {
+        businessIdentity: "Business / identity",
+        insuranceProof: "Insurance certificate",
+        mcDotProof: "USDOT / MC proof",
+        equipmentProof: "Equipment / truck proof"
+      };
     }
 
-    if (reviewStatus !== "approved") {
-      return [`${label} — ${reviewStatus}`];
+    function getRequiredDocumentApprovalSummary(item) {
+      const requiredKeys = getRequiredContractorDocumentKeys(item);
+      const documents = item.documents || {};
+      const documentReview = item.documentReview || {};
+
+      let uploaded = 0;
+      let approved = 0;
+
+      requiredKeys.forEach(key => {
+        if (documents?.[key]?.url) {
+          uploaded += 1;
+        }
+
+        if (String(documentReview?.[key]?.status || "").toLowerCase() === "approved") {
+          approved += 1;
+        }
+      });
+
+      return {
+        requiredTotal: requiredKeys.length,
+        uploaded,
+        approved
+      };
     }
 
-    return [];
-  });
-}
+    function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) {
+      const requiredKeys = getRequiredContractorDocumentKeys(item);
+      const documents = item.documents || {};
+      const documentReview = documentReviewOverride || item.documentReview || {};
+      const labelMap = getRequiredContractorDocumentLabelMap();
 
-  function getAutoDocumentFeedbackLines(item, documentReviewOverride = null) {
-  const requiredKeys = getRequiredContractorDocumentKeys(item);
-  const documents = item.documents || {};
-  const documentReview = documentReviewOverride || item.documentReview || {};
-  const labelMap = getRequiredContractorDocumentLabelMap();
+      return requiredKeys.flatMap(key => {
+        const label = labelMap[key] || key;
+        const hasUploadedFile = !!documents?.[key]?.url;
+        const reviewStatus = String(documentReview?.[key]?.status || "pending").toLowerCase();
 
-  return requiredKeys.flatMap(key => {
-    const label = labelMap[key] || key;
-    const hasUploadedFile = !!documents?.[key]?.url;
-    const review = documentReview[key] || {};
-    const reviewStatus = String(review.status || "pending").toLowerCase();
-    const reviewNote = String(review.note || "").trim();
+        if (!hasUploadedFile) {
+          return [`${label} — missing upload`];
+        }
 
-    if (!hasUploadedFile) {
-      return [`${label}: upload required document.`];
+        if (reviewStatus !== "approved") {
+          return [`${label} — ${reviewStatus}`];
+        }
+
+        return [];
+      });
     }
 
-    if (reviewStatus === "approved") {
-      return [];
+    function getAutoDocumentFeedbackLines(item, documentReviewOverride = null) {
+      const requiredKeys = getRequiredContractorDocumentKeys(item);
+      const documents = item.documents || {};
+      const documentReview = documentReviewOverride || item.documentReview || {};
+      const labelMap = getRequiredContractorDocumentLabelMap();
+
+      return requiredKeys.flatMap(key => {
+        const label = labelMap[key] || key;
+        const hasUploadedFile = !!documents?.[key]?.url;
+        const review = documentReview[key] || {};
+        const reviewStatus = String(review.status || "pending").toLowerCase();
+        const reviewNote = String(review.note || "").trim();
+
+        if (!hasUploadedFile) {
+          return [`${label}: upload required document.`];
+        }
+
+        if (reviewStatus === "approved") {
+          return [];
+        }
+
+        if (reviewStatus === "needs-replacement") {
+          return [
+            reviewNote
+              ? `${label}: needs replacement — ${reviewNote}`
+              : `${label}: needs replacement.`
+          ];
+        }
+
+        if (reviewStatus === "rejected") {
+          return [
+            reviewNote
+              ? `${label}: rejected — ${reviewNote}`
+              : `${label}: rejected.`
+          ];
+        }
+
+        if (reviewStatus === "pending") {
+          return [
+            reviewNote
+              ? `${label}: pending review — ${reviewNote}`
+              : `${label}: pending review.`
+          ];
+        }
+
+        return [
+          reviewNote
+            ? `${label}: ${reviewNote}`
+            : `${label}: ${reviewStatus}.`
+        ];
+      });
     }
 
-    if (reviewStatus === "needs-replacement") {
-      return [
-        reviewNote
-          ? `${label}: needs replacement — ${reviewNote}`
-          : `${label}: needs replacement.`
-      ];
+    function buildContractorFacingReviewFeedback(item, documentReviewOverride = null, manualFeedbackOverride = null) {
+      const manualFeedback = String(
+        manualFeedbackOverride ?? item.reviewFeedbackManual ?? ""
+      ).trim();
+
+      const documentLines = getAutoDocumentFeedbackLines(item, documentReviewOverride);
+      const parts = [];
+
+      if (manualFeedback) {
+        parts.push(manualFeedback);
+      }
+
+      if (documentLines.length) {
+        parts.push(`Document action items:\n- ${documentLines.join("\n- ")}`);
+      }
+
+      return parts.join("\n\n").trim();
     }
-
-    if (reviewStatus === "rejected") {
-      return [
-        reviewNote
-          ? `${label}: rejected — ${reviewNote}`
-          : `${label}: rejected.`
-      ];
-    }
-
-    if (reviewStatus === "pending") {
-      return [
-        reviewNote
-          ? `${label}: pending review — ${reviewNote}`
-          : `${label}: pending review.`
-      ];
-    }
-
-    return [
-      reviewNote
-        ? `${label}: ${reviewNote}`
-        : `${label}: ${reviewStatus}.`
-    ];
-  });
-}
-
-function buildContractorFacingReviewFeedback(item, documentReviewOverride = null, manualFeedbackOverride = null) {
-  const manualFeedback = String(
-    manualFeedbackOverride ?? item.reviewFeedbackManual ?? item.reviewFeedback ?? ""
-  ).trim();
-
-  const documentLines = getAutoDocumentFeedbackLines(item, documentReviewOverride);
-  const parts = [];
-
-  if (manualFeedback) {
-    parts.push(manualFeedback);
-  }
-
-  if (documentLines.length) {
-    parts.push(`Document action items:\n- ${documentLines.join("\n- ")}`);
-  }
-
-  return parts.join("\n\n").trim();
-}
 
     async function createContractorNotification({
-  contractorId,
-  title,
-  message,
-  type = "general",
-  actorUid = "",
-  actorName = "Admin"
-}) {
-  if (!contractorId || !title || !message) return;
+      contractorId,
+      title,
+      message,
+      type = "general",
+      actorUid = "",
+      actorName = "Admin"
+    }) {
+      if (!contractorId || !title || !message) return;
 
-  await addDoc(collection(db, "contractorNotifications"), {
-    contractorUid: contractorId,
-    title: String(title).trim(),
-    message: String(message).trim(),
-    type: String(type || "general").trim(),
-    actorUid: String(actorUid || "").trim(),
-    actorName: String(actorName || "Admin").trim(),
-    isRead: false,
-    createdAt: Date.now()
-  });
+      await addDoc(collection(db, "contractorNotifications"), {
+        contractorUid: contractorId,
+        title: String(title).trim(),
+        message: String(message).trim(),
+        type: String(type || "general").trim(),
+        actorUid: String(actorUid || "").trim(),
+        actorName: String(actorName || "Admin").trim(),
+        isRead: false,
+        createdAt: Date.now()
+      });
     }
 
-function areRequiredDocumentsApproved(item) {
-  return getBlockingRequiredDocumentLabels(item).length === 0;
-}
+    function areRequiredDocumentsApproved(item) {
+      return getBlockingRequiredDocumentLabels(item).length === 0;
+    }
 
-function canApproveContractor(item) {
-  const config = getChecklistConfig(item);
-  const state = getChecklistState(item);
-  const checklistComplete = config.every(entry => state[entry.key] === true);
+    function canApproveContractor(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+      const checklistComplete = config.every(entry => state[entry.key] === true);
 
-  return checklistComplete && areRequiredDocumentsApproved(item);
-}
+      return checklistComplete && areRequiredDocumentsApproved(item);
+    }
 
     function renderChecklist(item) {
       const config = getChecklistConfig(item);
@@ -503,88 +503,86 @@ function canApproveContractor(item) {
     }
 
     function getContractorDocumentEntries() {
-  return [
-    { key: "businessIdentity", label: "Business / identity" },
-    { key: "insuranceProof", label: "Insurance certificate" },
-    { key: "mcDotProof", label: "USDOT / MC proof" },
-    { key: "equipmentProof", label: "Equipment / truck proof" }
-  ];
-}
+      return [
+        { key: "businessIdentity", label: "Business / identity" },
+        { key: "insuranceProof", label: "Insurance certificate" },
+        { key: "mcDotProof", label: "USDOT / MC proof" },
+        { key: "equipmentProof", label: "Equipment / truck proof" }
+      ];
+    }
 
-function renderContractorDocuments(item) {
-  const documents = item.documents || {};
-  const documentReview = item.documentReview || {};
+    function renderContractorDocuments(item) {
+      const documents = item.documents || {};
+      const documentReview = item.documentReview || {};
 
-  return `
-    <div class="contractor-admin-docs">
-      <div class="contractor-admin-docs-title">Uploaded documents</div>
+      return `
+        <div class="contractor-admin-docs">
+          <div class="contractor-admin-docs-title">Uploaded documents</div>
 
-      <div class="contractor-admin-docs-list">
-        ${getContractorDocumentEntries().map(entry => {
-          const meta = documents[entry.key];
-          const review = documentReview[entry.key] || {};
-          const reviewStatus = String(review.status || "pending").toLowerCase();
+          <div class="contractor-admin-docs-list">
+            ${getContractorDocumentEntries().map(entry => {
+              const meta = documents[entry.key];
+              const review = documentReview[entry.key] || {};
+              const reviewStatus = String(review.status || "pending").toLowerCase();
 
-          return `
-            <div class="contractor-admin-doc-row">
-              <span class="contractor-admin-doc-label">${escapeHtml(entry.label)}</span>
+              return `
+                <div class="contractor-admin-doc-row">
+                  <span class="contractor-admin-doc-label">${escapeHtml(entry.label)}</span>
 
-              ${
-                meta?.url
-                  ? `
-                    <a class="contractor-admin-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View file</a>
-                    <span class="contractor-admin-doc-meta">
-                      ${escapeHtml(meta.name || "Uploaded file")}
-                      ${meta.uploadedAt ? ` · ${escapeHtml(formatDate(meta.uploadedAt))}` : ""}
-                    </span>
-                  `
-                  : `<span class="contractor-admin-doc-missing">Missing</span>`
-              }
-
-              <div class="contractor-admin-doc-review-controls">
-                <select
-                  class="contractor-doc-review-select"
-                  data-contractorid="${escapeHtml(item._docId || "")}"
-                  data-dockey="${escapeHtml(entry.key)}"
-                >
-                  <option value="pending" ${reviewStatus === "pending" ? "selected" : ""}>pending</option>
-                  <option value="approved" ${reviewStatus === "approved" ? "selected" : ""}>approved</option>
-                  <option value="rejected" ${reviewStatus === "rejected" ? "selected" : ""}>rejected</option>
-                  <option value="needs-replacement" ${reviewStatus === "needs-replacement" ? "selected" : ""}>needs-replacement</option>
-                </select>
-
-                <input
-                  type="text"
-                  class="contractor-doc-review-note"
-                  data-contractorid="${escapeHtml(item._docId || "")}"
-                  data-dockey="${escapeHtml(entry.key)}"
-                  value="${escapeHtml(review.note || "")}"
-                  placeholder="Short note for contractor"
-                />
-
-                <div class="contractor-admin-doc-review-meta">
                   ${
-                    review.reviewedAt
-                      ? `Last reviewed: ${escapeHtml(formatDate(review.reviewedAt))}`
-                      : "Not reviewed yet."
+                    meta?.url
+                      ? `
+                        <a class="contractor-admin-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View file</a>
+                        <span class="contractor-admin-doc-meta">
+                          ${escapeHtml(meta.name || "Uploaded file")}
+                          ${meta.uploadedAt ? ` · ${escapeHtml(formatDate(meta.uploadedAt))}` : ""}
+                        </span>
+                      `
+                      : `<span class="contractor-admin-doc-missing">Missing</span>`
                   }
-                </div>
-              </div>
-            </div>
-          `;
-        }).join("")}
-      </div>
 
-      <button
-        type="button"
-        class="contractor-admin-btn contractor-doc-review-save-btn"
-        data-contractorid="${escapeHtml(item._docId || "")}"
-      >
-        Save Document Reviews
-      </button>
-    </div>
-  `;
-}
+                  <div class="contractor-admin-doc-review-controls">
+                    <select
+                      class="contractor-doc-review-select"
+                      data-contractorid="${escapeHtml(item._docId || "")}"
+                      data-dockey="${escapeHtml(entry.key)}"
+                    >
+                      <option value="pending" ${reviewStatus === "pending" ? "selected" : ""}>pending</option>
+                      <option value="approved" ${reviewStatus === "approved" ? "selected" : ""}>approved</option>
+                      <option value="rejected" ${reviewStatus === "rejected" ? "selected" : ""}>rejected</option>
+                      <option value="needs-replacement" ${reviewStatus === "needs-replacement" ? "selected" : ""}>needs-replacement</option>
+                    </select>
+
+                    <textarea
+                      class="contractor-doc-review-note"
+                      data-contractorid="${escapeHtml(item._docId || "")}"
+                      data-dockey="${escapeHtml(entry.key)}"
+                      placeholder="Short note for contractor"
+                    >${escapeHtml(review.note || "")}</textarea>
+
+                    <div class="contractor-admin-doc-review-meta">
+                      ${
+                        review.reviewedAt
+                          ? `Last reviewed: ${escapeHtml(formatDate(review.reviewedAt))}`
+                          : "Not reviewed yet."
+                      }
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+
+          <button
+            type="button"
+            class="contractor-admin-btn contractor-doc-review-save-btn"
+            data-contractorid="${escapeHtml(item._docId || "")}"
+          >
+            Save Document Reviews
+          </button>
+        </div>
+      `;
+    }
 
     function getFilteredContractors() {
       const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
@@ -603,6 +601,7 @@ function renderContractorDocuments(item) {
             item.state,
             item.businessType,
             item.category,
+            item.notes,
             ...(Array.isArray(item.equipmentTypes) ? item.equipmentTypes : [])
           ].join(" ").toLowerCase();
 
@@ -652,6 +651,10 @@ function renderContractorDocuments(item) {
         const equipmentText = Array.isArray(item.equipmentTypes) && item.equipmentTypes.length
           ? item.equipmentTypes.join(", ")
           : "No equipment listed";
+        const requiredDocSummary = getRequiredDocumentApprovalSummary(item);
+        const blockingDocLabels = getBlockingRequiredDocumentLabels(item);
+        const progress = getChecklistProgress(item);
+        const approveReady = canApproveContractor(item);
 
         return `
           <div class="contractor-admin-item">
@@ -681,72 +684,81 @@ function renderContractorDocuments(item) {
             <p class="contractor-admin-dates"><strong>Created:</strong> ${escapeHtml(formatDate(item.createdAt))}</p>
             <p class="contractor-admin-dates"><strong>Updated:</strong> ${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</p>
 
-${
-  item.resubmittedForReviewAt
-    ? `
-      <p class="contractor-admin-dates">
-        <strong>Last resubmitted:</strong> ${escapeHtml(formatDate(item.resubmittedForReviewAt))}
-      </p>
-    `
-    : ""
-}
+            ${
+              item.resubmittedForReviewAt
+                ? `
+                  <p class="contractor-admin-dates">
+                    <strong>Last resubmitted:</strong> ${escapeHtml(formatDate(item.resubmittedForReviewAt))}
+                  </p>
+                `
+                : ""
+            }
 
             ${
-  item.notes
-    ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
-    : ""
-}
+              item.notes
+                ? `<p class="contractor-admin-notes"><strong>Notes:</strong> ${escapeHtml(item.notes)}</p>`
+                : ""
+            }
 
-${renderContractorDocuments(item)}
+            ${renderContractorDocuments(item)}
 
-<p class="contractor-admin-dates">
-  <strong>Required document approvals:</strong>
-  ${escapeHtml(String(getRequiredDocumentApprovalSummary(item).approved))}/${escapeHtml(String(getRequiredDocumentApprovalSummary(item).requiredTotal))} approved
-</p>
+            <p class="contractor-admin-dates">
+              <strong>Checklist progress:</strong>
+              ${escapeHtml(String(progress.completed))}/${escapeHtml(String(progress.total))} complete
+            </p>
 
-${
-  getBlockingRequiredDocumentLabels(item).length
-    ? `
-      <div class="contractor-admin-blockers">
-        <div class="contractor-admin-blockers-title">Blocking approval</div>
-        <ul class="contractor-admin-blockers-list">
-          ${getBlockingRequiredDocumentLabels(item).map(label => `<li>${escapeHtml(label)}</li>`).join("")}
-        </ul>
-      </div>
-    `
-    : ""
-}
+            <p class="contractor-admin-dates">
+              <strong>Required document approvals:</strong>
+              ${escapeHtml(String(requiredDocSummary.approved))}/${escapeHtml(String(requiredDocSummary.requiredTotal))} approved
+            </p>
 
-${renderChecklist(item)}
+            ${
+              blockingDocLabels.length
+                ? `
+                  <div class="contractor-admin-blockers">
+                    <div class="contractor-admin-blockers-title">Blocking approval</div>
+                    <ul class="contractor-admin-blockers-list">
+                      ${blockingDocLabels.map(label => `<li>${escapeHtml(label)}</li>`).join("")}
+                    </ul>
+                  </div>
+                `
+                : ""
+            }
+
+            ${renderChecklist(item)}
 
             <div class="contractor-review-feedback-editor">
-  <div class="contractor-review-feedback-editor-title">Contractor-facing review feedback</div>
-  <textarea
-    class="contractor-review-feedback-input"
-    data-contractorid="${escapeHtml(item._docId || "")}"
-    placeholder="Explain why this contractor is pending or rejected, or what they need to fix before approval..."
-  >${escapeHtml(item.reviewFeedbackManual || item.reviewFeedback || "")}</textarea>
+              <div class="contractor-review-feedback-editor-title">Manual contractor-facing feedback</div>
+              <textarea
+                class="contractor-review-feedback-input"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+                placeholder="Explain why this contractor is pending or rejected, or what they need to fix before approval..."
+              >${escapeHtml(item.reviewFeedbackManual || "")}</textarea>
 
-  <button
-    type="button"
-    class="contractor-admin-btn review-feedback-save-btn"
-    data-contractorid="${escapeHtml(item._docId || "")}"
-  >
-    Save Feedback
-  </button>
-</div>
+              <button
+                type="button"
+                class="contractor-admin-btn review-feedback-save-btn"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+              >
+                Save Feedback
+              </button>
+            </div>
 
             <div class="contractor-admin-actions">
               <button
-  type="button"
-  class="contractor-admin-btn approve-btn"
-  data-contractorid="${escapeHtml(item._docId || "")}"
-  data-nextstatus="approved"
-  ${rawStatus === "approved" ? "disabled" : ""}
-  title="${escapeHtml(canApproveContractor(item) ? "Ready for approval" : "Complete checklist and approve all required documents first")}"
->
-  Approve
-</button>
+                type="button"
+                class="contractor-admin-btn approve-btn"
+                data-contractorid="${escapeHtml(item._docId || "")}"
+                data-nextstatus="approved"
+                ${rawStatus === "approved" || !approveReady ? "disabled" : ""}
+                title="${escapeHtml(
+                  approveReady
+                    ? "Ready for approval"
+                    : "Complete the checklist and approve all required documents first"
+                )}"
+              >
+                Approve
+              </button>
 
               <button
                 type="button"
@@ -780,49 +792,49 @@ ${renderChecklist(item)}
     }
 
     async function loadContractors() {
-  const currentUser = await waitForAKOAuth();
+      const currentUser = await waitForAKOAuth();
 
-  if (!currentUser) {
-    window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
-    return;
-  }
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
+        return;
+      }
 
-  if (currentUser.tier !== "admin") {
-  contractorsAdminList.innerHTML = `
-    <div class="contractor-admin-item">
-      <p style="margin:0;font-weight:800;">Admin access is required.</p>
-    </div>
-  `;
-  contractorsAdminSummary.textContent = "Admin access is required.";
-  return;
-}
+      if (currentUser.tier !== "admin") {
+        contractorsAdminList.innerHTML = `
+          <div class="contractor-admin-item">
+            <p style="margin:0;font-weight:800;">Admin access is required.</p>
+          </div>
+        `;
+        contractorsAdminSummary.textContent = "Admin access is required.";
+        return;
+      }
 
-startContractorReviewActivityListener();
+      startContractorReviewActivityListener();
 
-if (unsubscribeContractorsListener) {
-  unsubscribeContractorsListener();
-}
+      if (unsubscribeContractorsListener) {
+        unsubscribeContractorsListener();
+      }
 
-  unsubscribeContractorsListener = onSnapshot(
-    collection(db, "contractors"),
-    (snapshot) => {
-      contractors = snapshot.docs.map(docSnap => ({
-        _docId: docSnap.id,
-        ...docSnap.data()
-      }));
+      unsubscribeContractorsListener = onSnapshot(
+        collection(db, "contractors"),
+        (snapshot) => {
+          contractors = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
 
-      applyFilters();
-    },
-    (err) => {
-      console.error(err);
-      contractorsAdminList.innerHTML = `
-        <div class="contractor-admin-item">
-          <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
-        </div>
-      `;
-      contractorsAdminSummary.textContent = "Could not load contractors.";
-    }
-  );
+          applyFilters();
+        },
+        (err) => {
+          console.error(err);
+          contractorsAdminList.innerHTML = `
+            <div class="contractor-admin-item">
+              <p style="margin:0;font-weight:800;">Could not load contractors: ${escapeHtml(err.message)}</p>
+            </div>
+          `;
+          contractorsAdminSummary.textContent = "Could not load contractors.";
+        }
+      );
     }
 
     contractorsAdminList.addEventListener("click", async (e) => {
@@ -833,189 +845,196 @@ if (unsubscribeContractorsListener) {
       }
 
       const feedbackSaveBtn = e.target.closest(".review-feedback-save-btn");
-if (feedbackSaveBtn) {
-  const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
-  const contractor = contractors.find(item => item._docId === contractorId);
+      if (feedbackSaveBtn) {
+        const contractorId = feedbackSaveBtn.getAttribute("data-contractorid");
+        const contractor = contractors.find(item => item._docId === contractorId);
 
-  if (!contractorId || !contractor) {
-    alert("Could not find this contractor.");
-    return;
-  }
+        if (!contractorId || !contractor) {
+          alert("Could not find this contractor.");
+          return;
+        }
 
-  const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
-    .find(el => el.getAttribute("data-contractorid") === contractorId);
+        const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+          .find(el => el.getAttribute("data-contractorid") === contractorId);
 
-  if (!feedbackInput) {
-    alert("Could not find the feedback box.");
-    return;
-  }
+        if (!feedbackInput) {
+          alert("Could not find the feedback box.");
+          return;
+        }
 
-  const manualFeedback = (feedbackInput.value || "").trim();
-  const now = Date.now();
+        const manualFeedback = (feedbackInput.value || "").trim();
+        const now = Date.now();
 
-  const combinedReviewFeedback = buildContractorFacingReviewFeedback(
-    contractor,
-    contractor.documentReview || {},
-    manualFeedback
-  );
+        const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+          contractor,
+          contractor.documentReview || {},
+          manualFeedback
+        );
 
-  try {
-    await updateDoc(doc(db, "contractors", contractorId), {
-  reviewFeedbackManual: manualFeedback,
-  reviewFeedback: combinedReviewFeedback,
-  reviewFeedbackUpdatedAt: now,
-  reviewFeedbackUpdatedBy: currentUser.uid,
-  reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
-  updatedAt: now
-});
+        try {
+          await updateDoc(doc(db, "contractors", contractorId), {
+            reviewFeedbackManual: manualFeedback,
+            reviewFeedback: combinedReviewFeedback,
+            reviewFeedbackUpdatedAt: now,
+            reviewFeedbackUpdatedBy: currentUser.uid,
+            reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
+            updatedAt: now
+          });
 
-await logContractorReviewActivity({
-  currentUser,
-  contractor,
-  actionType: "feedback-updated",
-  summary: "Updated contractor-facing feedback",
-  details: manualFeedback || "No manual feedback entered.",
-  statusAtTime: contractor.status || ""
-});
+          await logContractorReviewActivity({
+            currentUser,
+            contractor,
+            actionType: "feedback-updated",
+            summary: "Updated contractor-facing feedback",
+            details: manualFeedback || "No manual feedback entered.",
+            statusAtTime: contractor.status || ""
+          });
 
-await createContractorNotification({
-  contractorId,
-  title: "Review feedback updated",
-  message: "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
-  type: "review-feedback",
-  actorUid: currentUser.uid,
-  actorName: currentUser.name || currentUser.email || "Admin"
-});
+          await createContractorNotification({
+            contractorId,
+            title: "Review feedback updated",
+            message: "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
+            type: "review-feedback",
+            actorUid: currentUser.uid,
+            actorName: currentUser.name || currentUser.email || "Admin"
+          });
 
-alert("Review feedback saved.");
-  } catch (err) {
-    console.error(err);
-    alert(`Could not save feedback: ${err.message}`);
-  }
-  return;
-}
+          alert("Review feedback saved.");
+        } catch (err) {
+          console.error(err);
+          alert(`Could not save feedback: ${err.message}`);
+        }
+        return;
+      }
 
       const documentReviewSaveBtn = e.target.closest(".contractor-doc-review-save-btn");
-if (documentReviewSaveBtn) {
-  const contractorId = documentReviewSaveBtn.getAttribute("data-contractorid");
-  const contractor = contractors.find(item => item._docId === contractorId);
+      if (documentReviewSaveBtn) {
+        const contractorId = documentReviewSaveBtn.getAttribute("data-contractorid");
+        const contractor = contractors.find(item => item._docId === contractorId);
 
-  if (!contractorId || !contractor) {
-    alert("Could not find this contractor.");
-    return;
-  }
+        if (!contractorId || !contractor) {
+          alert("Could not find this contractor.");
+          return;
+        }
 
-  const nextDocumentReview = {
-    ...(contractor.documentReview || {})
-  };
+        const nextDocumentReview = {
+          ...(contractor.documentReview || {})
+        };
 
-  const documents = contractor.documents || {};
-  const now = Date.now();
+        const documents = contractor.documents || {};
+        const now = Date.now();
 
-  for (const entry of getContractorDocumentEntries()) {
-    const selectEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-select")]
-      .find(el =>
-        el.getAttribute("data-contractorid") === contractorId &&
-        el.getAttribute("data-dockey") === entry.key
-      );
+        for (const entry of getContractorDocumentEntries()) {
+          const selectEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-select")]
+            .find(el =>
+              el.getAttribute("data-contractorid") === contractorId &&
+              el.getAttribute("data-dockey") === entry.key
+            );
 
-    const noteEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-note")]
-      .find(el =>
-        el.getAttribute("data-contractorid") === contractorId &&
-        el.getAttribute("data-dockey") === entry.key
-      );
+          const noteEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-note")]
+            .find(el =>
+              el.getAttribute("data-contractorid") === contractorId &&
+              el.getAttribute("data-dockey") === entry.key
+            );
 
-    const nextStatus = String(selectEl?.value || "pending").trim().toLowerCase();
-    const nextNote = String(noteEl?.value || "").trim();
+          const nextStatus = String(selectEl?.value || "pending").trim().toLowerCase();
+          const nextNote = String(noteEl?.value || "").trim();
 
-    if (!documents?.[entry.key]?.url && nextStatus === "approved") {
-      alert(`${entry.label} cannot be approved because no file has been uploaded.`);
-      return;
-    }
+          if (!documents?.[entry.key]?.url && nextStatus === "approved") {
+            alert(`${entry.label} cannot be approved because no file has been uploaded.`);
+            return;
+          }
 
-    nextDocumentReview[entry.key] = {
-      status: nextStatus,
-      note: nextNote,
-      reviewedAt: now,
-      reviewedBy: currentUser.uid,
-      reviewedByName: currentUser.name || currentUser.email || "Admin"
-    };
-  }
+          nextDocumentReview[entry.key] = {
+            status: nextStatus,
+            note: nextNote,
+            reviewedAt: now,
+            reviewedBy: currentUser.uid,
+            reviewedByName: currentUser.name || currentUser.email || "Admin"
+          };
+        }
 
-  const blockingRequiredDocs = getBlockingRequiredDocumentLabels(contractor, nextDocumentReview);
+        const blockingRequiredDocs = getBlockingRequiredDocumentLabels(contractor, nextDocumentReview);
 
-const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
-  .find(el => el.getAttribute("data-contractorid") === contractorId);
+        const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
+          .find(el => el.getAttribute("data-contractorid") === contractorId);
 
-const manualFeedback = String(
-  feedbackInput?.value || contractor.reviewFeedbackManual || contractor.reviewFeedback || ""
-).trim();
+        const manualFeedback = String(
+          feedbackInput?.value || contractor.reviewFeedbackManual || ""
+        ).trim();
 
-const combinedReviewFeedback = buildContractorFacingReviewFeedback(
-  contractor,
-  nextDocumentReview,
-  manualFeedback
-);
+        const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+          contractor,
+          nextDocumentReview,
+          manualFeedback
+        );
 
-const updatePayload = {
-  documentReview: nextDocumentReview,
-  reviewFeedbackManual: manualFeedback,
-  reviewFeedback: combinedReviewFeedback,
-  updatedAt: now
-};
+        const updatePayload = {
+          documentReview: nextDocumentReview,
+          reviewFeedbackManual: manualFeedback,
+          reviewFeedback: combinedReviewFeedback,
+          updatedAt: now
+        };
 
-if (blockingRequiredDocs.length) {
-  updatePayload.status = "pending";
-  updatePayload.approvedAt = null;
-  updatePayload.statusAutoResetAt = now;
-  updatePayload.statusAutoResetReason = "required-documents-not-approved";
-}
+        const wasApproved = String(contractor.status || "").toLowerCase() === "approved";
+        const shouldAutoResetToPending = wasApproved && blockingRequiredDocs.length > 0;
 
-  try {
-    await updateDoc(doc(db, "contractors", contractorId), updatePayload);
+        if (shouldAutoResetToPending) {
+          updatePayload.status = "pending";
+          updatePayload.approvedAt = null;
+          updatePayload.statusAutoResetAt = now;
+          updatePayload.statusAutoResetReason = "required-documents-not-approved";
+        }
 
-    await logContractorReviewActivity({
-  currentUser,
-  contractor,
-  actionType: "document-review-updated",
-  summary: "Updated contractor document review",
-  details: blockingRequiredDocs.length
-    ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
-    : "All required documents are approved.",
-  statusAtTime: updatePayload.status || contractor.status || ""
-});
+        try {
+          await updateDoc(doc(db, "contractors", contractorId), updatePayload);
 
-const docReviewTitle = blockingRequiredDocs.length
-  ? "Document review needs attention"
-  : "Document review updated";
+          await logContractorReviewActivity({
+            currentUser,
+            contractor,
+            actionType: "document-review-updated",
+            summary: shouldAutoResetToPending
+              ? "Updated contractor document review and reset status to pending"
+              : "Updated contractor document review",
+            details: blockingRequiredDocs.length
+              ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
+              : "All required documents are approved.",
+            statusAtTime: updatePayload.status || contractor.status || ""
+          });
 
-const docReviewMessage = blockingRequiredDocs.length
-  ? `Admin reviewed your documents. Action needed on: ${blockingRequiredDocs.join("; ")}.`
-  : "Admin reviewed your uploaded documents. Your required document review is up to date.";
+          const docReviewTitle = shouldAutoResetToPending
+            ? "Document review changed your approval status"
+            : "Document review updated";
 
-await createContractorNotification({
-  contractorId,
-  title: docReviewTitle,
-  message: docReviewMessage,
-  type: "document-review",
-  actorUid: currentUser.uid,
-  actorName: currentUser.name || currentUser.email || "Admin"
-});
+          const docReviewMessage = shouldAutoResetToPending
+            ? `Admin reviewed your documents. Your status was moved to pending because of: ${blockingRequiredDocs.join("; ")}.`
+            : blockingRequiredDocs.length
+              ? `Admin reviewed your documents. Action needed on: ${blockingRequiredDocs.join("; ")}.`
+              : "Admin reviewed your uploaded documents. Your required document review is up to date.";
 
-if (blockingRequiredDocs.length) {
-  alert(
-    "Document reviews saved.\n\n" +
-    "Contractor status has been set to pending because one or more required documents are not approved."
-  );
-} else {
-  alert("Document reviews saved.");
-}
-  } catch (err) {
-    console.error(err);
-    alert(`Could not save document reviews: ${err.message}`);
-  }
-  return;
-}
+          await createContractorNotification({
+            contractorId,
+            title: docReviewTitle,
+            message: docReviewMessage,
+            type: "document-review",
+            actorUid: currentUser.uid,
+            actorName: currentUser.name || currentUser.email || "Admin"
+          });
+
+          if (shouldAutoResetToPending) {
+            alert(
+              "Document reviews saved.\n\n" +
+              "This contractor was moved from approved to pending because one or more required documents are no longer approved."
+            );
+          } else {
+            alert("Document reviews saved.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert(`Could not save document reviews: ${err.message}`);
+        }
+        return;
+      }
 
       const checklistSaveBtn = e.target.closest(".checklist-save-btn");
       if (checklistSaveBtn) {
@@ -1040,36 +1059,67 @@ if (blockingRequiredDocs.length) {
           checkboxMap[entry.key] = !!checkbox?.checked;
         });
 
+        const now = Date.now();
+        const nextContractorState = {
+          ...contractor,
+          reviewChecklist: checkboxMap
+        };
+
+        const wasApproved = String(contractor.status || "").toLowerCase() === "approved";
+        const shouldAutoResetToPending = wasApproved && !canApproveContractor(nextContractorState);
+
+        const updatePayload = {
+          reviewChecklist: checkboxMap,
+          reviewChecklistUpdatedAt: now,
+          reviewChecklistUpdatedBy: currentUser.uid,
+          updatedAt: now
+        };
+
+        if (shouldAutoResetToPending) {
+          updatePayload.status = "pending";
+          updatePayload.approvedAt = null;
+          updatePayload.statusAutoResetAt = now;
+          updatePayload.statusAutoResetReason = "checklist-no-longer-complete";
+        }
+
         try {
-  await updateDoc(doc(db, "contractors", contractorId), {
-    reviewChecklist: checkboxMap,
-    reviewChecklistUpdatedAt: Date.now(),
-    reviewChecklistUpdatedBy: currentUser.uid,
-    updatedAt: Date.now()
-  });
+          await updateDoc(doc(db, "contractors", contractorId), updatePayload);
+
+          const completedCount = Object.values(checkboxMap).filter(value => value === true).length;
 
           await logContractorReviewActivity({
-  currentUser,
-  contractor,
-  actionType: "checklist-updated",
-  summary: "Updated contractor review checklist",
-  details: `${Object.values(checkboxMap).filter(value => value === true).length}/${config.length} checklist items complete`,
-  statusAtTime: contractor.status || ""
-});
+            currentUser,
+            contractor,
+            actionType: "checklist-updated",
+            summary: shouldAutoResetToPending
+              ? "Updated contractor checklist and reset status to pending"
+              : "Updated contractor review checklist",
+            details: `${completedCount}/${config.length} checklist items complete`,
+            statusAtTime: updatePayload.status || contractor.status || ""
+          });
 
-  const completedCount = Object.values(checkboxMap).filter(value => value === true).length;
+          await createContractorNotification({
+            contractorId,
+            title: shouldAutoResetToPending
+              ? "Checklist update changed your approval status"
+              : "Checklist review updated",
+            message: shouldAutoResetToPending
+              ? `Admin updated your contractor review checklist. Your status moved to pending because only ${completedCount}/${config.length} checklist items are complete.`
+              : `Admin updated your contractor review checklist. ${completedCount}/${config.length} checklist items are marked complete.`,
+            type: "checklist-updated",
+            actorUid: currentUser.uid,
+            actorName: currentUser.name || currentUser.email || "Admin"
+          });
 
-  await createContractorNotification({
-    contractorId,
-    title: "Checklist review updated",
-    message: `Admin updated your contractor review checklist. ${completedCount}/${config.length} checklist items are marked complete.`,
-    type: "checklist-updated",
-    actorUid: currentUser.uid,
-    actorName: currentUser.name || currentUser.email || "Admin"
-  });
-
-  alert("Checklist saved.");
-} catch (err) {
+          if (shouldAutoResetToPending) {
+            alert(
+              "Checklist saved.\n\n" +
+              "This contractor was moved from approved to pending because the checklist is no longer complete."
+            );
+          } else {
+            alert("Checklist saved.");
+          }
+        } catch (err) {
           console.error(err);
           alert(`Could not save checklist: ${err.message}`);
         }
@@ -1077,7 +1127,14 @@ if (blockingRequiredDocs.length) {
       }
 
       const actionBtn = e.target.closest(".contractor-admin-btn");
-      if (!actionBtn || actionBtn.classList.contains("checklist-save-btn")) return;
+      if (
+        !actionBtn ||
+        actionBtn.classList.contains("checklist-save-btn") ||
+        actionBtn.classList.contains("review-feedback-save-btn") ||
+        actionBtn.classList.contains("contractor-doc-review-save-btn")
+      ) {
+        return;
+      }
 
       const contractorId = actionBtn.getAttribute("data-contractorid");
       const nextStatus = (actionBtn.getAttribute("data-nextstatus") || "").trim();
@@ -1098,25 +1155,25 @@ if (blockingRequiredDocs.length) {
 
       const manualFeedback = (feedbackInput?.value || "").trim();
 
-const combinedReviewFeedback = buildContractorFacingReviewFeedback(
-  contractor,
-  contractor.documentReview || {},
-  manualFeedback
-);
+      const combinedReviewFeedback = buildContractorFacingReviewFeedback(
+        contractor,
+        contractor.documentReview || {},
+        manualFeedback
+      );
 
       if (nextStatus === "approved" && !canApproveContractor(contractor)) {
-  const checklistProgress = getChecklistProgress(contractor);
-  const docSummary = getRequiredDocumentApprovalSummary(contractor);
-  const blockingDocs = getBlockingRequiredDocumentLabels(contractor);
+        const checklistProgress = getChecklistProgress(contractor);
+        const docSummary = getRequiredDocumentApprovalSummary(contractor);
+        const blockingDocs = getBlockingRequiredDocumentLabels(contractor);
 
-  alert(
-    `This contractor cannot be approved yet.\n\n` +
-    `Checklist: ${checklistProgress.completed}/${checklistProgress.total} complete\n` +
-    `Required documents approved: ${docSummary.approved}/${docSummary.requiredTotal}\n\n` +
-    `Blocking required documents:\n- ${blockingDocs.join("\n- ")}\n\n` +
-    `Complete the review checklist and approve all required documents first.`
-  );
-  return;
+        alert(
+          `This contractor cannot be approved yet.\n\n` +
+          `Checklist: ${checklistProgress.completed}/${checklistProgress.total} complete\n` +
+          `Required documents approved: ${docSummary.approved}/${docSummary.requiredTotal}\n\n` +
+          `Blocking required documents:\n- ${blockingDocs.join("\n- ")}\n\n` +
+          `Complete the review checklist and approve all required documents first.`
+        );
+        return;
       }
 
       if (nextStatus === "rejected" && !manualFeedback) {
@@ -1128,15 +1185,17 @@ const combinedReviewFeedback = buildContractorFacingReviewFeedback(
       if (!confirmed) return;
 
       const now = Date.now();
-const payload = {
-  status: nextStatus,
-  updatedAt: now,
-  reviewFeedbackManual: manualFeedback,
-  reviewFeedback: combinedReviewFeedback,
-  reviewFeedbackUpdatedAt: now,
-  reviewFeedbackUpdatedBy: currentUser.uid,
-  reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin"
-};
+      const payload = {
+        status: nextStatus,
+        updatedAt: now,
+        reviewFeedbackManual: manualFeedback,
+        reviewFeedback: combinedReviewFeedback,
+        reviewFeedbackUpdatedAt: now,
+        reviewFeedbackUpdatedBy: currentUser.uid,
+        reviewFeedbackUpdatedByName: currentUser.name || currentUser.email || "Admin",
+        approvedAt: null,
+        rejectedAt: null
+      };
 
       if (nextStatus === "approved") {
         payload.approvedAt = now;
@@ -1150,36 +1209,36 @@ const payload = {
         await updateDoc(doc(db, "contractors", contractorId), payload);
 
         await logContractorReviewActivity({
-  currentUser,
-  contractor,
-  actionType: `status-${nextStatus}`,
-  summary: `Set contractor status to ${nextStatus}`,
-  details: manualFeedback || combinedReviewFeedback || "No additional feedback provided.",
-  statusAtTime: nextStatus
-});
+          currentUser,
+          contractor,
+          actionType: `status-${nextStatus}`,
+          summary: `Set contractor status to ${nextStatus}`,
+          details: manualFeedback || combinedReviewFeedback || "No additional feedback provided.",
+          statusAtTime: nextStatus
+        });
 
-const statusTitleMap = {
-  approved: "Contractor profile approved",
-  pending: "Contractor profile set to pending",
-  rejected: "Contractor profile rejected"
-};
+        const statusTitleMap = {
+          approved: "Contractor profile approved",
+          pending: "Contractor profile set to pending",
+          rejected: "Contractor profile rejected"
+        };
 
-const statusMessageMap = {
-  approved: "Your contractor profile is approved. You can appear in assignment recommendations.",
-  pending: "Your contractor profile is currently pending review. Check your feedback and document review results for next steps.",
-  rejected: "Your contractor profile was rejected. Review the feedback and document action items, then update and resubmit."
-};
+        const statusMessageMap = {
+          approved: "Your contractor profile is approved. You can appear in assignment recommendations.",
+          pending: "Your contractor profile is currently pending review. Check your feedback and document review results for next steps.",
+          rejected: "Your contractor profile was rejected. Review the feedback and document action items, then update and resubmit."
+        };
 
-await createContractorNotification({
-  contractorId,
-  title: statusTitleMap[nextStatus] || "Contractor profile updated",
-  message: statusMessageMap[nextStatus] || "Your contractor review status was updated.",
-  type: "approval-status",
-  actorUid: currentUser.uid,
-  actorName: currentUser.name || currentUser.email || "Admin"
-});
+        await createContractorNotification({
+          contractorId,
+          title: statusTitleMap[nextStatus] || "Contractor profile updated",
+          message: statusMessageMap[nextStatus] || "Your contractor review status was updated.",
+          type: "approval-status",
+          actorUid: currentUser.uid,
+          actorName: currentUser.name || currentUser.email || "Admin"
+        });
 
-alert(`Contractor updated to "${nextStatus}".`);
+        alert(`Contractor updated to "${nextStatus}".`);
       } catch (err) {
         console.error(err);
         alert(`Could not update contractor: ${err.message}`);
