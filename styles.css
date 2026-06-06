@@ -37,22 +37,46 @@ body{
   background:#fff;
 }
 
+img{
+  max-width:100%;
+  display:block;
+}
+
+input,
+select,
+textarea,
+button{
+  font:inherit;
+}
+
 .container{
   max-width:1100px;
   margin:0 auto;
   padding:0 16px;
 }
+
+/* ===== Category Grid ===== */
 .categories{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:12px;
   max-width:980px;
   margin:10px auto 0;
-    }
-    @media (max-width:900px){ .categories{grid-template-columns:repeat(3,1fr)} }
-    @media (max-width:580px){ .categories{grid-template-columns:repeat(2,1fr)} }
+}
 
-    .categories .cat{
+@media (max-width:900px){
+  .categories{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+
+@media (max-width:580px){
+  .categories{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+.categories .cat{
   background:var(--card);
   border-radius:16px;
   box-shadow:var(--shadow);
@@ -62,16 +86,14 @@ body{
   border:2px solid transparent;
   outline:none;
   outline-offset:2px;
-
   display:flex;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   height:100px;
-
   cursor:pointer;
   transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
-    }
+}
 
 .categories .cat .top{
   border-radius:12px;
@@ -83,10 +105,11 @@ body{
   align-items:center;
   justify-content:center;
   font-size:16px;
+  line-height:1.2;
   color:#fff;
   font-weight:800;
 }
-    /* Category color bindings */
+
 .cat-plumbing .top{ background:var(--cat-plumbing); }
 .cat-electric .top{ background:var(--cat-electric); }
 .cat-carpentry .top{ background:var(--cat-carpentry); color:#111; }
@@ -95,24 +118,30 @@ body{
 .cat-finance .top{ background:var(--cat-finance); }
 .cat-hvac .top{ background:var(--cat-hvac); }
 .cat-lawn .top{ background:var(--cat-lawn); }
-    .categories .cat:hover{
+
+.categories .cat:hover{
   transform:translateY(-6px);
   box-shadow:
-    0 14px 28px rgba(0,0,0,0.22),
-    0 0 20px rgba(255,215,0,0.4);
-  border-color:rgba(255,215,0,0.6);
+    0 14px 28px rgba(0,0,0,.22),
+    0 0 20px rgba(255,215,0,.4);
+  border-color:rgba(255,215,0,.6);
 }
+
 .categories .cat:active{
   transform:translateY(-2px) scale(0.99);
 }
+
 .categories .cat:focus-visible{
-  border-color:rgba(255,215,0,0.8);
+  border-color:rgba(255,215,0,.8);
   box-shadow:
-    0 0 0 3px rgba(255,215,0,0.25),
-    0 12px 24px rgba(0,0,0,0.18);
+    0 0 0 3px rgba(255,215,0,.25),
+    0 12px 24px rgba(0,0,0,.18);
 }
-/* ===== Search Suggestions Dropdown (single source of truth) ===== */
-.search { position: relative; }
+
+/* ===== Search Suggestions ===== */
+.search{
+  position:relative;
+}
 
 .suggestions{
   position:absolute;
@@ -127,8 +156,12 @@ body{
   z-index:999;
 }
 
-/* Buttons created by JS */
-.suggestions button{
+.suggestions[hidden]{
+  display:none !important;
+}
+
+.suggestions button,
+.suggestion-item{
   width:100%;
   text-align:left;
   border:0;
@@ -141,19 +174,21 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:10px;
-
-  -webkit-tap-highlight-color: transparent; /* mobile tap feel */
-  touch-action: manipulation;               /* removes mobile delay */
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
-.suggestions button:hover{
+
+.suggestions button:hover,
+.suggestion-item:hover,
+.suggestion-item.active{
   background:rgba(255,215,0,.14);
 }
 
-.suggestions button + button{
+.suggestions button + button,
+.suggestion-item + .suggestion-item{
   border-top:1px solid rgba(0,0,0,.06);
 }
 
-/* The right-side tag */
 .suggestions .tag{
   font-size:12px;
   font-weight:900;
@@ -162,39 +197,208 @@ body{
   background:#f2f2f2;
   color:#333;
 }
-/* ===== Trucking Page ===== */
-.trucking-hero{
+
+.suggestion-item strong{
+  font-weight:900;
+}
+
+/* ===== Shared Hero Pages ===== */
+.trucking-hero,
+.plumbing-hero,
+.electricians-hero,
+.carpentry-hero,
+.auto-hero,
+.hvac-hero,
+.lawn-care-hero,
+.residential-hero,
+.commercial-hero,
+.food-hero,
+.financial-hero,
+.request-hero,
+.requests-hero,
+.all-requests-hero,
+.contractor-hero,
+.contractor-leads-hero,
+.contractors-admin-hero,
+.lead-hero,
+.plans-hero{
   position:relative;
   background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
   color:#fff;
   padding:24px 0 16px;
 }
 
-.trucking-hero .container{
+.trucking-hero .container,
+.plumbing-hero .container,
+.electricians-hero .container,
+.carpentry-hero .container,
+.auto-hero .container,
+.hvac-hero .container,
+.lawn-care-hero .container,
+.residential-hero .container,
+.commercial-hero .container,
+.food-hero .container,
+.financial-hero .container,
+.request-hero .container,
+.requests-hero .container,
+.all-requests-hero .container,
+.contractor-hero .container,
+.contractor-leads-hero .container,
+.contractors-admin-hero .container,
+.lead-hero .container,
+.plans-hero .container{
   padding-top:110px;
 }
 
-.trucking-hero-content{
+.trucking-hero-content,
+.plumbing-hero-content,
+.electricians-hero-content,
+.carpentry-hero-content,
+.auto-hero-content,
+.hvac-hero-content,
+.lawn-care-hero-content,
+.residential-hero-content,
+.commercial-hero-content,
+.food-hero-content,
+.financial-hero-content,
+.request-hero-content,
+.requests-hero-content,
+.all-requests-hero-content,
+.contractor-hero-content,
+.contractor-leads-hero-content,
+.contractors-admin-hero-content,
+.lead-hero-content,
+.plans-hero-content{
   display:flex;
   flex-direction:column;
   align-items:flex-start;
 }
 
-.trucking-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.trucking-brand{
+.trucking-brand,
+.plumbing-brand,
+.electricians-brand,
+.carpentry-brand,
+.auto-brand,
+.hvac-brand,
+.lawn-care-brand,
+.residential-brand,
+.commercial-brand,
+.food-brand,
+.financial-brand,
+.request-brand,
+.requests-brand,
+.all-requests-brand,
+.contractor-brand,
+.contractor-leads-brand,
+.contractors-admin-brand,
+.lead-brand,
+.plans-brand{
   font-weight:900;
   font-size:22px;
   color:var(--gold);
   margin:0 0 12px;
 }
 
-.trucking-back{
+.trucking-title,
+.plumbing-title,
+.electricians-title,
+.carpentry-title,
+.auto-title,
+.hvac-title,
+.lawn-care-title,
+.residential-title,
+.commercial-title,
+.food-title,
+.financial-title,
+.request-title,
+.requests-title,
+.all-requests-title,
+.contractor-title,
+.contractor-leads-title,
+.contractors-admin-title,
+.lead-title,
+.plans-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.trucking-hero p,
+.plumbing-hero p,
+.electricians-hero p,
+.carpentry-hero p,
+.auto-hero p,
+.hvac-hero p,
+.lawn-care-hero p,
+.residential-hero p,
+.commercial-hero p,
+.food-hero p,
+.financial-hero p,
+.request-hero p,
+.requests-hero p,
+.all-requests-hero p,
+.contractor-hero p,
+.contractor-leads-hero p,
+.contractors-admin-hero p,
+.lead-hero p,
+.plans-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.trucking-topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+.trucking-back-floating,
+.plumbing-back-floating,
+.electricians-back-floating,
+.carpentry-back-floating,
+.auto-back-floating,
+.hvac-back-floating,
+.lawn-care-back-floating,
+.residential-back-floating,
+.commercial-back-floating,
+.food-back-floating,
+.financial-back-floating,
+.request-back-floating,
+.requests-back-floating,
+.all-requests-back-floating,
+.contractor-back-floating,
+.contractor-leads-back-floating,
+.contractors-admin-back-floating,
+.lead-back-floating,
+.plans-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.trucking-back,
+.plumbing-back,
+.electricians-back,
+.carpentry-back,
+.auto-back,
+.hvac-back,
+.lawn-care-back,
+.residential-back,
+.commercial-back,
+.food-back,
+.financial-back,
+.request-back,
+.requests-back,
+.all-requests-back,
+.contractor-back,
+.contractor-leads-back,
+.contractors-admin-back,
+.lead-back,
+.plans-back{
   display:inline-block;
   background:#fff;
   color:#0f172a;
@@ -206,22 +410,47 @@ body{
   box-shadow:var(--shadow);
 }
 
-.trucking-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.trucking-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.trucking-wrap{
+/* ===== Shared Page Wrap / Cards / Pills / CTAs ===== */
+.trucking-wrap,
+.plumbing-wrap,
+.electricians-wrap,
+.carpentry-wrap,
+.auto-wrap,
+.hvac-wrap,
+.lawn-care-wrap,
+.residential-wrap,
+.commercial-wrap,
+.food-wrap,
+.financial-wrap,
+.request-wrap,
+.requests-wrap,
+.all-requests-wrap,
+.contractor-wrap,
+.contractor-leads-wrap,
+.contractors-admin-wrap,
+.lead-wrap,
+.plans-wrap{
   padding:18px 0;
 }
 
-.trucking-card{
+.trucking-card,
+.plumbing-card,
+.electricians-card,
+.carpentry-card,
+.auto-card,
+.hvac-card,
+.lawn-care-card,
+.residential-card,
+.commercial-card,
+.food-card,
+.financial-card,
+.request-card,
+.requests-card,
+.all-requests-card,
+.contractor-card,
+.contractor-leads-card,
+.contractors-admin-card,
+.lead-card{
   background:var(--card);
   border-radius:14px;
   box-shadow:var(--shadow);
@@ -229,7 +458,17 @@ body{
   margin-bottom:12px;
 }
 
-.trucking-pill{
+.trucking-pill,
+.plumbing-pill,
+.electricians-pill,
+.carpentry-pill,
+.auto-pill,
+.hvac-pill,
+.lawn-care-pill,
+.residential-pill,
+.commercial-pill,
+.food-pill,
+.financial-pill{
   display:inline-block;
   background:var(--gold);
   color:#111;
@@ -239,7 +478,19 @@ body{
   margin:6px 8px 0 0;
 }
 
-.trucking-cta{
+.trucking-cta,
+.plumbing-cta,
+.electricians-cta,
+.carpentry-cta,
+.hvac-cta,
+.lawn-care-cta,
+.residential-cta,
+.commercial-cta,
+.food-cta,
+.financial-cta,
+.request-cta,
+.contractor-cta,
+.lead-cta{
   display:inline-block;
   margin-top:10px;
   background:var(--royal);
@@ -248,377 +499,9 @@ body{
   padding:10px 14px;
   border-radius:10px;
   font-weight:800;
-}
-/* ===== Plumbing Page ===== */
-.plumbing-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.plumbing-hero .container{
-  padding-top:110px;
-}
-
-.plumbing-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.plumbing-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.plumbing-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.plumbing-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
   border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.plumbing-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.plumbing-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.plumbing-wrap{
-  padding:18px 0;
-}
-
-.plumbing-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.plumbing-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.plumbing-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .plumbing-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .plumbing-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Electricians Page ===== */
-.electricians-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.electricians-hero .container{
-  padding-top:110px;
-}
-
-.electricians-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.electricians-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.electricians-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.electricians-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.electricians-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.electricians-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.electricians-wrap{
-  padding:18px 0;
-}
-
-.electricians-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.electricians-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.electricians-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .electricians-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .electricians-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Carpentry Page ===== */
-.carpentry-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.carpentry-hero .container{
-  padding-top:110px;
-}
-
-.carpentry-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.carpentry-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.carpentry-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.carpentry-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.carpentry-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.carpentry-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.carpentry-wrap{
-  padding:18px 0;
-}
-
-.carpentry-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.carpentry-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.carpentry-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .carpentry-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .carpentry-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Auto Page ===== */
-.auto-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.auto-hero .container{
-  padding-top:110px;
-}
-
-.auto-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.auto-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.auto-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.auto-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.auto-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.auto-subtitle,
-.auto-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.auto-wrap{
-  padding:18px 0;
-}
-
-.auto-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.auto-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
 }
 
 .auto-cta{
@@ -630,676 +513,93 @@ body{
   padding:12px 18px;
   border-radius:12px;
   font-weight:900;
-  box-shadow:var(--shadow);
-}
-
-@media (max-width:640px){
-  .auto-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .auto-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== HVAC Page ===== */
-.hvac-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.hvac-hero .container{
-  padding-top:110px;
-}
-
-.hvac-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.hvac-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.hvac-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.hvac-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
   border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
+  cursor:pointer;
   box-shadow:var(--shadow);
 }
 
-.hvac-title{
-  margin:0 0 10px;
-  font-size:34px;
+.trucking-cta:hover,
+.plumbing-cta:hover,
+.electricians-cta:hover,
+.carpentry-cta:hover,
+.auto-cta:hover,
+.hvac-cta:hover,
+.lawn-care-cta:hover,
+.residential-cta:hover,
+.commercial-cta:hover,
+.food-cta:hover,
+.financial-cta:hover,
+.request-cta:hover,
+.contractor-cta:hover,
+.lead-cta:hover{
+  opacity:.92;
 }
 
-.hvac-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.hvac-wrap{
-  padding:18px 0;
-}
-
-.hvac-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.hvac-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.hvac-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
+.trucking-cta:active,
+.plumbing-cta:active,
+.electricians-cta:active,
+.carpentry-cta:active,
+.auto-cta:active,
+.hvac-cta:active,
+.lawn-care-cta:active,
+.residential-cta:active,
+.commercial-cta:active,
+.food-cta:active,
+.financial-cta:active,
+.request-cta:active,
+.contractor-cta:active,
+.lead-cta:active{
+  transform:translateY(1px);
 }
 
 @media (max-width:640px){
-  .hvac-back-floating{
+  .trucking-back-floating,
+  .plumbing-back-floating,
+  .electricians-back-floating,
+  .carpentry-back-floating,
+  .auto-back-floating,
+  .hvac-back-floating,
+  .lawn-care-back-floating,
+  .residential-back-floating,
+  .commercial-back-floating,
+  .food-back-floating,
+  .financial-back-floating,
+  .request-back-floating,
+  .requests-back-floating,
+  .all-requests-back-floating,
+  .contractor-back-floating,
+  .contractor-leads-back-floating,
+  .contractors-admin-back-floating,
+  .lead-back-floating,
+  .plans-back-floating{
     top:12px;
     right:12px;
   }
 
-  .hvac-hero .container{
+  .trucking-hero .container,
+  .plumbing-hero .container,
+  .electricians-hero .container,
+  .carpentry-hero .container,
+  .auto-hero .container,
+  .hvac-hero .container,
+  .lawn-care-hero .container,
+  .residential-hero .container,
+  .commercial-hero .container,
+  .food-hero .container,
+  .financial-hero .container,
+  .request-hero .container,
+  .requests-hero .container,
+  .all-requests-hero .container,
+  .contractor-hero .container,
+  .contractor-leads-hero .container,
+  .contractors-admin-hero .container,
+  .lead-hero .container,
+  .plans-hero .container{
     padding-top:36px !important;
   }
 }
 
-/* ===== Lawn Care Page ===== */
-.lawn-care-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.lawn-care-hero .container{
-  padding-top:110px;
-}
-
-.lawn-care-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.lawn-care-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.lawn-care-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.lawn-care-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.lawn-care-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.lawn-care-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.lawn-care-wrap{
-  padding:18px 0;
-}
-
-.lawn-care-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.lawn-care-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.lawn-care-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .lawn-care-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .lawn-care-hero .container{
-    padding-top:36px !important;
-  }
-}
-
-/* ===== Residential Page ===== */
-.residential-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.residential-hero .container{
-  padding-top:110px;
-}
-
-.residential-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.residential-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.residential-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.residential-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.residential-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.residential-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.residential-wrap{
-  padding:18px 0;
-}
-
-.residential-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.residential-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.residential-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .residential-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .residential-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Commercial Page ===== */
-.commercial-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.commercial-hero .container{
-  padding-top:110px;
-}
-
-.commercial-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.commercial-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.commercial-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.commercial-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.commercial-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.commercial-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.commercial-wrap{
-  padding:18px 0;
-}
-
-.commercial-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.commercial-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.commercial-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .commercial-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .commercial-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Food Page ===== */
-.food-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.food-hero .container{
-  padding-top:110px;
-}
-
-.food-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.food-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.food-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.food-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.food-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.food-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.food-wrap{
-  padding:18px 0;
-}
-
-.food-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.food-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.food-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .food-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .food-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== Financial Page ===== */
-.financial-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.financial-hero .container{
-  padding-top:110px;
-}
-
-.financial-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.financial-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.financial-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.financial-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.financial-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.financial-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.financial-wrap{
-  padding:18px 0;
-}
-
-.financial-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.financial-pill{
-  display:inline-block;
-  background:var(--gold);
-  color:#111;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  margin:6px 8px 0 0;
-}
-
-.financial-cta{
-  display:inline-block;
-  margin-top:10px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-}
-
-@media (max-width:640px){
-  .financial-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .financial-hero .container{
-    padding-top:36px !important;
-  }
-}
 /* ===== Request Service Page ===== */
-.request-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.request-hero .container{
-  padding-top:110px;
-}
-
-.request-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.request-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.request-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.request-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.request-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.request-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.request-wrap{
-  padding:18px 0;
-}
-
-.request-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
 .request-form{
   display:grid;
   grid-template-columns:repeat(2, 1fr);
@@ -1332,17 +632,14 @@ body{
   box-shadow:0 0 0 3px rgba(30,58,138,.15);
 }
 
-.request-cta{
-  display:inline-block;
-  margin-top:4px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:12px 16px;
-  border-radius:10px;
-  font-weight:800;
-  border:0;
-  cursor:pointer;
+.request-form button{
+  grid-column:1 / -1;
+  justify-self:start;
+}
+
+.request-form input[readonly]{
+  background:#f8fafc;
+  color:#555;
 }
 
 .request-status{
@@ -1356,83 +653,7 @@ body{
   }
 }
 
-@media (max-width:640px){
-  .request-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .request-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== My Requests Page ===== */
-.requests-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.requests-hero .container{
-  padding-top:110px;
-}
-
-.requests-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.requests-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.requests-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.requests-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.requests-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.requests-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.requests-wrap{
-  padding:18px 0;
-}
-
-.requests-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
+/* ===== Shared Request / Lead / Admin Lists ===== */
 .requests-list{
   display:grid;
   gap:14px;
@@ -1482,12 +703,25 @@ body{
   color:#444;
   font-weight:600;
   line-height:1.45;
+  white-space:pre-wrap;
+}
+
+.request-contact{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  font-weight:700;
+  color:#333;
 }
 
 .request-quick-actions{
   display:flex;
   flex-wrap:wrap;
   gap:10px;
+  margin-top:14px;
+}
+
+.request-actions{
   margin-top:14px;
 }
 
@@ -1507,64 +741,120 @@ body{
   border-top:1px solid rgba(0,0,0,.06);
 }
 
+.request-activity-title,
 .request-internal-notes-title{
   margin:0 0 10px;
   font-weight:900;
   color:#111;
 }
 
-.internal-notes-list{
-  display:grid;
+.request-latest-activity{
+  display:flex;
+  flex-wrap:wrap;
   gap:8px;
-}
-
-.internal-note-item{
-  background:#fffaf0;
-  border:1px solid rgba(0,0,0,.06);
-  border-radius:12px;
-  padding:10px 12px;
-}
-
-.internal-note-text{
+  align-items:center;
+  margin:8px 0 0;
   font-weight:800;
-  color:#111;
-  white-space:pre-wrap;
+  color:#444;
 }
 
-.internal-note-meta{
-  margin-top:6px;
-  font-size:12px;
-  font-weight:700;
+.request-latest-activity-time{
   color:#666;
-}
-
-.internal-note-form{
-  display:grid;
-  gap:10px;
-  margin-top:12px;
-}
-
-.internal-note-input{
-  width:100%;
-  min-height:90px;
-  padding:12px 12px;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.12);
   font-weight:700;
-  outline:0;
-  background:#fff;
-  resize:vertical;
 }
 
-.internal-note-input:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+.request-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+  background:#f2f2f2;
+  color:#222;
 }
 
-.internal-note-save-btn{
-  justify-self:start;
+.request-status-pill.status-new{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.request-status-pill.status-in-progress{
+  background:#dbeafe;
+  color:#1e40af;
+}
+
+.request-status-pill.status-matched{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.request-status-pill.status-closed{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+.request-status-pill.status-cancelled{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.request-status-pill.status-offered{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.request-status-pill.status-accepted{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.request-status-pill.status-declined{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.request-contact-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  text-decoration:none;
   border:0;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.contact-call-btn{
+  background:#166534;
+  color:#fff;
+}
+
+.contact-email-btn{
   background:#1E3A8A;
+  color:#fff;
+}
+
+.contact-copy-btn{
+  background:#f3f4f6;
+  color:#111;
+}
+
+.request-contact-btn:hover{
+  opacity:.92;
+}
+
+.request-contact-btn:active{
+  transform:translateY(1px);
+}
+
+.request-cancel-btn,
+.request-update-btn,
+.request-assign-btn,
+.internal-note-save-btn{
+  border:0;
   color:#fff;
   padding:10px 14px;
   border-radius:10px;
@@ -1573,56 +863,66 @@ body{
   box-shadow:0 8px 18px rgba(0,0,0,.14);
 }
 
+.request-cancel-btn{
+  background:#b2331c;
+}
+
+.request-update-btn{
+  background:var(--royal);
+}
+
+.request-assign-btn{
+  background:#005f73;
+}
+
+.internal-note-save-btn{
+  justify-self:start;
+  background:#1E3A8A;
+}
+
+.request-cancel-btn:hover,
+.request-update-btn:hover,
+.request-assign-btn:hover,
 .internal-note-save-btn:hover{
   opacity:.92;
 }
 
+.request-cancel-btn:active,
+.request-update-btn:active,
+.request-assign-btn:active,
 .internal-note-save-btn:active{
   transform:translateY(1px);
 }
 
-.request-activity-title{
-  margin:0 0 10px;
-  font-weight:900;
-  color:#111;
-}
-
-.activity-list{
-  display:grid;
-  gap:8px;
-}
-
-.activity-item{
-  background:#f8fafc;
-  border:1px solid rgba(0,0,0,.06);
-  border-radius:12px;
-  padding:10px 12px;
-}
-
-.activity-item-top{
+.admin-request-actions{
   display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
 }
 
-.activity-item-action{
+.request-status-select,
+.assign-contractor-select{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
   font-weight:800;
-  color:#111;
+  background:#fff;
+  outline:0;
 }
 
-.activity-item-time{
-  font-size:12px;
-  font-weight:700;
-  color:#555;
-  white-space:nowrap;
+.request-status-select{
+  min-width:170px;
 }
 
-.activity-item-meta{
-  margin-top:4px;
-  font-size:12px;
-  font-weight:700;
-  color:#666;
+.assign-contractor-select{
+  min-width:260px;
+}
+
+.request-status-select:focus,
+.assign-contractor-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
 }
 
 .lead-response-summary{
@@ -1704,280 +1004,97 @@ body{
   gap:10px;
 }
 
-.assign-contractor-select{
-  min-width:260px;
+.activity-list,
+.internal-notes-list{
+  display:grid;
+  gap:8px;
+}
+
+.activity-item{
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+  border-radius:12px;
   padding:10px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,.12);
+}
+
+.activity-item-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.activity-item-action{
   font-weight:800;
-  background:#fff;
-  outline:0;
-}
-
-.assign-contractor-select:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
-}
-
-.request-assign-btn{
-  border:0;
-  background:#005f73;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.request-assign-btn:hover{
-  opacity:.92;
-}
-
-.request-assign-btn:active{
-  transform:translateY(1px);
-}
-
-.request-contact-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  text-decoration:none;
-  border:0;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.contact-call-btn{
-  background:#166534;
-  color:#fff;
-}
-
-.contact-email-btn{
-  background:#1E3A8A;
-  color:#fff;
-}
-
-.contact-copy-btn{
-  background:#f3f4f6;
   color:#111;
 }
 
-.request-contact-btn:hover{
-  opacity:.92;
-}
-
-.request-contact-btn:active{
-  transform:translateY(1px);
-}
-
-.request-contact{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
+.activity-item-time{
+  font-size:12px;
   font-weight:700;
-  color:#333;
+  color:#555;
+  white-space:nowrap;
 }
 
-.request-latest-activity{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-  margin:8px 0 0;
-  font-weight:800;
-  color:#444;
-}
-
-.request-latest-activity-time{
+.activity-item-meta{
+  margin-top:4px;
+  font-size:12px;
+  font-weight:700;
   color:#666;
-  font-weight:700;
 }
 
-.admin-request-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:14px;
-}
-
-.request-status-select{
-  min-width:170px;
+.internal-note-item{
+  background:#fffaf0;
+  border:1px solid rgba(0,0,0,.06);
+  border-radius:12px;
   padding:10px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,.12);
-  font-weight:800;
-  background:#fff;
-  outline:0;
 }
 
-.request-status-select:focus{
+.internal-note-text{
+  font-weight:800;
+  color:#111;
+  white-space:pre-wrap;
+}
+
+.internal-note-meta{
+  margin-top:6px;
+  font-size:12px;
+  font-weight:700;
+  color:#666;
+}
+
+.internal-note-form{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+
+.internal-note-input{
+  width:100%;
+  min-height:90px;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+  resize:vertical;
+}
+
+.internal-note-input:focus{
   border-color:#1E3A8A;
   box-shadow:0 0 0 3px rgba(30,58,138,.15);
 }
 
-.request-update-btn{
-  border:0;
-  background:var(--royal);
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.request-update-btn:hover{
-  opacity:.92;
-}
-
-.request-update-btn:active{
-  transform:translateY(1px);
-}
-.request-actions{
-  margin-top:14px;
-}
-
-.request-cancel-btn{
-  border:0;
-  background:#b2331c;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.request-cancel-btn:hover{
-  opacity:.92;
-}
-
-.request-cancel-btn:active{
-  transform:translateY(1px);
-}
-
-.request-status-pill{
-  display:inline-block;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:900;
-  font-size:12px;
-  white-space:nowrap;
-  background:#f2f2f2;
-  color:#222;
-}
-
-.request-status-pill.status-new{
-  background:#fff1b8;
-  color:#6b4f00;
-}
-
-.request-status-pill.status-in-progress{
-  background:#dbeafe;
-  color:#1e40af;
-}
-
-.request-status-pill.status-matched{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.request-status-pill.status-closed{
-  background:#e5e7eb;
-  color:#374151;
-}
-.request-status-pill.status-cancelled{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
 @media (max-width:700px){
-  .request-item-top{
+  .request-item-top,
+  .activity-item-top{
     flex-direction:column;
     align-items:flex-start;
   }
 }
 
-@media (max-width:640px){
-  .requests-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .requests-hero .container{
-    padding-top:36px !important;
-  }
-}
-/* ===== All Requests Page ===== */
-.all-requests-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.all-requests-hero .container{
-  padding-top:110px;
-}
-
-.all-requests-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.all-requests-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.all-requests-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.all-requests-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.all-requests-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.all-requests-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.all-requests-wrap{
-  padding:18px 0;
-}
-
-.all-requests-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
+/* ===== All Requests Filters ===== */
 .all-requests-filters{
   display:grid;
   grid-template-columns:1.6fr 1fr 1fr 1fr;
@@ -2014,298 +1131,6 @@ body{
   }
 }
 
-@media (max-width:640px){
-  .all-requests-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .all-requests-hero .container{
-    padding-top:36px !important;
-  }
-}
-
-/* ===== Contractor Onboarding Page ===== */
-.contractor-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.contractor-hero .container{
-  padding-top:110px;
-}
-
-.contractor-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.contractor-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.contractor-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.contractor-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.contractor-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.contractor-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.contractor-wrap{
-  padding:18px 0;
-}
-
-.contractor-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.contractor-form{
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:12px;
-  margin-top:12px;
-}
-
-.contractor-form input,
-.contractor-form select,
-.contractor-form textarea{
-  width:100%;
-  padding:12px 12px;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.12);
-  font-weight:700;
-  outline:0;
-  background:#fff;
-}
-
-.contractor-form textarea{
-  min-height:130px;
-  resize:vertical;
-  grid-column:1 / -1;
-}
-
-.contractor-form input:focus,
-.contractor-form select:focus,
-.contractor-form textarea:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
-}
-
-.contractor-checkbox-group{
-  grid-column:1 / -1;
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  padding:4px 0;
-}
-
-.contractor-checkbox-group label{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  font-weight:800;
-}
-
-.contractor-cta{
-  display:inline-block;
-  margin-top:4px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:12px 16px;
-  border-radius:10px;
-  font-weight:800;
-  border:0;
-  cursor:pointer;
-}
-
-.contractor-status{
-  margin:14px 0 0;
-  font-weight:800;
-}
-
-@media (max-width:700px){
-  .contractor-form{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width:640px){
-  .contractor-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .contractor-hero .container{
-    padding-top:36px !important;
-  }
-}
-
-/* ===== Contractor Leads Page ===== */
-.contractor-leads-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.contractor-leads-hero .container{
-  padding-top:110px;
-}
-
-.contractor-leads-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.contractor-leads-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.contractor-leads-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.contractor-leads-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.contractor-leads-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.contractor-leads-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.contractor-leads-wrap{
-  padding:18px 0;
-}
-
-.contractor-leads-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.lead-response-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:14px;
-}
-
-.lead-accept-btn{
-  border:0;
-  background:#166534;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.lead-decline-btn{
-  border:0;
-  background:#b2331c;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.lead-accept-btn:hover,
-.lead-decline-btn:hover{
-  opacity:.92;
-}
-
-.lead-accept-btn:active,
-.lead-decline-btn:active{
-  transform:translateY(1px);
-}
-
-.request-status-pill.status-offered{
-  background:#fff1b8;
-  color:#6b4f00;
-}
-
-.request-status-pill.status-accepted{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.request-status-pill.status-declined{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-@media (max-width:640px){
-  .contractor-leads-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .contractor-leads-hero .container{
-    padding-top:36px !important;
-  }
-}
-
 /* ===== Freight Load Board ===== */
 .lb-filters{
   display:grid;
@@ -2321,6 +1146,7 @@ body{
   border:1px solid rgba(0,0,0,.12);
   font-weight:700;
   outline:0;
+  background:#fff;
 }
 
 .lb-filters input:focus,
@@ -2385,13 +1211,52 @@ body{
   color:rgba(0,0,0,.7);
 }
 
+.lb-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.lb-contact-btn,
+.lb-delete-btn,
+.lb-delete-job-btn{
+  border:0;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.lb-contact-btn{
+  background:var(--royal);
+}
+
+.lb-delete-btn,
+.lb-delete-job-btn{
+  background:#b2331c;
+}
+
+.lb-contact-btn:hover,
+.lb-delete-btn:hover,
+.lb-delete-job-btn:hover{
+  opacity:.92;
+}
+
+.lb-contact-btn:active,
+.lb-delete-btn:active,
+.lb-delete-job-btn:active{
+  transform:translateY(1px);
+}
+
 @media (max-width:700px){
   .lb-filters{
     grid-template-columns:1fr;
   }
 }
 
-/* ===== Post a Load Form ===== */
+/* ===== Post a Load / Job Forms ===== */
 .post-load-form{
   display:grid;
   grid-template-columns:repeat(2, 1fr);
@@ -2417,105 +1282,19 @@ body{
 }
 
 .post-load-form button{
+  grid-column:1 / -1;
+  justify-self:start;
   border:0;
   cursor:pointer;
+}
+
+.post-load-form input[readonly]{
+  background:#f8fafc;
+  color:#555;
 }
 
 @media (max-width:700px){
   .post-load-form{
-    grid-template-columns:1fr;
-  }
-}
-
-.lb-contact-btn{
-  border:0;
-  background:var(--royal);
-  color:#fff;
-  padding:8px 12px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.lb-contact-btn:hover{
-  opacity:.92;
-}
-
-.lb-contact-btn:active{
-  transform:translateY(1px);
-}
-
-.lb-actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.lb-delete-btn{
-  border:0;
-  background:#b2331c;
-  color:#fff;
-  padding:8px 12px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.lb-delete-btn:hover{
-  opacity:.92;
-}
-
-.lb-delete-btn:active{
-  transform:translateY(1px);
-}
-
-/* ===== Plans Page ===== */
-.plans-grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-}
-
-.plan-card{
-  background:#fff;
-  border-radius:16px;
-  box-shadow:var(--shadow);
-  padding:18px;
-  text-align:left;
-}
-
-.plan-card h2{
-  margin:0 0 8px;
-}
-
-.plan-price{
-  font-weight:900;
-  margin-bottom:12px;
-}
-
-.plan-card ul{
-  padding-left:18px;
-  margin:0 0 12px;
-}
-
-.plan-card li{
-  margin-bottom:6px;
-  font-weight:700;
-}
-
-.plan-note{
-  font-size:14px;
-  opacity:.7;
-}
-
-.plan-card.bronze{ border-top:6px solid #cd7f32; }
-.plan-card.silver{ border-top:6px solid #c0c0c0; }
-.plan-card.gold{ border-top:6px solid var(--gold); }
-
-@media (max-width:800px){
-  .plans-grid{
     grid-template-columns:1fr;
   }
 }
@@ -2581,6 +1360,7 @@ body{
   color:#444;
   font-weight:600;
   line-height:1.45;
+  white-space:pre-wrap;
 }
 
 @media (max-width:700px){
@@ -2590,28 +1370,63 @@ body{
   }
 }
 
-.lb-delete-job-btn{
-  border:0;
-  background:#b2331c;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
+/* ===== Plans Page ===== */
+.plans-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
 }
 
-.lb-delete-job-btn:hover{
-  opacity:.92;
+.plan-card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:18px;
+  text-align:left;
+  transition:transform .18s ease, box-shadow .18s ease;
 }
 
-.lb-delete-job-btn:active{
-  transform:translateY(1px);
+.plan-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 16px 34px rgba(0,0,0,.18);
 }
 
-/* =========================
-   Shared Auth/Header Styles
-========================= */
+.plan-card h2{
+  margin:0 0 8px;
+}
+
+.plan-price{
+  font-weight:900;
+  font-size:22px;
+  margin-bottom:12px;
+}
+
+.plan-card ul{
+  padding-left:18px;
+  margin:0 0 12px;
+}
+
+.plan-card li{
+  margin-bottom:6px;
+  font-weight:700;
+}
+
+.plan-note{
+  font-size:14px;
+  opacity:.75;
+}
+
+.plan-card.bronze{ border-top:6px solid #cd7f32; }
+.plan-card.silver{ border-top:6px solid #c0c0c0; }
+.plan-card.gold{ border-top:6px solid var(--gold); }
+
+@media (max-width:800px){
+  .plans-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ===== Shared Auth Header ===== */
 .login-button{
   position:absolute;
   top:16px;
@@ -2689,18 +1504,9 @@ body{
     font-size:12px;
     white-space:nowrap;
   }
-
-  .trucking-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .trucking-hero .container{
-    padding-top:36px !important;
-  }
 }
 
-/* ===== Shared Contractor Approval Status Box ===== */
+/* ===== Contractor Review Status ===== */
 .contractor-review-status-box{
   margin:0 0 16px;
   padding:14px;
@@ -2764,314 +1570,17 @@ body{
   color:#666;
 }
 
-/* ===== Contractor Admin Page ===== */
-.contractors-admin-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.contractors-admin-hero .container{
-  padding-top:110px;
-}
-
-.contractors-admin-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.contractors-admin-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.contractors-admin-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.contractors-admin-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
-  border:0;
-  border-radius:10px;
-  padding:10px 14px;
-  font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
-}
-
-.contractors-admin-title{
-  margin:0 0 10px;
-  font-size:34px;
-}
-
-.contractors-admin-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
-}
-
-.contractors-admin-wrap{
-  padding:18px 0;
-}
-
-.contractors-admin-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
-}
-
-.contractors-admin-filters{
-  display:grid;
-  grid-template-columns:1.5fr .9fr;
-  gap:10px;
-  margin:12px 0 12px;
-}
-
-.contractors-admin-filter-input,
-.contractors-admin-filter-select{
-  padding:12px 12px;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.12);
-  font-weight:700;
-  outline:0;
-  background:#fff;
-}
-
-.contractors-admin-filter-input:focus,
-.contractors-admin-filter-select:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
-}
-
-.contractors-admin-summary{
-  margin:10px 0 14px;
-  font-weight:800;
-  color:#555;
-}
-
-.contractors-admin-list{
-  display:grid;
-  gap:14px;
-}
-
-.contractor-admin-item{
-  background:#fff;
-  border:1px solid rgba(0,0,0,.08);
-  border-radius:16px;
-  padding:16px;
-  box-shadow:0 10px 24px rgba(0,0,0,.10);
-}
-
-.contractor-admin-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:12px;
-  margin-bottom:10px;
-}
-
-.contractor-admin-title-text{
-  margin:0;
-  font-size:22px;
-  font-weight:900;
-  color:#111;
-}
-
-.contractor-admin-subtitle{
-  margin:4px 0 0;
-  font-weight:800;
-  color:#555;
-}
-
-.contractor-admin-status-pill{
-  display:inline-block;
-  border-radius:999px;
-  padding:6px 12px;
-  font-weight:900;
-  font-size:12px;
-  white-space:nowrap;
-}
-
-.contractor-admin-status-pill.status-pending{
-  background:#fff1b8;
-  color:#6b4f00;
-}
-
-.contractor-admin-status-pill.status-approved{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.contractor-admin-status-pill.status-rejected{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.contractor-admin-meta,
-.contractor-admin-contact{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:10px;
-  font-weight:700;
-  color:#333;
-}
-
-.contractor-admin-equipment,
-.contractor-admin-dates,
-.contractor-admin-notes{
-  margin:8px 0 0;
-  color:#444;
-  font-weight:700;
-}
-
-.contractor-checklist{
-  margin-top:14px;
-  padding:14px;
-  border-radius:14px;
-  background:#f8fafc;
-  border:1px solid rgba(0,0,0,.06);
-}
-
-.contractor-checklist-title-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-
-.contractor-checklist-title{
-  font-weight:900;
-  color:#111;
-}
-
-.contractor-checklist-progress{
-  font-size:12px;
-  font-weight:800;
-  color:#1E3A8A;
-}
-
-.contractor-checklist-items{
-  display:grid;
-  gap:8px;
-}
-
-.contractor-checklist-item{
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-  font-weight:800;
-  color:#333;
-}
-
-.contractor-checklist-item input{
-  margin-top:2px;
-}
-
-.contractor-admin-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top:14px;
-}
-
-.contractor-admin-btn{
-  border:0;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.contractor-admin-btn:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-  box-shadow:none;
-}
-
-.approve-btn{
-  background:#166534;
-}
-
-.pending-btn{
-  background:#6b7280;
-}
-
-.reject-btn{
-  background:#b2331c;
-}
-
-.checklist-save-btn{
-  margin-top:12px;
-  background:#1E3A8A;
-}
-
-.admin-quick-links{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin:0 0 14px;
-}
-
-.admin-quick-link-btn{
-  display:inline-block;
-  background:#1E3A8A;
-  color:#fff;
-  text-decoration:none;
-  padding:10px 14px;
-  border-radius:10px;
-  font-weight:800;
-  box-shadow:0 8px 18px rgba(0,0,0,.14);
-}
-
-.admin-quick-link-btn:hover{
-  opacity:.92;
-}
-
-@media (max-width:700px){
-  .contractors-admin-filters{
-    grid-template-columns:1fr;
-  }
-
-  .contractor-admin-top{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-}
-
-@media (max-width:640px){
-  .contractors-admin-back-floating{
-    top:12px;
-    right:12px;
-  }
-
-  .contractors-admin-hero .container{
-    padding-top:36px !important;
-  }
-}
-
-/* ===== Contractor Review Feedback ===== */
+/* ===== Contractor Feedback / Resubmission ===== */
 .contractor-review-feedback{
   margin-top:12px;
   padding:12px;
   border-radius:12px;
   background:#fffaf0;
   border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-review-feedback[hidden]{
+  display:none !important;
 }
 
 .contractor-review-feedback-title{
@@ -3087,288 +1596,63 @@ body{
   line-height:1.45;
 }
 
-.contractor-review-feedback-editor{
-  margin-top:14px;
-  padding:14px;
-  border-radius:14px;
-  background:#fffaf0;
-  border:1px solid rgba(0,0,0,.06);
-}
-
-.contractor-review-feedback-editor-title{
-  margin:0 0 10px;
-  font-weight:900;
-  color:#111;
-}
-
-.contractor-review-feedback-input{
-  width:100%;
-  min-height:100px;
-  padding:12px 12px;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,.12);
-  font-weight:700;
-  outline:0;
-  background:#fff;
-  resize:vertical;
-}
-
-.contractor-review-feedback-input:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
-}
-
-.review-feedback-save-btn{
+.contractor-resubmission-box{
   margin-top:12px;
-  background:#1E3A8A;
-}
-
-/* ===== Contractor Required Documents ===== */
-.contractor-docs-box{
-  margin:16px 0 18px;
-  padding:16px;
-  border-radius:16px;
-  background:#f8fafc;
-  border:1px solid rgba(0,0,0,.08);
-}
-
-.contractor-docs-title{
-  font-size:20px;
-  font-weight:900;
-  color:#111;
-  margin:0 0 8px;
-}
-
-.contractor-docs-note{
-  margin:0 0 10px;
-  color:#444;
-  font-weight:700;
-  line-height:1.5;
-}
-
-.contractor-docs-required-list{
-  margin:0 0 14px;
-  padding-left:20px;
-  display:grid;
-  gap:6px;
-  color:#333;
-  font-weight:800;
-}
-
-.contractor-doc-upload-row{
-  display:grid;
-  gap:8px;
-  margin-bottom:14px;
-}
-
-.contractor-doc-upload-label{
-  font-weight:900;
-  color:#111;
-}
-
-.contractor-doc-upload-status{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-  font-size:13px;
-}
-
-.contractor-doc-status-pill{
-  display:inline-block;
-  border-radius:999px;
-  padding:5px 10px;
-  font-size:12px;
-  font-weight:900;
-}
-
-.contractor-doc-status-pill.required{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.contractor-doc-status-pill.optional{
-  background:#e5e7eb;
-  color:#374151;
-}
-
-.contractor-doc-status-pill.uploaded{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.contractor-doc-link{
-  font-weight:800;
-  color:#1E3A8A;
-  text-decoration:none;
-}
-
-.contractor-doc-link:hover{
-  text-decoration:underline;
-}
-
-.contractor-doc-meta{
-  color:#555;
-  font-weight:700;
-}
-
-/* ===== Admin Contractor Documents ===== */
-.contractor-admin-docs{
-  margin-top:12px;
-  padding:14px;
-  border-radius:14px;
-  background:#f8fafc;
-  border:1px solid rgba(0,0,0,.06);
-}
-
-.contractor-admin-docs-title{
-  font-weight:900;
-  color:#111;
-  margin:0 0 10px;
-}
-
-.contractor-admin-docs-list{
-  display:grid;
-  gap:10px;
-}
-
-.contractor-admin-doc-row{
-  display:grid;
-  gap:4px;
-}
-
-.contractor-admin-doc-label{
-  font-weight:800;
-  color:#333;
-}
-
-.contractor-admin-doc-link{
-  color:#1E3A8A;
-  font-weight:800;
-  text-decoration:none;
-}
-
-.contractor-admin-doc-link:hover{
-  text-decoration:underline;
-}
-
-.contractor-admin-doc-meta{
-  color:#555;
-  font-size:13px;
-  font-weight:700;
-}
-
-.contractor-admin-doc-missing{
-  color:#991b1b;
-  font-weight:900;
-}
-
-/* ===== Contractor Document Review Status ===== */
-.contractor-doc-review-summary{
-  margin-top:8px;
-  display:grid;
-  gap:4px;
-}
-
-.contractor-doc-review-pill{
-  display:inline-block;
-  width:max-content;
-  border-radius:999px;
-  padding:5px 10px;
-  font-size:12px;
-  font-weight:900;
-}
-
-.contractor-doc-review-pill.status-pending{
-  background:#fff1b8;
-  color:#6b4f00;
-}
-
-.contractor-doc-review-pill.status-approved{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.contractor-doc-review-pill.status-rejected{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.contractor-doc-review-pill.status-needs-replacement{
-  background:#fde68a;
-  color:#92400e;
-}
-
-.contractor-doc-review-note{
-  color:#333;
-  font-weight:800;
-  line-height:1.4;
-}
-
-.contractor-doc-review-meta{
-  color:#666;
-  font-size:12px;
-  font-weight:700;
-}
-
-/* ===== Admin Document Review Controls ===== */
-.contractor-admin-doc-review-controls{
-  display:grid;
-  gap:8px;
-  margin-top:8px;
-}
-
-.contractor-doc-review-select,
-.contractor-doc-review-note{
-  padding:10px 12px;
-  border-radius:10px;
-  border:1px solid rgba(0,0,0,.12);
-  background:#fff;
-  font-weight:700;
-  outline:0;
-}
-
-.contractor-doc-review-select:focus,
-.contractor-doc-review-note:focus{
-  border-color:#1E3A8A;
-  box-shadow:0 0 0 3px rgba(30,58,138,.15);
-}
-
-.contractor-admin-doc-review-meta{
-  color:#666;
-  font-size:12px;
-  font-weight:700;
-}
-
-.contractor-doc-review-save-btn{
-  margin-top:12px;
-  background:#1E3A8A;
-}
-
-/* ===== Admin Approval Blockers ===== */
-.contractor-admin-blockers{
-  margin-top:10px;
   padding:12px;
   border-radius:12px;
-  background:#fff7ed;
-  border:1px solid #fdba74;
+  background:#eff6ff;
+  border:1px solid rgba(30,58,138,.12);
 }
 
-.contractor-admin-blockers-title{
-  font-weight:900;
-  color:#9a3412;
+.contractor-resubmission-box[hidden]{
+  display:none !important;
+}
+
+.contractor-resubmission-title{
   margin:0 0 8px;
+  font-weight:900;
+  color:#111;
 }
 
-.contractor-admin-blockers-list{
+.contractor-resubmission-list{
   margin:0;
   padding-left:18px;
   display:grid;
   gap:6px;
-  color:#7c2d12;
+  color:#374151;
   font-weight:800;
 }
 
+.contractor-resubmission-hint{
+  margin:10px 0 0;
+  color:#444;
+  font-weight:700;
+  line-height:1.45;
+}
+
+.contractor-resubmission-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:12px;
+  text-decoration:none;
+  background:#1E3A8A;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.contractor-resubmission-link:hover{
+  opacity:.92;
+}
+
+.contractor-resubmission-link:active{
+  transform:translateY(1px);
+}
+
+/* ===== Contractor Notifications ===== */
 .contractor-notifications-box{
   margin-top:16px;
   padding:16px;
@@ -3482,6 +1766,14 @@ body{
   color:#fff;
 }
 
+.contractor-notification-read-btn:hover{
+  opacity:.92;
+}
+
+.contractor-notification-read-btn:active{
+  transform:translateY(1px);
+}
+
 .contractor-notification-read-state{
   display:inline-block;
   font-size:.85rem;
@@ -3510,77 +1802,684 @@ body{
   box-shadow:0 8px 18px rgba(31,104,255,.18);
 }
 
+.auth-notification-jump:hover{
+  opacity:.92;
+}
+
+.auth-notification-jump:active{
+  transform:translateY(1px);
+}
+
 .auth-notification-jump.is-hidden{
+  display:none !important;
+}
+
+@media (max-width:700px){
+  .contractor-notification-row{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+/* ===== Contractor Documents ===== */
+.contractor-docs-box{
+  margin:16px 0 18px;
+  padding:16px;
+  border-radius:16px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.08);
+}
+
+.contractor-docs-title{
+  font-size:20px;
+  font-weight:900;
+  color:#111;
+  margin:0 0 8px;
+}
+
+.contractor-docs-note{
+  margin:0 0 10px;
+  color:#444;
+  font-weight:700;
+  line-height:1.5;
+}
+
+.contractor-docs-required-list{
+  margin:0 0 14px;
+  padding-left:20px;
+  display:grid;
+  gap:6px;
+  color:#333;
+  font-weight:800;
+}
+
+.contractor-doc-upload-row{
+  display:grid;
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.contractor-doc-upload-row:last-child{
+  margin-bottom:0;
+}
+
+.contractor-doc-upload-label{
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-doc-upload-row input[type="file"]{
+  width:100%;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+}
+
+.contractor-doc-upload-row input[type="file"]::file-selector-button{
+  margin-right:12px;
+  border:0;
+  border-radius:999px;
+  padding:8px 12px;
+  background:#1E3A8A;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.contractor-doc-upload-status{
+  display:grid;
+  gap:8px;
+  align-items:start;
+  font-size:13px;
+}
+
+.contractor-doc-status-pill{
+  display:inline-block;
+  width:max-content;
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.contractor-doc-status-pill.required{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-doc-status-pill.optional{
+  background:#e5e7eb;
+  color:#374151;
+}
+
+.contractor-doc-status-pill.uploaded{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-doc-link{
+  width:max-content;
+  max-width:100%;
+  word-break:break-word;
+  font-weight:800;
+  color:#1E3A8A;
+  text-decoration:none;
+}
+
+.contractor-doc-link:hover{
+  text-decoration:underline;
+}
+
+.contractor-doc-meta{
+  color:#555;
+  font-weight:700;
+  word-break:break-word;
+}
+
+.contractor-doc-review-summary{
+  display:grid;
+  gap:4px;
+}
+
+.contractor-doc-review-pill{
+  display:inline-block;
+  width:max-content;
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:12px;
+  font-weight:900;
+}
+
+.contractor-doc-review-pill.status-pending{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.contractor-doc-review-pill.status-approved{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-doc-review-pill.status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-doc-review-pill.status-needs-replacement{
+  background:#fde68a;
+  color:#92400e;
+}
+
+.contractor-doc-review-summary .contractor-doc-review-note{
+  color:#333;
+  font-weight:800;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
+
+.contractor-doc-review-meta{
+  color:#666;
+  font-size:12px;
+  font-weight:700;
+}
+
+/* ===== Contractor Admin Page ===== */
+.contractors-admin-filters{
+  display:grid;
+  grid-template-columns:1.5fr .9fr;
+  gap:10px;
+  margin:12px 0 12px;
+}
+
+.contractors-admin-filter-input,
+.contractors-admin-filter-select{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.contractors-admin-filter-input:focus,
+.contractors-admin-filter-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractors-admin-summary{
+  margin:10px 0 14px;
+  font-weight:800;
+  color:#555;
+}
+
+.contractors-admin-list{
+  display:grid;
+  gap:14px;
+}
+
+.contractor-admin-item{
+  background:#fff;
+  border:1px solid rgba(0,0,0,.08);
+  border-radius:16px;
+  padding:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+}
+
+.contractor-admin-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.contractor-admin-title-text{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-admin-subtitle{
+  margin:4px 0 0;
+  font-weight:800;
+  color:#555;
+}
+
+.contractor-admin-status-pill{
+  display:inline-block;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:900;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.contractor-admin-status-pill.status-pending{
+  background:#fff1b8;
+  color:#6b4f00;
+}
+
+.contractor-admin-status-pill.status-approved{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.contractor-admin-status-pill.status-rejected{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.contractor-admin-meta,
+.contractor-admin-contact{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:10px;
+  font-weight:700;
+  color:#333;
+}
+
+.contractor-admin-equipment,
+.contractor-admin-dates,
+.contractor-admin-notes{
+  margin:8px 0 0;
+  color:#444;
+  font-weight:700;
+  white-space:pre-wrap;
+}
+
+.contractor-checklist{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-checklist-title-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.contractor-checklist-title{
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-checklist-progress{
+  font-size:12px;
+  font-weight:800;
+  color:#1E3A8A;
+}
+
+.contractor-checklist-items{
+  display:grid;
+  gap:8px;
+}
+
+.contractor-checklist-item{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-weight:800;
+  color:#333;
+}
+
+.contractor-checklist-item input{
+  margin-top:2px;
+}
+
+.contractor-admin-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.contractor-admin-btn,
+.admin-quick-link-btn,
+.review-feedback-save-btn,
+.contractor-doc-review-save-btn,
+.checklist-save-btn{
+  border:0;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  text-decoration:none;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
+}
+
+.contractor-admin-btn:hover,
+.admin-quick-link-btn:hover,
+.review-feedback-save-btn:hover,
+.contractor-doc-review-save-btn:hover,
+.checklist-save-btn:hover{
+  opacity:.92;
+}
+
+.contractor-admin-btn:active,
+.admin-quick-link-btn:active,
+.review-feedback-save-btn:active,
+.contractor-doc-review-save-btn:active,
+.checklist-save-btn:active{
+  transform:translateY(1px);
+}
+
+.contractor-admin-btn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+.approve-btn{
+  background:#166534;
+}
+
+.pending-btn{
+  background:#6b7280;
+}
+
+.reject-btn{
+  background:#b2331c;
+}
+
+.checklist-save-btn,
+.review-feedback-save-btn,
+.contractor-doc-review-save-btn,
+.admin-quick-link-btn{
+  background:#1E3A8A;
+}
+
+.admin-quick-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:0 0 14px;
+}
+
+.contractor-review-feedback-editor{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:#fffaf0;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-review-feedback-editor-title{
+  margin:0 0 10px;
+  font-weight:900;
+  color:#111;
+}
+
+.contractor-review-feedback-input{
+  width:100%;
+  min-height:100px;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+  resize:vertical;
+}
+
+.contractor-review-feedback-input:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractor-admin-docs{
+  margin-top:12px;
+  padding:14px;
+  border-radius:14px;
+  background:#f8fafc;
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.contractor-admin-docs-title{
+  font-weight:900;
+  color:#111;
+  margin:0 0 10px;
+}
+
+.contractor-admin-docs-list{
+  display:grid;
+  gap:10px;
+}
+
+.contractor-admin-doc-row{
+  display:grid;
+  gap:4px;
+}
+
+.contractor-admin-doc-label{
+  font-weight:800;
+  color:#333;
+}
+
+.contractor-admin-doc-link{
+  color:#1E3A8A;
+  font-weight:800;
+  text-decoration:none;
+  word-break:break-word;
+}
+
+.contractor-admin-doc-link:hover{
+  text-decoration:underline;
+}
+
+.contractor-admin-doc-meta{
+  color:#555;
+  font-size:13px;
+  font-weight:700;
+}
+
+.contractor-admin-doc-missing{
+  color:#991b1b;
+  font-weight:900;
+}
+
+.contractor-admin-doc-review-controls{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+
+.contractor-doc-review-select{
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  font-weight:700;
+  outline:0;
+}
+
+.contractor-doc-review-select:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractor-admin-doc-review-controls .contractor-doc-review-note{
+  width:100%;
+  min-height:90px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(0,0,0,.12);
+  background:#fff;
+  font-weight:700;
+  outline:0;
+  resize:vertical;
+}
+
+.contractor-admin-doc-review-controls .contractor-doc-review-note:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractor-admin-doc-review-meta{
+  color:#666;
+  font-size:12px;
+  font-weight:700;
+}
+
+.contractor-admin-blockers{
+  margin-top:10px;
+  padding:12px;
+  border-radius:12px;
+  background:#fff7ed;
+  border:1px solid #fdba74;
+}
+
+.contractor-admin-blockers-title{
+  font-weight:900;
+  color:#9a3412;
+  margin:0 0 8px;
+}
+
+.contractor-admin-blockers-list{
+  margin:0;
+  padding-left:18px;
+  display:grid;
+  gap:6px;
+  color:#7c2d12;
+  font-weight:800;
+}
+
+@media (max-width:700px){
+  .contractors-admin-filters{
+    grid-template-columns:1fr;
+  }
+
+  .contractor-admin-top{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+/* ===== Contractor Onboarding Form ===== */
+.contractor-form{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.contractor-form input,
+.contractor-form select,
+.contractor-form textarea{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.contractor-form textarea{
+  min-height:130px;
+  resize:vertical;
+  grid-column:1 / -1;
+}
+
+.contractor-form input:focus,
+.contractor-form select:focus,
+.contractor-form textarea:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.contractor-form input[readonly]{
+  background:#f8fafc;
+  color:#555;
+}
+
+.contractor-form button{
+  grid-column:1 / -1;
+  justify-self:start;
+}
+
+.contractor-checkbox-group{
+  grid-column:1 / -1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:4px 0;
+}
+
+.contractor-checkbox-group label{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-weight:800;
+}
+
+.contractor-status{
+  margin:14px 0 0;
+  font-weight:800;
+}
+
+@media (max-width:700px){
+  .contractor-form{
+    grid-template-columns:1fr;
+  }
+}
+
+/* ===== Contractor Leads Page ===== */
+.lead-response-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+
+.lead-response-actions:empty,
+.request-actions:empty,
+.request-quick-actions:empty,
+.admin-request-actions:empty{
   display:none;
 }
 
-/* ===== Get Leads Page ===== */
-.lead-hero{
-  position:relative;
-  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
-  color:#fff;
-  padding:24px 0 16px;
-}
-
-.lead-hero .container{
-  padding-top:110px;
-}
-
-.lead-hero-content{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-}
-
-.lead-back-floating{
-  position:absolute;
-  top:16px;
-  right:20px;
-  z-index:110;
-}
-
-.lead-brand{
-  font-weight:900;
-  font-size:22px;
-  color:var(--gold);
-  margin:0 0 12px;
-}
-
-.lead-back{
-  display:inline-block;
-  background:#fff;
-  color:#0f172a;
+.lead-accept-btn,
+.lead-decline-btn{
   border:0;
-  border-radius:10px;
+  color:#fff;
   padding:10px 14px;
+  border-radius:10px;
   font-weight:800;
-  text-decoration:none;
-  box-shadow:var(--shadow);
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.14);
 }
 
-.lead-title{
-  margin:0 0 10px;
-  font-size:34px;
+.lead-accept-btn{
+  background:#166534;
 }
 
-.lead-hero p{
-  margin:0;
-  font-size:18px;
-  line-height:1.4;
+.lead-decline-btn{
+  background:#b2331c;
 }
 
-.lead-wrap{
-  padding:18px 0;
+.lead-accept-btn:hover,
+.lead-decline-btn:hover{
+  opacity:.92;
 }
 
-.lead-card{
-  background:var(--card);
-  border-radius:14px;
-  box-shadow:var(--shadow);
-  padding:16px;
-  margin-bottom:12px;
+.lead-accept-btn:active,
+.lead-decline-btn:active{
+  transform:translateY(1px);
 }
 
+/* ===== Get Leads Page ===== */
 .lead-form{
   display:grid;
   grid-template-columns:repeat(2, 1fr);
@@ -3613,17 +2512,9 @@ body{
   box-shadow:0 0 0 3px rgba(30,58,138,.15);
 }
 
-.lead-cta{
-  display:inline-block;
-  margin-top:4px;
-  background:var(--royal);
-  color:#fff;
-  text-decoration:none;
-  padding:12px 16px;
-  border-radius:10px;
-  font-weight:800;
-  border:0;
-  cursor:pointer;
+.lead-form button{
+  grid-column:1 / -1;
+  justify-self:start;
 }
 
 .lead-note{
@@ -3632,19 +2523,18 @@ body{
   line-height:1.45;
 }
 
+.lead-note a{
+  color:#1E3A8A;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.lead-note a:hover{
+  text-decoration:underline;
+}
+
 @media (max-width:700px){
   .lead-form{
     grid-template-columns:1fr;
   }
-}
-
-@media (max-width:640px){
-  .lead-back-floating{
-    top:12px;
-    right:12px;
   }
-
-  .lead-hero .container{
-    padding-top:36px !important;
-  }
-}
