@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=35">
+  <link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
   <section class="contractor-hero">
@@ -211,6 +211,25 @@
 
     const params = new URLSearchParams(window.location.search);
 
+    function normalizeCategory(value) {
+      const raw = String(value || "").trim().toLowerCase();
+
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
+
+      return "";
+    }
+
+    const requestedCategory = normalizeCategory(params.get("category"));
+
     const form = document.getElementById("contractorOnboardingForm");
     const contractorBackLink = document.getElementById("contractorBackLink");
     const contractorPageTitle = document.getElementById("contractorPageTitle");
@@ -380,24 +399,7 @@
       }
     };
 
-    let activeCategory = "trucking";
-
-    function normalizeCategory(value) {
-      const raw = String(value || "").trim().toLowerCase();
-
-      if (!raw) return "";
-      if (raw === "trucking") return "trucking";
-      if (raw === "plumbing") return "plumbing";
-      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
-      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
-      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
-      if (raw === "hvac") return "hvac";
-      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
-      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
-      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
-
-      return "";
-    }
+    let activeCategory = requestedCategory || "trucking";
 
     function getCategoryConfig(categoryKey) {
       return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.trucking;
@@ -498,11 +500,16 @@
 
     function renderBusinessTypeOptions(categoryKey, selectedValue = "") {
       const config = getCategoryConfig(categoryKey);
-      const options = config.businessTypes || [];
+      const options = [...(config.businessTypes || [])];
+      const hasSelected = selectedValue && options.includes(selectedValue);
+
+      const finalOptions = hasSelected || !selectedValue
+        ? options
+        : [...options, selectedValue];
 
       coBusinessType.innerHTML = `
         <option value="">Select business type</option>
-        ${options.map((option) => `
+        ${finalOptions.map((option) => `
           <option value="${escapeHtml(option)}" ${selectedValue === option ? "selected" : ""}>
             ${escapeHtml(option)}
           </option>
@@ -846,11 +853,10 @@
         contractorRef,
         (snap) => {
           const liveData = snap.exists() ? snap.data() : null;
+          const snapshotCategory = normalizeCategory(liveData?.category || liveData?.categoryLabel);
+          const lockedCategory = requestedCategory || snapshotCategory || activeCategory || "trucking";
 
-          if (liveData?.category) {
-            applyCategoryUI(normalizeCategory(liveData.category) || activeCategory, liveData.businessType || "");
-          }
-
+          applyCategoryUI(lockedCategory, liveData?.businessType || "");
           applyLiveProfileReviewState(liveData);
         },
         (err) => {
@@ -950,8 +956,6 @@
       );
     }
 
-    const requestedCategory = normalizeCategory(params.get("category"));
-
     async function loadProfile() {
       const currentUser = await waitForAKOAuth();
 
@@ -991,7 +995,6 @@
           el.checked = equipmentTypes.includes(el.value);
         });
 
-        renderBusinessTypeOptions(categoryToUse, data.businessType || "");
         applyLiveProfileReviewState(data);
         contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
       } else {
