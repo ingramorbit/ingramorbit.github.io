@@ -21,6 +21,7 @@
   --cat-auto:#2E7D32;
   --cat-finance:#B1432F;
   --cat-hvac:#0ea5e9;
+  --cat-lawn:#3FA34D;
 }
 
 *{box-sizing:border-box}
@@ -93,6 +94,7 @@ body{
 .cat-auto .top{ background:var(--cat-auto); }
 .cat-finance .top{ background:var(--cat-finance); }
 .cat-hvac .top{ background:var(--cat-hvac); }
+.cat-lawn .top{ background:var(--cat-lawn); }
     .categories .cat:hover{
   transform:translateY(-6px);
   box-shadow:
@@ -739,6 +741,106 @@ body{
     padding-top:36px !important;
   }
 }
+
+/* ===== Lawn Care Page ===== */
+.lawn-care-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.lawn-care-hero .container{
+  padding-top:110px;
+}
+
+.lawn-care-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.lawn-care-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.lawn-care-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.lawn-care-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.lawn-care-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.lawn-care-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.lawn-care-wrap{
+  padding:18px 0;
+}
+
+.lawn-care-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.lawn-care-pill{
+  display:inline-block;
+  background:var(--gold);
+  color:#111;
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:800;
+  margin:6px 8px 0 0;
+}
+
+.lawn-care-cta{
+  display:inline-block;
+  margin-top:10px;
+  background:var(--royal);
+  color:#fff;
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:800;
+}
+
+@media (max-width:640px){
+  .lawn-care-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .lawn-care-hero .container{
+    padding-top:36px !important;
+  }
+}
+
 /* ===== Residential Page ===== */
 .residential-hero{
   position:relative;
