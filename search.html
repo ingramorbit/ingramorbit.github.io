@@ -3,53 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Search • AssistKingOnline</title>
+  <title>AssistKingOnline — Search</title>
+  <link rel="stylesheet" href="styles.css?v=33">
 
   <style>
     :root{
-  /* Brand */
-  --gold:#FFD700;
-  --gold-deep:#e0b800;
-  --royal:#5A2D82;
-  --royal-deep:#2B0F49;
-  --blue:#1F68FF;
-  --crimson:#B2331C;
+      --gold:#FFD700;
+      --gold-deep:#e0b800;
+      --royal:#5A2D82;
+      --royal-deep:#2B0F49;
+      --blue:#1F68FF;
+      --crimson:#B2331C;
       --crimson-deep:#8e2817;
 
-  /* Neutrals */
-  --text:#161616;
-  --card:#ffffff;
-  --shadow:0 10px 30px rgba(0,0,0,.15);
+      --text:#161616;
+      --card:#ffffff;
+      --shadow:0 10px 30px rgba(0,0,0,.15);
 
-  /* Categories */
-  --cat-plumbing:#C03A2B;
-  --cat-electric:#1F68FF;
-  --cat-carpentry:#f2b705;
-  --cat-trucking:#005f73;
-  --cat-auto:#2E7D32;
-  --cat-finance:#B1432F;
-}
+      --cat-plumbing:#C03A2B;
+      --cat-electric:#1F68FF;
+      --cat-carpentry:#f2b705;
+      --cat-trucking:#005f73;
+      --cat-auto:#2E7D32;
+      --cat-finance:#B1432F;
+    }
+
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;
       color:var(--text);
       background:#fff;
     }
+
     .hero{
+      position:relative;
       background:
         radial-gradient(1200px 500px at 20% -40%, rgba(255,215,0,.12), transparent 60%),
         linear-gradient(180deg, #1E3A8A 0%, #0A2A66 55%, #061b3f 100%);
       color:#fff;
-      padding:22px 0 18px;
+      padding:88px 0 18px;
     }
-    .container{max-width:980px;margin:0 auto;padding:0 16px}
+
+    .container{
+      max-width:980px;
+      margin:0 auto;
+      padding:0 16px;
+    }
+
     .toprow{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
     }
+
     .brand{
       font-weight:900;
       letter-spacing:.3px;
@@ -57,6 +66,7 @@
       font-size:22px;
       text-decoration:none;
     }
+
     .homebtn{
       display:inline-flex;
       align-items:center;
@@ -79,11 +89,13 @@
       padding:14px;
       color:#111;
     }
+
     .searchbar{
       display:flex;
       gap:10px;
       align-items:center;
     }
+
     .searchbar input{
       flex:1;
       padding:12px 12px;
@@ -92,6 +104,7 @@
       outline:0;
       font-size:16px;
     }
+
     .searchbar button{
       border:0;
       border-radius:12px;
@@ -109,12 +122,43 @@
       font-weight:900;
       font-size:18px;
     }
+
     .sub{
       margin:0 0 14px;
       color:#333;
       font-weight:600;
       line-height:1.35;
     }
+
+    .muted{opacity:.9}
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:900;
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+
+    .chip:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 24px rgba(0,0,0,.16);
+    }
+
+    #chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:10px 0 2px;
+    }
+
     footer{
       margin-top:26px;
       padding:16px 0;
@@ -123,40 +167,51 @@
       color:#5a5a5a;
       font-weight:600;
     }
-    footer a{color:inherit;text-decoration:none}
-    footer a:hover{text-decoration:underline}
-    .muted{opacity:.9}
-    .chip{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:10px 12px;
-  border-radius:999px;
-  font-weight:900;
-  border:1px solid rgba(0,0,0,.12);
-  background:#fff;
-  color:#111;
-  text-decoration:none;
-  box-shadow:0 8px 18px rgba(0,0,0,.10);
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.chip:hover{
-  transform:translateY(-2px);
-  box-shadow:0 12px 24px rgba(0,0,0,.16);
-}
-    #chips{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin:10px 0 2px;
+
+    footer a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    footer a:hover{
+      text-decoration:underline;
+    }
+
+    @media (max-width: 640px){
+      .hero{
+        padding-top:96px;
+      }
+
+      .toprow{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+
+      .homebtn{
+        align-self:flex-start;
+      }
+
+      .searchbar{
+        flex-direction:column;
+      }
+
+      .searchbar button{
+        width:100%;
+      }
     }
   </style>
-
-  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <header class="hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
     <div class="container">
       <div class="toprow">
         <a class="brand" href="index.html">AssistKingOnline</a>
@@ -171,19 +226,21 @@
 
         <div class="msg" id="msg">Searching…</div>
         <p class="sub" id="sub"></p>
-<div id="chips"></div>
+
+        <div id="chips"></div>
+
         <div class="categories">
-  <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
-  <a class="cat cat-electric" href="electricians.html"><span class="top">⚡ Electricians</span></a>
-  <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
-  <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
-  <a class="cat cat-auto" href="auto.html"><span class="top">🚗 Auto</span></a>
-  <a class="cat cat-finance" href="financial-help.html"><span class="top">💳 Financial Help</span></a>
+          <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
+          <a class="cat cat-electric" href="electricians.html"><span class="top">⚡ Electricians</span></a>
+          <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
+          <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
+          <a class="cat cat-auto" href="auto.html"><span class="top">🚗 Auto</span></a>
+          <a class="cat cat-finance" href="financial-help.html"><span class="top">💳 Financial Help</span></a>
         </div>
-<p class="sub muted" style="margin-top:14px">
-  Tip: Try keywords like <b>“leak”</b>, <b>“outlet”</b>, <b>“deck”</b>, <b>“moving”</b>, or <b>“credit card”</b>.
-</p>   
-        </div>
+
+        <p class="sub muted" style="margin-top:14px">
+          Tip: Try keywords like <b>“leak”</b>, <b>“outlet”</b>, <b>“deck”</b>, <b>“moving”</b>, or <b>“credit card”</b>.
+        </p>
       </div>
     </div>
   </header>
@@ -200,63 +257,70 @@
     </div>
   </footer>
 
-<script>
-  (function(){
-    const params = new URLSearchParams(window.location.search);
-    const q = (params.get("q") || "").trim();
-    const intent = (params.get("intent") || "").trim();
+  <script>
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get("q") || "").trim();
+      const intent = (params.get("intent") || "").trim();
 
-    const msgEl = document.getElementById("msg");
-    const subEl = document.getElementById("sub");
-    const input = document.getElementById("q");
-    const form = document.getElementById("searchForm");
-    const chipsEl = document.getElementById("chips");
+      const msgEl = document.getElementById("msg");
+      const subEl = document.getElementById("sub");
+      const input = document.getElementById("q");
+      const form = document.getElementById("searchForm");
+      const chipsEl = document.getElementById("chips");
 
-    if (input) input.value = q;
+      if (input) input.value = q;
 
-    const chipData = [
-      { label: "Plumbing", href: "plumbing.html" },
-      { label: "Electricians", href: "electricians.html" },
-      { label: "Carpentry", href: "carpentry.html" },
-      { label: "Trucking", href: "trucking.html" },
-      { label: "Auto", href: "auto.html" },
-      { label: "Financial Help", href: "financial-help.html" },
-      { label: "Residential", href: "residential.html" },
-      { label: "Commercial", href: "commercial.html" },
-      { label: "Food", href: "food2.html" }
-    ];
+      const chipData = [
+        { label: "Plumbing", href: "plumbing.html" },
+        { label: "Electricians", href: "electricians.html" },
+        { label: "Carpentry", href: "carpentry.html" },
+        { label: "Trucking", href: "trucking.html" },
+        { label: "Auto", href: "auto.html" },
+        { label: "Financial Help", href: "financial-help.html" },
+        { label: "Residential", href: "residential.html" },
+        { label: "Commercial", href: "commercial.html" },
+        { label: "Food", href: "food2.html" }
+      ];
 
-    function renderChips(show){
-      if (!chipsEl) return;
-      if (!show) { chipsEl.innerHTML = ""; return; }
+      function renderChips(show){
+        if (!chipsEl) return;
+        if (!show) {
+          chipsEl.innerHTML = "";
+          return;
+        }
 
-      chipsEl.innerHTML = chipData
-        .map(c => `<a class="chip" href="${c.href}">${c.label}</a>`)
-        .join("");
-    }
+        chipsEl.innerHTML = chipData
+          .map(c => `<a class="chip" href="${c.href}">${c.label}</a>`)
+          .join("");
+      }
 
-    if (!q) {
-      if (msgEl) msgEl.textContent = "Type a search above to get started.";
-      if (subEl) subEl.textContent = "Or choose a category below.";
-      renderChips(false);
-    } else {
-      if (msgEl) msgEl.textContent = `We found no exact match for “${q}”.`;
-      if (subEl) subEl.textContent =
-        (intent === "unknown")
-          ? "Try these quick picks, or choose a category below:"
-          : "Try one of these categories below:";
-      renderChips(intent === "unknown");
-    }
+      if (!q) {
+        if (msgEl) msgEl.textContent = "Type a search above to get started.";
+        if (subEl) subEl.textContent = "Or choose a category below.";
+        renderChips(false);
+      } else {
+        if (msgEl) msgEl.textContent = `We found no exact match for “${q}”.`;
+        if (subEl) {
+          subEl.textContent =
+            intent === "unknown"
+              ? "Try these quick picks, or choose a category below:"
+              : "Try one of these categories below:";
+        }
+        renderChips(intent === "unknown");
+      }
 
-    if (form) {
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const newQ = (input?.value || "").trim();
-        if (!newQ) return;
-        window.location.href = "search.html?q=" + encodeURIComponent(newQ) + "&intent=unknown";
-      });
-    }
-  })();
-</script>
+      if (form) {
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const newQ = (input?.value || "").trim();
+          if (!newQ) return;
+          window.location.href = "search.html?q=" + encodeURIComponent(newQ) + "&intent=unknown";
+        });
+      }
+    })();
+  </script>
+
+  <script type="module" src="auth.js?v=16"></script>
 </body>
 </html>
