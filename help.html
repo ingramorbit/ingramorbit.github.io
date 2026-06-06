@@ -1,46 +1,89 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>AssistKingOnline — Help</title>
-<style>
-  :root{--gold:#FFD700;--royal:#1E3A8A;--royalDeep:#0A2A66;--text:#161616;--card:#fff;--shadow:0 10px 30px rgba(0,0,0,.15)}
-  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
-  .container{max-width:900px;margin:0 auto;padding:0 16px}
-  .hero{background:linear-gradient(180deg,var(--royal) 0%,var(--royalDeep) 100%);color:#fff;padding:24px 0 16px}
-  .topbar{display:flex;align-items:center;justify-content:space-between}
-  .brand{font-weight:900;font-size:22px;color:var(--gold)}
-  .back{display:inline-block;background:#fff;color:#0f172a;border:0;border-radius:10px;padding:10px 14px;font-weight:800;text-decoration:none;box-shadow:var(--shadow)}
-  h1{margin:14px 0 10px;font-size:34px}
-  main{padding:18px 0}
-  .card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
-  .q{font-weight:900;margin:0 0 6px}
-  a{color:var(--royal)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Help</title>
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
-  <section class="hero">
-    <div class="container">
-      <div class="topbar">
-        <div class="brand">AssistKingOnline</div>
-        <a class="back" href="index.html">← Back to Home</a>
+  <section class="trucking-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
       </div>
-      <h1>Help & Support</h1>
-      <p>Answers to common questions and how to reach us.</p>
+    </div>
+
+    <a class="trucking-back trucking-back-floating" href="index.html">← Back to Home</a>
+
+    <div class="container">
+      <div class="trucking-hero-content">
+        <div class="trucking-brand">AssistKingOnline</div>
+        <h1 class="trucking-title">❓ Help & Support</h1>
+        <p>Find answers, get support, and contact us when you need help.</p>
+      </div>
     </div>
   </section>
 
-  <main class="container">
-    <div class="card">
-      <p class="q">How do I get help?</p>
-      <p>Email us anytime at <a href="mailto:help@assistkingonline.com">help@assistkingonline.com</a>.</p>
+  <main class="container trucking-wrap">
+    <div class="trucking-card">
+      <strong>Need help fast?</strong>
+      <p style="margin:8px 0 14px">
+        If something is not working right, contact us and include as much detail as possible.
+      </p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="trucking-cta" href="mailto:help@assistkingonline.com">Email Support</a>
+        <a class="trucking-cta" href="contact.html">Contact Page</a>
+        <a class="trucking-cta" href="my-requests.html">My Requests</a>
+      </div>
     </div>
 
-    <div class="card">
-      <p class="q">Having trouble with a page?</p>
-      <p>Send a screenshot to <a href="mailto:help@assistkingonline.com">help@assistkingonline.com</a> and we’ll jump on it.</p>
+    <div class="trucking-card">
+      <strong>Common questions</strong>
+
+      <div style="display:grid;gap:14px;margin-top:14px;">
+        <div>
+          <div style="font-weight:900;margin-bottom:6px;">How do I request a service?</div>
+          <p style="margin:0;">
+            Go to the service page you need, then choose the request button to submit your service request.
+          </p>
+        </div>
+
+        <div>
+          <div style="font-weight:900;margin-bottom:6px;">How do I check my request status?</div>
+          <p style="margin:0;">
+            Open <a href="my-requests.html">My Requests</a> to review the requests connected to your account.
+          </p>
+        </div>
+
+        <div>
+          <div style="font-weight:900;margin-bottom:6px;">How do contractors get leads?</div>
+          <p style="margin:0;">
+            Contractors need to complete onboarding, upload required documents, and receive approval before getting leads.
+          </p>
+        </div>
+
+        <div>
+          <div style="font-weight:900;margin-bottom:6px;">What should I send if a page is broken?</div>
+          <p style="margin:0;">
+            Send a screenshot, the page name, what button you clicked, and what happened.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="trucking-card">
+      <strong>Support email</strong>
+      <p style="margin:8px 0 0;">
+        Email us anytime at
+        <a href="mailto:help@assistkingonline.com">help@assistkingonline.com</a>.
+      </p>
     </div>
   </main>
+
+  <script type="module" src="auth.js?v=16"></script>
 </body>
 </html>
