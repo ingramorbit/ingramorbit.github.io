@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Plumbing</title>
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
   <section class="plumbing-hero">
@@ -22,14 +22,14 @@
       <div class="plumbing-hero-content">
         <div class="plumbing-brand">AssistKingOnline</div>
         <h1 class="plumbing-title">🔧 Plumbing</h1>
-        <p>Find trusted plumbers for residential and commercial jobs.</p>
+        <p>Find trusted plumbers for residential and commercial repairs, installs, and emergency jobs.</p>
       </div>
     </div>
   </section>
 
   <main class="container plumbing-wrap">
     <div class="plumbing-card">
-      <strong>Popular requests</strong>
+      <strong>Popular plumbing requests</strong>
       <div>
         <span class="plumbing-pill">Leak Repair</span>
         <span class="plumbing-pill">Water Heater</span>
@@ -42,16 +42,28 @@
 
     <div class="plumbing-card">
       <strong>Get matched</strong>
-      <p style="margin:8px 0 0">Tell us what you need and we’ll connect you with pros.</p>
+      <p style="margin:8px 0 0">Tell us what you need and we’ll help connect you with the right plumbing professional.</p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="plumbing-cta" href="request-service.html?category=plumbing">Start plumbing request</a>
-        <a class="plumbing-cta" href="contractor-onboarding.html">Join as Plumbing Contractor</a>
-        <a class="plumbing-cta" href="my-leads.html">My Leads</a>
+        <a class="plumbing-cta" href="request-service.html?category=plumbing">Start Plumbing Request</a>
+        <a class="plumbing-cta" href="my-requests.html">My Requests</a>
       </div>
     </div>
 
     <div class="plumbing-card">
+      <strong>Own a plumbing business?</strong>
+      <p style="margin:8px 0 0">
+        Grow your visibility, request more work, and post plumbing opportunities for your company.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="plumbing-cta" href="lead.html">Get Leads</a>
+        <a class="plumbing-cta" href="#postPlumbingJob">Post a Job</a>
+        <a class="plumbing-cta" href="my-leads.html">My Leads</a>
+      </div>
+    </div>
+
+    <div class="plumbing-card" id="postPlumbingJob">
       <strong>Post a Job</strong>
       <p style="margin:8px 0 14px">Add a plumbing job or opportunity to the board.</p>
 
@@ -81,7 +93,7 @@
     <section style="margin-top:24px">
       <h2 style="margin:0 0 10px;font-weight:900">Plumbing Job Board</h2>
       <p style="margin:0 0 14px">
-        Find plumbing service calls, installations, repairs, and contractor opportunities.
+        Find plumbing service calls, installations, repairs, maintenance, and contractor opportunities.
       </p>
 
       <div class="plumbing-card">
@@ -111,7 +123,27 @@
     const app = getApp();
     const db = getFirestore(app);
 
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
     let unsubscribeJobsListener = null;
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
 
     function getCurrentUser() {
       return window.AKOUser || null;
@@ -134,17 +166,6 @@
       });
     }
 
-    const jobBoardList = document.getElementById("jobBoardList");
-
-    const postJobForm = document.getElementById("postJobForm");
-    const pjTitle = document.getElementById("pjTitle");
-    const pjCompany = document.getElementById("pjCompany");
-    const pjLocation = document.getElementById("pjLocation");
-    const pjPay = document.getElementById("pjPay");
-    const pjType = document.getElementById("pjType");
-    const pjCategory = document.getElementById("pjCategory");
-    const pjDescription = document.getElementById("pjDescription");
-
     function renderJobs(list) {
       if (!jobBoardList) return;
 
@@ -157,45 +178,69 @@
         return;
       }
 
-      jobBoardList.innerHTML = list.map(job => `
-        <div class="job-card">
-          <div class="job-card-top">
-            <div>
-              <h3 class="job-title">${job.title || ""}</h3>
-              <p class="job-company">${job.company || ""}</p>
+      jobBoardList.innerHTML = list.map(job => {
+        const title = escapeHtml(job.title || "");
+        const company = escapeHtml(job.company || "");
+        const location = escapeHtml(job.location || "");
+        const pay = escapeHtml(job.pay || "");
+        const type = escapeHtml(job.type || "Job");
+        const category = escapeHtml(job.category || "plumbing");
+        const description = escapeHtml(job.description || "Apply for this plumbing opportunity.");
+        const ownerEmail = String(job.ownerEmail || "").trim();
+        const applyHref = ownerEmail
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Plumbing Job"}`)}`
+          : "";
+        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
+
+        return `
+          <div class="job-card">
+            <div class="job-card-top">
+              <div>
+                <h3 class="job-title">${title}</h3>
+                <p class="job-company">${company}</p>
+              </div>
+              <span class="job-badge">${type}</span>
             </div>
-            <span class="job-badge">${job.type || "Job"}</span>
+
+            <div class="job-meta">
+              <span>📍 ${location || "—"}</span>
+              <span>💵 ${pay || "—"}</span>
+              <span>🔧 ${category}</span>
+            </div>
+
+            <p class="job-desc">${description}</p>
+
+            <div class="lb-actions">
+              ${
+                ownerEmail
+                  ? `
+                    <a href="${applyHref}" class="plumbing-cta">
+                      Apply Now
+                    </a>
+                  `
+                  : `
+                    <span class="assignment-note assignment-note-muted">No contact email available.</span>
+                  `
+              }
+
+              ${
+                canDelete
+                  ? `
+                    <button
+                      type="button"
+                      class="lb-delete-job-btn"
+                      data-jobid="${escapeHtml(job._docId || "")}"
+                      data-jobtitle="${title || "this job"}"
+                    >
+                      Delete
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
           </div>
-
-          <div class="job-meta">
-            <span>📍 ${job.location || ""}</span>
-            <span>💵 ${job.pay || ""}</span>
-            <span>🔧 ${job.category || ""}</span>
-          </div>
-
-          <p class="job-desc">${job.description || "Apply for this plumbing opportunity."}</p>
-
-          <div class="lb-actions">
-            <a
-              href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Plumbing Job"}`)}"
-              class="plumbing-cta"
-            >
-              Apply Now
-            </a>
-
-            ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
-              <button
-                type="button"
-                class="lb-delete-job-btn"
-                data-jobid="${job._docId || ""}"
-                data-jobtitle="${job.title || "this job"}"
-              >
-                Delete
-              </button>
-            ` : ""}
-          </div>
-        </div>
-      `).join("");
+        `;
+      }).join("");
     }
 
     function startPlumbingJobsListener() {
@@ -214,14 +259,14 @@
       unsubscribeJobsListener = onSnapshot(
         collection(db, "jobs"),
         (snapshot) => {
-          let jobs = snapshot.docs.map(d => ({
-            _docId: d.id,
-            ...d.data()
+          let jobs = snapshot.docs.map((docSnap) => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
           }));
 
           jobs = jobs
-            .filter(job => (job.category || "").toLowerCase() === "plumbing")
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            .filter((job) => String(job.category || "").toLowerCase() === "plumbing")
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
 
           renderJobs(jobs);
         },
@@ -229,7 +274,7 @@
           console.error(err);
           jobBoardList.innerHTML = `
             <div class="job-card">
-              <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
             </div>
           `;
         }
@@ -240,6 +285,12 @@
       jobBoardList.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".lb-delete-job-btn");
         if (!deleteBtn) return;
+
+        const currentUser = await waitForAKOAuth();
+        if (!currentUser) {
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("plumbing.html")}`;
+          return;
+        }
 
         const jobId = deleteBtn.getAttribute("data-jobid");
         const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
@@ -270,10 +321,10 @@
       postJobForm.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const currentUser = getCurrentUser();
+        const currentUser = await waitForAKOAuth();
 
         if (!currentUser) {
-          alert("You must be logged in to post a job.");
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("plumbing.html")}`;
           return;
         }
 
@@ -289,6 +340,19 @@
           ownerEmail: currentUser.email || "",
           createdAt: Date.now()
         };
+
+        if (
+          !newJob.title ||
+          !newJob.company ||
+          !newJob.location ||
+          !newJob.pay ||
+          !newJob.type ||
+          !newJob.category ||
+          !newJob.description
+        ) {
+          alert("Please complete all job fields.");
+          return;
+        }
 
         try {
           await addDoc(collection(db, "jobs"), newJob);
@@ -314,7 +378,7 @@
       if (jobBoardList) {
         jobBoardList.innerHTML = `
           <div class="job-card">
-            <p style="margin:0;font-weight:800;">Could not load page data: ${err.message}</p>
+            <p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p>
           </div>
         `;
       }
