@@ -3411,3 +3411,138 @@ body{
 .auth-notification-jump.is-hidden{
   display:none;
 }
+
+/* ===== Get Leads Page ===== */
+.lead-hero{
+  position:relative;
+  background:linear-gradient(180deg,#1E3A8A 0%, #0A2A66 100%);
+  color:#fff;
+  padding:24px 0 16px;
+}
+
+.lead-hero .container{
+  padding-top:110px;
+}
+
+.lead-hero-content{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.lead-back-floating{
+  position:absolute;
+  top:16px;
+  right:20px;
+  z-index:110;
+}
+
+.lead-brand{
+  font-weight:900;
+  font-size:22px;
+  color:var(--gold);
+  margin:0 0 12px;
+}
+
+.lead-back{
+  display:inline-block;
+  background:#fff;
+  color:#0f172a;
+  border:0;
+  border-radius:10px;
+  padding:10px 14px;
+  font-weight:800;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
+.lead-title{
+  margin:0 0 10px;
+  font-size:34px;
+}
+
+.lead-hero p{
+  margin:0;
+  font-size:18px;
+  line-height:1.4;
+}
+
+.lead-wrap{
+  padding:18px 0;
+}
+
+.lead-card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+
+.lead-form{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.lead-form input,
+.lead-form select,
+.lead-form textarea{
+  width:100%;
+  padding:12px 12px;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.12);
+  font-weight:700;
+  outline:0;
+  background:#fff;
+}
+
+.lead-form textarea{
+  min-height:140px;
+  resize:vertical;
+  grid-column:1 / -1;
+}
+
+.lead-form input:focus,
+.lead-form select:focus,
+.lead-form textarea:focus{
+  border-color:#1E3A8A;
+  box-shadow:0 0 0 3px rgba(30,58,138,.15);
+}
+
+.lead-cta{
+  display:inline-block;
+  margin-top:4px;
+  background:var(--royal);
+  color:#fff;
+  text-decoration:none;
+  padding:12px 16px;
+  border-radius:10px;
+  font-weight:800;
+  border:0;
+  cursor:pointer;
+}
+
+.lead-note{
+  color:#444;
+  font-weight:700;
+  line-height:1.45;
+}
+
+@media (max-width:700px){
+  .lead-form{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:640px){
+  .lead-back-floating{
+    top:12px;
+    right:12px;
+  }
+
+  .lead-hero .container{
+    padding-top:36px !important;
+  }
+}
