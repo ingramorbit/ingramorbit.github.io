@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Food Services</title>
-  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
   <section class="food-hero">
@@ -22,7 +22,7 @@
       <div class="food-hero-content">
         <div class="food-brand">AssistKingOnline</div>
         <h1 class="food-title">🍽️ Food Services</h1>
-        <p>Restaurant, catering, and food service help—front of house to back of house.</p>
+        <p>Restaurant, catering, and food service help—from front of house to back of house.</p>
       </div>
     </div>
   </section>
@@ -42,11 +42,349 @@
 
     <div class="food-card">
       <strong>Get matched</strong>
-      <p style="margin:8px 0 0">Tell us your event or service need—get fast quotes.</p>
-      <a class="food-cta" href="request-service.html?category=food">Find food pros</a>
+      <p style="margin:8px 0 0">
+        Tell us your event or food-service need and we’ll help connect you with the right provider.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="food-cta" href="request-service.html?category=food">Start Food Service Request</a>
+        <a class="food-cta" href="my-requests.html">My Requests</a>
+      </div>
     </div>
+
+    <div class="food-card">
+      <strong>Own a food-service business?</strong>
+      <p style="margin:8px 0 0">
+        Request leads, promote your business, and post food-service job openings.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="food-cta" href="lead.html">Get Leads</a>
+        <a class="food-cta" href="#postFoodJob">Post a Job</a>
+        <a class="food-cta" href="my-leads.html">My Leads</a>
+      </div>
+    </div>
+
+    <div class="food-card" id="postFoodJob">
+      <strong>Post a Job</strong>
+      <p style="margin:8px 0 14px">Add a food-service job or opportunity to the board.</p>
+
+      <form id="postJobForm" class="post-load-form">
+        <input id="pjTitle" placeholder="Job Title" required />
+        <input id="pjCompany" placeholder="Business Name" required />
+        <input id="pjLocation" placeholder="Location" required />
+        <input id="pjPay" placeholder="Pay / Budget (example: $20/hr or $900 event)" required />
+
+        <select id="pjType" required>
+          <option value="">Select job type</option>
+          <option>Full-Time</option>
+          <option>Part-Time</option>
+          <option>Contract</option>
+          <option>Event-Based</option>
+          <option>Catering</option>
+          <option>Restaurant</option>
+        </select>
+
+        <input id="pjCategory" value="food" readonly />
+        <input id="pjDescription" placeholder="Short job description" required />
+
+        <button type="submit" class="food-cta">Post Job</button>
+      </form>
+    </div>
+
+    <section style="margin-top:24px">
+      <h2 style="margin:0 0 10px;font-weight:900">Food Services Job Board</h2>
+      <p style="margin:0 0 14px">
+        Find catering, prep, restaurant, kitchen, event, and food-service opportunities.
+      </p>
+
+      <div class="food-card">
+        <strong>Featured Opportunities</strong>
+
+        <div id="jobBoardList" class="job-board-list">
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = getApp();
+    const db = getFirestore(app);
+
+    let unsubscribeJobsListener = null;
+
+    const jobBoardList = document.getElementById("jobBoardList");
+
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function getCurrentUser() {
+      return window.AKOUser || null;
+    }
+
+    function isAdminUser() {
+      return !!window.AKOUser && window.AKOUser.tier === "admin";
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function renderJobs(list) {
+      if (!jobBoardList) return;
+
+      if (!list.length) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">No food-service jobs posted right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      jobBoardList.innerHTML = list.map(job => {
+        const title = escapeHtml(job.title || "");
+        const company = escapeHtml(job.company || "");
+        const location = escapeHtml(job.location || "");
+        const pay = escapeHtml(job.pay || "");
+        const type = escapeHtml(job.type || "Job");
+        const category = escapeHtml(job.category || "food");
+        const description = escapeHtml(job.description || "Apply for this food-service opportunity.");
+        const ownerEmail = String(job.ownerEmail || "").trim();
+        const applyHref = ownerEmail
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Food Services Job"}`)}`
+          : "";
+        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
+
+        return `
+          <div class="job-card">
+            <div class="job-card-top">
+              <div>
+                <h3 class="job-title">${title}</h3>
+                <p class="job-company">${company}</p>
+              </div>
+              <span class="job-badge">${type}</span>
+            </div>
+
+            <div class="job-meta">
+              <span>📍 ${location || "—"}</span>
+              <span>💵 ${pay || "—"}</span>
+              <span>🍽️ ${category}</span>
+            </div>
+
+            <p class="job-desc">${description}</p>
+
+            <div class="lb-actions">
+              ${
+                ownerEmail
+                  ? `
+                    <a href="${applyHref}" class="food-cta">
+                      Apply Now
+                    </a>
+                  `
+                  : `
+                    <span class="assignment-note assignment-note-muted">No contact email available.</span>
+                  `
+              }
+
+              ${
+                canDelete
+                  ? `
+                    <button
+                      type="button"
+                      class="lb-delete-job-btn"
+                      data-jobid="${escapeHtml(job._docId || "")}"
+                      data-jobtitle="${title || "this job"}"
+                    >
+                      Delete
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function startFoodJobsListener() {
+      if (!jobBoardList) return;
+
+      if (unsubscribeJobsListener) {
+        unsubscribeJobsListener();
+      }
+
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
+      `;
+
+      unsubscribeJobsListener = onSnapshot(
+        collection(db, "jobs"),
+        (snapshot) => {
+          let jobs = snapshot.docs.map((docSnap) => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          jobs = jobs
+            .filter((job) => String(job.category || "").toLowerCase() === "food")
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+          renderJobs(jobs);
+        },
+        (err) => {
+          console.error(err);
+          jobBoardList.innerHTML = `
+            <div class="job-card">
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      );
+    }
+
+    if (jobBoardList) {
+      jobBoardList.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".lb-delete-job-btn");
+        if (!deleteBtn) return;
+
+        const currentUser = await waitForAKOAuth();
+        if (!currentUser) {
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("food2.html")}`;
+          return;
+        }
+
+        const jobId = deleteBtn.getAttribute("data-jobid");
+        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+
+        if (!jobId) {
+          alert("Could not delete this job.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "jobs", jobId));
+          alert("Job deleted.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postJobForm) {
+      postJobForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = await waitForAKOAuth();
+
+        if (!currentUser) {
+          window.location.href = `index.html?auth=1&return=${encodeURIComponent("food2.html")}`;
+          return;
+        }
+
+        const newJob = {
+          title: (pjTitle.value || "").trim(),
+          company: (pjCompany.value || "").trim(),
+          location: (pjLocation.value || "").trim(),
+          pay: (pjPay.value || "").trim(),
+          type: (pjType.value || "").trim(),
+          category: (pjCategory.value || "").trim(),
+          description: (pjDescription.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now()
+        };
+
+        if (
+          !newJob.title ||
+          !newJob.company ||
+          !newJob.location ||
+          !newJob.pay ||
+          !newJob.type ||
+          !newJob.category ||
+          !newJob.description
+        ) {
+          alert("Please complete all job fields.");
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "jobs"), newJob);
+          postJobForm.reset();
+          if (pjCategory) pjCategory.value = "food";
+          alert("Job posted successfully.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    try {
+      await waitForAKOAuth();
+      startFoodJobsListener();
+    } catch (err) {
+      console.error(err);
+      if (jobBoardList) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
+      }
+    }
+  </script>
 </body>
 </html>
