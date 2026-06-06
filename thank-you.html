@@ -1,18 +1,47 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Thank You — AssistKingOnline</title>
-<style>
-  body{font-family:system-ui;background:#fafafa;color:#222;text-align:center;padding:60px}
-  h1{color:#1E3A8A}
-  a{color:#1E3A8A;text-decoration:none;font-weight:700}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Thank You</title>
+  <link rel="stylesheet" href="styles.css?v=33">
 </head>
 <body>
-  <h1>✅ Thank You!</h1>
-  <p>Your lead has been sent to AssistKingOnline. We’ll review it shortly.</p>
-  <p><a href="index.html">← Return Home</a></p>
+  <section class="lead-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
+
+    <div class="container">
+      <div class="lead-hero-content">
+        <div class="lead-brand">AssistKingOnline</div>
+        <h1 class="lead-title">✅ Thank You</h1>
+        <p>Your submission was received successfully.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container lead-wrap">
+    <div class="lead-card">
+      <strong>We got your request</strong>
+      <p class="lead-note" style="margin:8px 0 14px;">
+        Your lead has been sent to AssistKingOnline. We’ll review it shortly and follow up as needed.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a href="index.html" class="lead-cta">Return Home</a>
+        <a href="plans.html" class="lead-cta">View Plans</a>
+        <a href="contact.html" class="lead-cta">Contact Us</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=16"></script>
 </body>
 </html>
