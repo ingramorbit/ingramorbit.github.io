@@ -1,82 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>AssistKingOnline — Trucking</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Trucking</title>
+  <link rel="stylesheet" href="styles.css?v=36">
 </head>
 <body>
   <section class="trucking-hero">
 
-  <div class="login-button">
-    <div id="authArea">
-      <span id="welcomeUser" class="welcome-user"></span>
-      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
     </div>
-  </div>
 
-  <a class="trucking-back trucking-back-floating" href="index.html">← Back to Home</a>
+    <a class="trucking-back trucking-back-floating" href="index.html">← Back to Home</a>
 
-  <div class="container">
-    <div class="trucking-hero-content">
-      <div class="trucking-brand">AssistKingOnline</div>
-      <h1 class="trucking-title">🚚 Trucking</h1>
-      <p>Local and long-haul freight, hotshot, LTL, and logistics.</p>
+    <div class="container">
+      <div class="trucking-hero-content">
+        <div class="trucking-brand">AssistKingOnline</div>
+        <h1 class="trucking-title">🚚 Trucking</h1>
+        <p>Local and long-haul freight, hotshot, LTL, and logistics support.</p>
+      </div>
     </div>
-  </div>
   </section>
 
-<main class="container trucking-wrap">
-  <div class="trucking-card">
-    <strong>Popular requests</strong>
-    <div>
-      <span class="trucking-pill">Local delivery</span>
-      <span class="trucking-pill">Long-haul</span>
-      <span class="trucking-pill">Hotshot</span>
-      <span class="trucking-pill">LTL freight</span>
+  <main class="container trucking-wrap">
+    <div class="trucking-card">
+      <strong>Popular requests</strong>
+      <div>
+        <span class="trucking-pill">Local delivery</span>
+        <span class="trucking-pill">Long-haul</span>
+        <span class="trucking-pill">Hotshot</span>
+        <span class="trucking-pill">LTL freight</span>
+        <span class="trucking-pill">Dispatch help</span>
+        <span class="trucking-pill">Box truck work</span>
+      </div>
     </div>
-  </div>
 
-  <div class="trucking-card">
-  <strong>Get matched</strong>
-  <p style="margin:8px 0 0">Tell us your lane, equipment, and timing.</p>
-  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-    <a class="trucking-cta" href="request-service.html?category=trucking">Start trucking request</a>
-    <a class="trucking-cta" href="contractor-onboarding.html">Join as Trucking Contractor</a>
-    <a class="trucking-cta" href="my-leads.html">My Leads</a>
-  </div>
-  </div>
-  <div class="trucking-card">
-  <strong>Post a Load</strong>
-  <p style="margin:8px 0 14px">Enter the shipment details below to add a load to the board.</p>
+    <div class="trucking-card">
+      <strong>Get matched</strong>
+      <p style="margin:8px 0 0;">Tell us your lane, equipment, and timing.</p>
 
-  <form id="postLoadForm" class="post-load-form">
-    <input id="plId" placeholder="Load ID (example: AK-1003)" />
-    <input id="plPickupCity" placeholder="Pickup City" required />
-    <input id="plDropCity" placeholder="Drop City" required />
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <a class="trucking-cta" href="request-service.html?category=trucking">Start trucking request</a>
+        <a class="trucking-cta" href="contractor-onboarding.html">Join as Trucking Contractor</a>
+        <a class="trucking-cta" href="my-leads.html">My Leads</a>
+        <a class="trucking-cta" href="plans.html">View Plans</a>
+      </div>
+    </div>
 
-    <select id="plEquipment" required>
-      <option value="">Select equipment</option>
-      <option>Dry Van</option>
-      <option>Reefer</option>
-      <option>Flatbed</option>
-      <option>Power Only</option>
-    </select>
+    <div class="trucking-card">
+      <strong>Post a Load</strong>
+      <p style="margin:8px 0 14px;">Enter the shipment details below to add a load to the board.</p>
 
-    <input id="plWeight" type="number" placeholder="Weight (lbs)" />
-    <input id="plMiles" type="number" placeholder="Miles" required />
-    <input id="plRate" type="number" placeholder="Rate ($)" required />
-    <input id="plPickupDate" type="date" required />
-    <input id="plCommodity" placeholder="Commodity" />
-    <input id="plContact" placeholder="Contact info" required />
+      <form id="postLoadForm" class="post-load-form">
+        <input id="plId" placeholder="Load ID (optional — example: AK-1003)" />
+        <input id="plPickupCity" placeholder="Pickup City" required />
+        <input id="plDropCity" placeholder="Drop City" required />
 
-    <button type="submit" class="trucking-cta">Post Load</button>
-  </form>
-  </div>
-    <!-- Freight Load Board -->
-    <section style="margin-top:18px">
-      <h2 style="margin:0 0 10px;font-weight:900">Freight Load Board</h2>
+        <select id="plEquipment" required>
+          <option value="">Select equipment</option>
+          <option>Dry Van</option>
+          <option>Reefer</option>
+          <option>Flatbed</option>
+          <option>Power Only</option>
+          <option>Hotshot</option>
+        </select>
+
+        <input id="plWeight" type="number" min="0" step="1" placeholder="Weight (lbs)" />
+        <input id="plMiles" type="number" min="1" step="1" placeholder="Miles" required />
+        <input id="plRate" type="number" min="1" step="1" placeholder="Rate ($)" required />
+        <input id="plPickupDate" type="date" required />
+        <input id="plCommodity" placeholder="Commodity" />
+        <input id="plContact" placeholder="Contact info (phone or email)" required />
+
+        <button type="submit" class="trucking-cta">Post Load</button>
+      </form>
+    </div>
+
+    <section style="margin-top:18px;">
+      <h2 style="margin:0 0 10px;font-weight:900;">Freight Load Board</h2>
 
       <div class="lb-filters">
         <input id="lbSearch" placeholder="Search lane, city, commodity..." />
@@ -87,6 +93,7 @@
           <option>Reefer</option>
           <option>Flatbed</option>
           <option>Power Only</option>
+          <option>Hotshot</option>
         </select>
 
         <select id="lbSort">
@@ -121,372 +128,416 @@
         </table>
       </div>
     </section>
-  <div class="trucking-card">
-  <strong>Post a Job</strong>
-  <p style="margin:8px 0 14px">Add a trucking job to the board.</p>
 
-  <form id="postJobForm" class="post-load-form">
-    <input id="pjTitle" placeholder="Job Title" required />
-    <input id="pjCompany" placeholder="Company Name" required />
-    <input id="pjLocation" placeholder="Location" required />
-    <input id="pjPay" placeholder="Pay (example: $1500/week)" required />
+    <div class="trucking-card">
+      <strong>Post a Job</strong>
+      <p style="margin:8px 0 14px;">Add a trucking job to the board.</p>
 
-    <select id="pjType" required>
-      <option value="">Select job type</option>
-      <option>Full-Time</option>
-      <option>Part-Time</option>
-      <option>Contract</option>
-      <option>Local</option>
-      <option>OTR</option>
-    </select>
+      <form id="postJobForm" class="post-load-form">
+        <input id="pjTitle" placeholder="Job Title" required />
+        <input id="pjCompany" placeholder="Company Name" required />
+        <input id="pjLocation" placeholder="Location" required />
+        <input id="pjPay" placeholder="Pay (example: $1500/week)" required />
 
-    <input id="pjCategory" value="trucking" readonly />
-    <input id="pjDescription" placeholder="Short job description" required />
+        <select id="pjType" required>
+          <option value="">Select job type</option>
+          <option>Full-Time</option>
+          <option>Part-Time</option>
+          <option>Contract</option>
+          <option>Local</option>
+          <option>Regional</option>
+          <option>OTR</option>
+        </select>
 
-    <button type="submit" class="trucking-cta">Post Job</button>
-  </form>
-  </div>
-<section style="margin-top:24px">
-  <h2 style="margin:0 0 10px;font-weight:900">Trucking Job Board</h2>
-  <p style="margin:0 0 14px">Find driving, dispatch, warehouse, and logistics opportunities.</p>
-  
-  <div class="trucking-card">
-    <strong>Featured Jobs</strong>
+        <input id="pjCategory" value="trucking" readonly />
 
-    <div id="jobBoardList" class="job-board-list">
-      <div class="job-card">
-        <p style="margin:0;font-weight:800;">Loading jobs...</p>
-      </div>
+        <textarea
+          id="pjDescription"
+          placeholder="Short job description"
+          required
+          style="width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(0,0,0,.12);font-weight:700;outline:0;background:#fff;min-height:110px;resize:vertical;grid-column:1 / -1;"
+        ></textarea>
+
+        <button type="submit" class="trucking-cta">Post Job</button>
+      </form>
     </div>
-  </div>
-</section> 
 
-</main>
+    <section style="margin-top:24px;">
+      <h2 style="margin:0 0 10px;font-weight:900;">Trucking Job Board</h2>
+      <p style="margin:0 0 14px;">Find driving, dispatch, warehouse, and logistics opportunities.</p>
 
-<script type="module" src="auth.js?v=16"></script>
-<script type="module">
-  import {
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      <div class="trucking-card">
+        <strong>Featured Jobs</strong>
 
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  deleteDoc,
-  doc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        <div id="jobBoardList" class="job-board-list">
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-const app = getApp();
-const db = getFirestore(app);
+  <script type="module" src="auth.js?v=16"></script>
 
-  let loads = [];
-  let unsubscribeLoadsListener = null;
-let unsubscribeJobsListener = null;
+  <script type="module">
+    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      deleteDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  function getCurrentUser() {
-    return window.AKOUser || null;
-  }
+    const app = getApp();
+    const db = getFirestore(app);
 
-  function getCurrentUserTier() {
-    return window.AKOUser?.tier || null;
-  }
+    const body = document.getElementById("lbBody");
+    const jobBoardList = document.getElementById("jobBoardList");
 
-  function isAdminUser() {
-    return !!window.AKOUser && window.AKOUser.tier === "admin";
-  }
+    const search = document.getElementById("lbSearch");
+    const equip = document.getElementById("lbEquip");
+    const sort = document.getElementById("lbSort");
 
-  function waitForAKOAuth() {
-    return new Promise((resolve) => {
-      if (window.AKOReady) {
-        resolve(window.AKOUser);
-        return;
-      }
+    const postForm = document.getElementById("postLoadForm");
+    const plId = document.getElementById("plId");
+    const plPickupCity = document.getElementById("plPickupCity");
+    const plDropCity = document.getElementById("plDropCity");
+    const plEquipment = document.getElementById("plEquipment");
+    const plWeight = document.getElementById("plWeight");
+    const plMiles = document.getElementById("plMiles");
+    const plRate = document.getElementById("plRate");
+    const plPickupDate = document.getElementById("plPickupDate");
+    const plCommodity = document.getElementById("plCommodity");
+    const plContact = document.getElementById("plContact");
 
-      document.addEventListener("ako-auth-ready", (e) => {
-        resolve(e.detail.user);
-      }, { once: true });
-    });
-  }
+    const postJobForm = document.getElementById("postJobForm");
+    const pjTitle = document.getElementById("pjTitle");
+    const pjCompany = document.getElementById("pjCompany");
+    const pjLocation = document.getElementById("pjLocation");
+    const pjPay = document.getElementById("pjPay");
+    const pjType = document.getElementById("pjType");
+    const pjCategory = document.getElementById("pjCategory");
+    const pjDescription = document.getElementById("pjDescription");
 
-  const body = document.getElementById("lbBody");
-  const jobBoardList = document.getElementById("jobBoardList");
+    let loads = [];
+    let truckingJobs = [];
+    let unsubscribeLoadsListener = null;
+    let unsubscribeJobsListener = null;
 
-  const search = document.getElementById("lbSearch");
-  const equip = document.getElementById("lbEquip");
-  const sort = document.getElementById("lbSort");
-
-  const postForm = document.getElementById("postLoadForm");
-  const plId = document.getElementById("plId");
-  const plPickupCity = document.getElementById("plPickupCity");
-  const plDropCity = document.getElementById("plDropCity");
-  const plEquipment = document.getElementById("plEquipment");
-  const plWeight = document.getElementById("plWeight");
-  const plMiles = document.getElementById("plMiles");
-  const plRate = document.getElementById("plRate");
-  const plPickupDate = document.getElementById("plPickupDate");
-  const plCommodity = document.getElementById("plCommodity");
-  const plContact = document.getElementById("plContact");
-
-  const postJobForm = document.getElementById("postJobForm");
-  const pjTitle = document.getElementById("pjTitle");
-  const pjCompany = document.getElementById("pjCompany");
-  const pjLocation = document.getElementById("pjLocation");
-  const pjPay = document.getElementById("pjPay");
-  const pjType = document.getElementById("pjType");
-  const pjCategory = document.getElementById("pjCategory");
-  const pjDescription = document.getElementById("pjDescription");
-
-  function dollars(n) {
-    return "$" + Number(n || 0).toLocaleString();
-  }
-
-  function rpm(load) {
-    const miles = Number(load.miles) || 0;
-    const rate = Number(load.rate) || 0;
-    return miles > 0 ? rate / miles : 0;
-  }
-
-  function matches(load, q) {
-    const s = (q || "").toLowerCase().trim();
-    if (!s) return true;
-
-    const hay = [
-      load.id,
-      load.pickupCity,
-      load.dropCity,
-      load.equipment,
-      load.commodity,
-      load.contact
-    ].join(" ").toLowerCase();
-
-    return hay.includes(s);
-  }
-
-  function render(list) {
-    if (!list.length) {
-      body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
-      return;
+    function getCurrentUser() {
+      return window.AKOUser || null;
     }
-    console.log("Rendering loads. AKOUser:", window.AKOUser, "isAdmin:", isAdminUser());
 
-    body.innerHTML = list.map(load => {
-      const perMile = rpm(load);
+    function isAdminUser() {
+      return !!window.AKOUser && window.AKOUser.tier === "admin";
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    function redirectToLogin() {
+      window.location.href = `index.html?auth=1&return=${encodeURIComponent("trucking.html")}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function dollars(n) {
+      return "$" + Number(n || 0).toLocaleString();
+    }
+
+    function rpm(load) {
+      const miles = Number(load.miles) || 0;
+      const rate = Number(load.rate) || 0;
+      return miles > 0 ? rate / miles : 0;
+    }
+
+    function matches(load, q) {
+      const s = (q || "").toLowerCase().trim();
+      if (!s) return true;
+
+      const hay = [
+        load.id,
+        load.pickupCity,
+        load.dropCity,
+        load.equipment,
+        load.commodity,
+        load.contact
+      ].join(" ").toLowerCase();
+
+      return hay.includes(s);
+    }
+
+    function buildJobApplyMarkup(job) {
+      const ownerEmail = String(job.ownerEmail || "").trim();
+
+      if (!ownerEmail) {
+        return `
+          <span class="trucking-cta" style="opacity:.55;cursor:not-allowed;">
+            No contact email
+          </span>
+        `;
+      }
 
       return `
-        <tr>
-          <td>${load.id || ""}</td>
-          <td>${load.pickupCity || ""}</td>
-          <td>${load.dropCity || ""}</td>
-          <td><span class="lb-pill">${load.equipment || ""}</span></td>
-          <td>${load.miles || ""}</td>
-          <td class="lb-money">${dollars(load.rate)}</td>
-          <td>$${perMile.toFixed(2)}</td>
-          <td>${load.pickupDate || ""}</td>
-          <td>${load.contact || ""}</td>
-          <td>
-  <div class="lb-actions">
-    <button
-      type="button"
-      class="lb-contact-btn"
-      data-contact="${load.contact || ""}"
-    >
-      Contact
-    </button>
-
-    ${isAdminUser() ? `
-      <button
-        type="button"
-        class="lb-delete-btn"
-        data-docid="${load._docId || ""}"
-        data-loadid="${load.id || ""}"
-      >
-        Delete
-      </button>
-    ` : ""}
-  </div>
-</td>
-        </tr>
-      `;
-    }).join("");
-  }
-
-  function renderJobs(list) {
-    if (!jobBoardList) return;
-
-    if (!list.length) {
-      jobBoardList.innerHTML = `
-        <div class="job-card">
-          <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
-        </div>
-      `;
-      return;
-    }
-    console.log("Rendering jobs. AKOUser:", window.AKOUser, "isAdmin:", isAdminUser());
-
-    jobBoardList.innerHTML = list.map(job => `
-      <div class="job-card">
-        <div class="job-card-top">
-          <div>
-            <h3 class="job-title">${job.title || ""}</h3>
-            <p class="job-company">${job.company || ""}</p>
-          </div>
-          <span class="job-badge">${job.type || "Job"}</span>
-        </div>
-
-        <div class="job-meta">
-          <span>📍 ${job.location || ""}</span>
-          <span>💵 ${job.pay || ""}</span>
-          <span>🚚 ${job.category || ""}</span>
-        </div>
-
-        <p class="job-desc">${job.description || "Apply for this trucking opportunity."}</p>
-
-        <div class="lb-actions">
-          <a
-  href="mailto:${encodeURIComponent(job.ownerEmail || "")}?subject=${encodeURIComponent(`Application: ${job.title || "Trucking Job"}`)}"
-  class="trucking-cta"
->
-  Apply Now
-</a>
-          ${(job.ownerUid === getCurrentUser()?.uid || isAdminUser()) ? `
-  <button
-    type="button"
-    class="lb-delete-job-btn"
-    data-jobid="${job._docId || ""}"
-    data-jobtitle="${job.title || "this job"}"
-  >
-    Delete
-  </button>
-` : ""}
-        </div>
-      </div>
-    `).join("");
-  }
-
-  function startLoadsListener() {
-  if (!body) return;
-
-  if (unsubscribeLoadsListener) {
-    unsubscribeLoadsListener();
-  }
-
-  body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
-
-  unsubscribeLoadsListener = onSnapshot(
-    collection(db, "loads"),
-    (snapshot) => {
-      loads = snapshot.docs.map(d => ({
-        _docId: d.id,
-        id: d.data().id || d.id,
-        ...d.data()
-      }));
-
-      applyFilters();
-    },
-    (err) => {
-      console.error(err);
-      body.innerHTML = `<tr><td colspan="10">Could not load loads: ${err.message}</td></tr>`;
-    }
-  );
-  }
-
-  function startTruckingJobsListener() {
-  if (!jobBoardList) return;
-
-  if (unsubscribeJobsListener) {
-    unsubscribeJobsListener();
-  }
-
-  jobBoardList.innerHTML = `
-    <div class="job-card">
-      <p style="margin:0;font-weight:800;">Loading jobs...</p>
-    </div>
-  `;
-
-  unsubscribeJobsListener = onSnapshot(
-    collection(db, "jobs"),
-    (snapshot) => {
-      let jobs = snapshot.docs.map(d => ({
-        _docId: d.id,
-        ...d.data()
-      }));
-
-      jobs = jobs
-        .filter(job => (job.category || "").toLowerCase() === "trucking")
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-      renderJobs(jobs);
-    },
-    (err) => {
-      console.error(err);
-      jobBoardList.innerHTML = `
-        <div class="job-card">
-          <p style="margin:0;font-weight:800;">Could not load jobs: ${err.message}</p>
-        </div>
+        <a
+          href="mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Trucking Job"}`)}"
+          class="trucking-cta"
+        >
+          Apply Now
+        </a>
       `;
     }
-  );
-  }
 
-  function applyFilters() {
-    const q = search.value;
-    const e = equip.value;
+    function render(list) {
+      if (!body) return;
 
-    let list = loads.filter(load => matches(load, q));
-
-    if (e) {
-      list = list.filter(load => (load.equipment || "") === e);
-    }
-
-    const mode = sort.value;
-
-    list.sort((a, b) => {
-      if (mode === "rateDesc") return (Number(b.rate) || 0) - (Number(a.rate) || 0);
-      if (mode === "rpmDesc") return rpm(b) - rpm(a);
-      if (mode === "milesAsc") return (Number(a.miles) || 0) - (Number(b.miles) || 0);
-      return String(a.pickupDate || "").localeCompare(String(b.pickupDate || ""));
-    });
-
-    render(list);
-  }
-
-  if (search) search.addEventListener("input", applyFilters);
-  if (equip) equip.addEventListener("change", applyFilters);
-  if (sort) sort.addEventListener("change", applyFilters);
-
-  if (body) {
-    body.addEventListener("click", async (e) => {
-      const contactBtn = e.target.closest(".lb-contact-btn");
-      if (contactBtn) {
-        const contact = (contactBtn.getAttribute("data-contact") || "").trim();
-
-        if (!contact) {
-          alert("No contact info available.");
-          return;
-        }
-
-        const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
-        const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-
-        if (phoneMatch) {
-          const phone = phoneMatch[1].replace(/[^\d+]/g, "");
-          window.location.href = "tel:" + phone;
-          return;
-        }
-
-        if (emailMatch) {
-          window.location.href = "mailto:" + emailMatch[0];
-          return;
-        }
-
-        alert("Contact: " + contact);
+      if (!list.length) {
+        body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
         return;
       }
 
-      const deleteBtn = e.target.closest(".lb-delete-btn");
-      if (deleteBtn) {
+      body.innerHTML = list.map(load => {
+        const perMile = rpm(load);
+
+        return `
+          <tr>
+            <td>${escapeHtml(load.id || "")}</td>
+            <td>${escapeHtml(load.pickupCity || "")}</td>
+            <td>${escapeHtml(load.dropCity || "")}</td>
+            <td><span class="lb-pill">${escapeHtml(load.equipment || "")}</span></td>
+            <td>${escapeHtml(load.miles || "")}</td>
+            <td class="lb-money">${escapeHtml(dollars(load.rate))}</td>
+            <td>${escapeHtml(`$${perMile.toFixed(2)}`)}</td>
+            <td>${escapeHtml(load.pickupDate || "")}</td>
+            <td>${escapeHtml(load.contact || "")}</td>
+            <td>
+              <div class="lb-actions">
+                <button
+                  type="button"
+                  class="lb-contact-btn"
+                  data-contact="${escapeHtml(load.contact || "")}"
+                >
+                  Contact
+                </button>
+
+                ${isAdminUser() ? `
+                  <button
+                    type="button"
+                    class="lb-delete-btn"
+                    data-docid="${escapeHtml(load._docId || "")}"
+                    data-loadid="${escapeHtml(load.id || "")}"
+                  >
+                    Delete
+                  </button>
+                ` : ""}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderJobs(list) {
+      if (!jobBoardList) return;
+
+      if (!list.length) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const currentUser = getCurrentUser();
+
+      jobBoardList.innerHTML = list.map(job => `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${escapeHtml(job.title || "")}</h3>
+              <p class="job-company">${escapeHtml(job.company || "")}</p>
+            </div>
+            <span class="job-badge">${escapeHtml(job.type || "Job")}</span>
+          </div>
+
+          <div class="job-meta">
+            <span>📍 ${escapeHtml(job.location || "")}</span>
+            <span>💵 ${escapeHtml(job.pay || "")}</span>
+            <span>🚚 ${escapeHtml(job.category || "")}</span>
+          </div>
+
+          <p class="job-desc">${escapeHtml(job.description || "Apply for this trucking opportunity.")}</p>
+
+          <div class="lb-actions">
+            ${buildJobApplyMarkup(job)}
+
+            ${(job.ownerUid === currentUser?.uid || isAdminUser()) ? `
+              <button
+                type="button"
+                class="lb-delete-job-btn"
+                data-jobid="${escapeHtml(job._docId || "")}"
+                data-jobtitle="${escapeHtml(job.title || "this job")}"
+              >
+                Delete
+              </button>
+            ` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function applyFilters() {
+      const q = search?.value || "";
+      const e = equip?.value || "";
+      const mode = sort?.value || "date";
+
+      let list = loads.filter(load => matches(load, q));
+
+      if (e) {
+        list = list.filter(load => String(load.equipment || "") === e);
+      }
+
+      list.sort((a, b) => {
+        if (mode === "rateDesc") return (Number(b.rate) || 0) - (Number(a.rate) || 0);
+        if (mode === "rpmDesc") return rpm(b) - rpm(a);
+        if (mode === "milesAsc") return (Number(a.miles) || 0) - (Number(b.miles) || 0);
+        return String(a.pickupDate || "").localeCompare(String(b.pickupDate || ""));
+      });
+
+      render(list);
+    }
+
+    function startLoadsListener() {
+      if (!body) return;
+
+      if (unsubscribeLoadsListener) {
+        unsubscribeLoadsListener();
+      }
+
+      body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
+
+      unsubscribeLoadsListener = onSnapshot(
+        collection(db, "loads"),
+        (snapshot) => {
+          loads = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            id: docSnap.data().id || docSnap.id,
+            ...docSnap.data()
+          }));
+
+          applyFilters();
+        },
+        (err) => {
+          console.error(err);
+          body.innerHTML = `<tr><td colspan="10">Could not load loads: ${escapeHtml(err.message)}</td></tr>`;
+        }
+      );
+    }
+
+    function startTruckingJobsListener() {
+      if (!jobBoardList) return;
+
+      if (unsubscribeJobsListener) {
+        unsubscribeJobsListener();
+      }
+
+      jobBoardList.innerHTML = `
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
+      `;
+
+      unsubscribeJobsListener = onSnapshot(
+        collection(db, "jobs"),
+        (snapshot) => {
+          truckingJobs = snapshot.docs
+            .map(docSnap => ({
+              _docId: docSnap.id,
+              ...docSnap.data()
+            }))
+            .filter(job => String(job.category || "").toLowerCase() === "trucking")
+            .sort((a, b) => (Number(b.createdAt || 0) - Number(a.createdAt || 0)));
+
+          renderJobs(truckingJobs);
+        },
+        (err) => {
+          console.error(err);
+          jobBoardList.innerHTML = `
+            <div class="job-card">
+              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
+            </div>
+          `;
+        }
+      );
+    }
+
+    if (search) search.addEventListener("input", applyFilters);
+    if (equip) equip.addEventListener("change", applyFilters);
+    if (sort) sort.addEventListener("change", applyFilters);
+
+    document.addEventListener("ako-auth-ready", () => {
+      applyFilters();
+      renderJobs(truckingJobs);
+    });
+
+    if (body) {
+      body.addEventListener("click", async (e) => {
+        const contactBtn = e.target.closest(".lb-contact-btn");
+        if (contactBtn) {
+          const contact = String(contactBtn.getAttribute("data-contact") || "").trim();
+
+          if (!contact) {
+            alert("No contact info available.");
+            return;
+          }
+
+          const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
+          const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+
+          if (phoneMatch) {
+            const phone = phoneMatch[1].replace(/[^\d+]/g, "");
+            window.location.href = "tel:" + phone;
+            return;
+          }
+
+          if (emailMatch) {
+            window.location.href = "mailto:" + emailMatch[0];
+            return;
+          }
+
+          alert("Contact: " + contact);
+          return;
+        }
+
+        const deleteBtn = e.target.closest(".lb-delete-btn");
+        if (!deleteBtn) return;
+
+        if (!isAdminUser()) {
+          alert("Admin access is required to delete loads.");
+          return;
+        }
+
         const docId = deleteBtn.getAttribute("data-docid");
         const loadId = deleteBtn.getAttribute("data-loadid") || "this load";
 
@@ -500,7 +551,7 @@ let unsubscribeJobsListener = null;
 
         try {
           await deleteDoc(doc(db, "loads", docId));
-alert("Load deleted.");
+          alert("Load deleted.");
         } catch (err) {
           console.error(err);
           alert(
@@ -509,128 +560,173 @@ alert("Load deleted.");
             "message: " + err.message
           );
         }
-      }
-    });
-  }
-if (jobBoardList) {
-  jobBoardList.addEventListener("click", async (e) => {
-    const deleteBtn = e.target.closest(".lb-delete-job-btn");
-    if (!deleteBtn) return;
-
-    const jobId = deleteBtn.getAttribute("data-jobid");
-    const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
-
-    if (!jobId) {
-      alert("Could not delete this job.");
-      return;
+      });
     }
 
-    const confirmed = confirm(`Delete "${jobTitle}"?`);
-    if (!confirmed) return;
+    if (jobBoardList) {
+      jobBoardList.addEventListener("click", async (e) => {
+        const deleteBtn = e.target.closest(".lb-delete-job-btn");
+        if (!deleteBtn) return;
+
+        const currentUser = getCurrentUser();
+        const jobId = deleteBtn.getAttribute("data-jobid");
+        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+        const job = truckingJobs.find(item => item._docId === jobId);
+
+        if (!jobId || !job) {
+          alert("Could not delete this job.");
+          return;
+        }
+
+        if (!(job.ownerUid === currentUser?.uid || isAdminUser())) {
+          alert("You do not have permission to delete this job.");
+          return;
+        }
+
+        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        if (!confirmed) return;
+
+        try {
+          await deleteDoc(doc(db, "jobs", jobId));
+          alert("Job deleted.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not delete job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postForm) {
+      postForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+          redirectToLogin();
+          return;
+        }
+
+        const newLoad = {
+          id: (plId.value || "").trim() || ("AK-" + Date.now()),
+          pickupCity: (plPickupCity.value || "").trim(),
+          dropCity: (plDropCity.value || "").trim(),
+          equipment: (plEquipment.value || "").trim(),
+          weight: Number(plWeight.value || 0),
+          miles: Number(plMiles.value || 0),
+          rate: Number(plRate.value || 0),
+          pickupDate: (plPickupDate.value || "").trim(),
+          commodity: (plCommodity.value || "").trim(),
+          contact: (plContact.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+
+        if (
+          !newLoad.pickupCity ||
+          !newLoad.dropCity ||
+          !newLoad.equipment ||
+          !newLoad.miles ||
+          !newLoad.rate ||
+          !newLoad.pickupDate ||
+          !newLoad.contact
+        ) {
+          alert("Please complete all required load fields.");
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "loads"), newLoad);
+          postForm.reset();
+          alert("Load posted to board.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save load:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
+
+    if (postJobForm) {
+      postJobForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const currentUser = getCurrentUser();
+
+        if (!currentUser) {
+          redirectToLogin();
+          return;
+        }
+
+        const newJob = {
+          title: (pjTitle.value || "").trim(),
+          company: (pjCompany.value || "").trim(),
+          location: (pjLocation.value || "").trim(),
+          pay: (pjPay.value || "").trim(),
+          type: (pjType.value || "").trim(),
+          category: (pjCategory.value || "").trim(),
+          description: (pjDescription.value || "").trim(),
+          ownerUid: currentUser.uid,
+          ownerEmail: currentUser.email || "",
+          createdAt: Date.now(),
+          updatedAt: Date.now()
+        };
+
+        if (
+          !newJob.title ||
+          !newJob.company ||
+          !newJob.location ||
+          !newJob.pay ||
+          !newJob.type ||
+          !newJob.category ||
+          !newJob.description
+        ) {
+          alert("Please complete all required job fields.");
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "jobs"), newJob);
+          postJobForm.reset();
+          if (pjCategory) pjCategory.value = "trucking";
+          alert("Job posted successfully.");
+        } catch (err) {
+          console.error(err);
+          alert(
+            "Could not save job:\n" +
+            "code: " + err.code + "\n" +
+            "message: " + err.message
+          );
+        }
+      });
+    }
 
     try {
-      await deleteDoc(doc(db, "jobs", jobId));
-alert("Job deleted.");
+      await waitForAKOAuth();
+      startLoadsListener();
+      startTruckingJobsListener();
     } catch (err) {
       console.error(err);
-      alert(
-        "Could not delete job:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
-    }
-  });
-}
-  if (postForm) {
-  postForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const currentUser = getCurrentUser();
-
-    if (!currentUser) {
-      alert("You must be logged in to post a load.");
-      return;
-    }
-
-    const newLoad = {
-      id: (plId.value || "").trim() || ("AK-" + Date.now()),
-      pickupCity: (plPickupCity.value || "").trim(),
-      dropCity: (plDropCity.value || "").trim(),
-      equipment: (plEquipment.value || "").trim(),
-      weight: Number(plWeight.value || 0),
-      miles: Number(plMiles.value || 0),
-      rate: Number(plRate.value || 0),
-      pickupDate: (plPickupDate.value || "").trim(),
-      commodity: (plCommodity.value || "").trim(),
-      contact: (plContact.value || "").trim(),
-      ownerUid: currentUser.uid,
-      ownerEmail: currentUser.email || "",
-      createdAt: Date.now()
-    };
-
-    try {
-      await addDoc(collection(db, "loads"), newLoad);
-postForm.reset();
-alert("Load posted to board.");
-    } catch (err) {
-      console.error(err);
-      alert(
-        "Could not save load:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
-    }
-  });
-  }
-
-  if (postJobForm) {
-    postJobForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const currentUser = getCurrentUser();
-
-      if (!currentUser) {
-        alert("You must be logged in to post a job.");
-        return;
+      if (body) {
+        body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${escapeHtml(err.message)}</td></tr>`;
       }
-
-      const newJob = {
-        title: (pjTitle.value || "").trim(),
-        company: (pjCompany.value || "").trim(),
-        location: (pjLocation.value || "").trim(),
-        pay: (pjPay.value || "").trim(),
-        type: (pjType.value || "").trim(),
-        category: (pjCategory.value || "").trim(),
-        description: (pjDescription.value || "").trim(),
-        ownerUid: currentUser.uid,
-        ownerEmail: currentUser.email || "",
-        createdAt: Date.now()
-      };
-
-      try {
-        await addDoc(collection(db, "jobs"), newJob);
-postJobForm.reset();
-if (pjCategory) pjCategory.value = "trucking";
-alert("Job posted successfully.");
-      } catch (err) {
-        console.error(err);
-        alert(
-          "Could not save job:\n" +
-          "code: " + err.code + "\n" +
-          "message: " + err.message
-        );
+      if (jobBoardList) {
+        jobBoardList.innerHTML = `
+          <div class="job-card">
+            <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
+          </div>
+        `;
       }
-    });
-  }
-
-  try {
-  await waitForAKOAuth();
-  startLoadsListener();
-  startTruckingJobsListener();
-} catch (err) {
-  console.error(err);
-  body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${err.message}</td></tr>`;
-  }
-</script>
+    }
+  </script>
 </body>
 </html>
