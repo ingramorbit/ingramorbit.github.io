@@ -678,26 +678,28 @@ function startContractorProfileListener(currentUser) {
     ref,
     (snap) => {
       if (!snap.exists()) {
-        contractorProfile = null;
-        renderApprovalStatus(null);
-        renderLeadDocumentSummary(null);
+  contractorProfile = null;
+  contractorLeads = [];
+  renderApprovalStatus(null);
+  renderLeadDocumentSummary(null);
 
-        if (unsubscribeContractorLeadsListener) {
-          unsubscribeContractorLeadsListener();
-          unsubscribeContractorLeadsListener = null;
-        }
+  if (unsubscribeContractorLeadsListener) {
+    unsubscribeContractorLeadsListener();
+    unsubscribeContractorLeadsListener = null;
+  }
 
-        renderEmpty("Complete contractor onboarding before you can receive leads.");
-        return;
+  renderEmpty("Complete contractor onboarding before you can receive leads.");
+  return;
       }
 
       contractorProfile = snap.data();
-      renderApprovalStatus(contractorProfile);
-      renderLeadDocumentSummary(contractorProfile);
+renderApprovalStatus(contractorProfile);
+renderLeadDocumentSummary(contractorProfile);
+renderLeads(contractorLeads);
 
-      if (!unsubscribeContractorLeadsListener) {
-        startContractorLeadsListener(currentUser);
-      }
+if (!unsubscribeContractorLeadsListener) {
+  startContractorLeadsListener(currentUser);
+}
     },
     (err) => {
       console.error(err);
