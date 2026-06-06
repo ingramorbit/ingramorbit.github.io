@@ -113,8 +113,6 @@
   collection,
   query,
   where,
-  getDocs,
-  getDoc,
   updateDoc,
   addDoc,
   doc,
@@ -574,8 +572,9 @@ function startContractorLeadNotificationsListener(currentUser) {
 
     contractorLeadsList.innerHTML = items.map(item => {
       const rawStatus = String(item.leadStatus || "offered").toLowerCase();
-      const statusClass = rawStatus.replace(/\s+/g, "-");
-      const canRespond = rawStatus === "offered";
+const statusClass = rawStatus.replace(/\s+/g, "-");
+const contractorApproved = String(contractorProfile?.status || "").toLowerCase() === "approved";
+const canRespond = rawStatus === "offered" && contractorApproved;
 
       return `
         <div class="request-item">
@@ -731,6 +730,13 @@ async function loadMyLeads() {
         return;
       }
 
+      const profileStatus = String(contractorProfile?.status || "").toLowerCase();
+
+if (profileStatus !== "approved") {
+  alert("Your contractor profile must be approved before you can respond to leads.");
+  return;
+}
+
       const confirmed = confirm("Accept this lead?");
       if (!confirmed) return;
 
@@ -780,6 +786,13 @@ async function loadMyLeads() {
         alert("Could not find this lead.");
         return;
       }
+
+      const profileStatus = String(contractorProfile?.status || "").toLowerCase();
+
+if (profileStatus !== "approved") {
+  alert("Your contractor profile must be approved before you can respond to leads.");
+  return;
+}
 
       const confirmed = confirm("Decline this lead?");
       if (!confirmed) return;
