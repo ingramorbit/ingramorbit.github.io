@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Requests</title>
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
   <section class="requests-hero">
@@ -30,7 +30,7 @@
   <main class="container requests-wrap">
     <div class="requests-card">
       <strong>Your submitted requests</strong>
-      <p style="margin:8px 0 14px">This page shows requests tied to your account.</p>
+      <p style="margin:8px 0 14px">This page updates live as your request status changes.</p>
 
       <div id="requestsList" class="requests-list">
         <div class="request-item">
@@ -44,18 +44,25 @@
   <script type="module">
     import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      getFirestore,
+      collection,
+      query,
+      where,
+      updateDoc,
+      addDoc,
+      doc,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
     const app = getApp();
     const db = getFirestore(app);
 
     const requestsList = document.getElementById("requestsList");
+
+    let myRequests = [];
+    let myRequestActivity = [];
+    let unsubscribeRequestsListener = null;
+    let unsubscribeRequestActivityListener = null;
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
@@ -88,62 +95,190 @@
         .replaceAll("'", "&#39;");
     }
 
+    function renderEmpty(message) {
+      requestsList.innerHTML = `
+        <div class="request-item">
+          <p style="margin:0;font-weight:800;">${escapeHtml(message)}</p>
+        </div>
+      `;
+    }
+
+    function getActivitiesForRequest(item) {
+      return myRequestActivity
+        .filter(activity => activity.requestId === item._docId)
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    }
+
+    function getActivityText(activity) {
+      const contractorName =
+        activity.contractorCompanyName ||
+        activity.contractorContactName ||
+        "contractor";
+
+      switch (String(activity.actionType || "").toLowerCase()) {
+        case "assigned":
+          return `Lead assigned to ${contractorName}`;
+        case "reassigned":
+          return `Lead reassigned to ${contractorName}`;
+        case "accepted":
+          return "Contractor accepted lead";
+        case "declined":
+          return "Contractor declined lead";
+        case "status-updated":
+          return `Status changed from ${activity.previousStatus || "—"} to ${activity.nextStatus || "—"}`;
+        default:
+          return activity.message || "Activity recorded";
+      }
+    }
+
+    function getLatestActivityForRequest(item) {
+      const activities = getActivitiesForRequest(item);
+      return activities.length ? activities[0] : null;
+    }
+
+    function getAssignedContractorLabel(item) {
+      if (item.assignedContractorCompanyName) return item.assignedContractorCompanyName;
+      if (item.assignedContractorContactName) return item.assignedContractorContactName;
+      return "";
+    }
+
     function renderRequests(items) {
       if (!items.length) {
-        requestsList.innerHTML = `
-          <div class="request-item">
-            <p style="margin:0;font-weight:800;">You have not submitted any requests yet.</p>
-          </div>
-        `;
+        renderEmpty("You have not submitted any requests yet.");
         return;
       }
 
       requestsList.innerHTML = items.map(item => {
-  const rawStatus = String(item.status || "new").toLowerCase();
-  const statusClass = rawStatus.replace(/\s+/g, "-");
-  const canCancel = rawStatus !== "cancelled" && rawStatus !== "closed";
+        const rawStatus = String(item.status || "new").toLowerCase();
+        const statusClass = rawStatus.replace(/\s+/g, "-");
+        const canCancel = rawStatus !== "cancelled" && rawStatus !== "closed";
+        const latestActivity = getLatestActivityForRequest(item);
+        const assignedContractor = getAssignedContractorLabel(item);
 
-  return `
-    <div class="request-item">
-      <div class="request-item-top">
-        <div>
-          <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
-          <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
-        </div>
-        <span class="request-status-pill status-${escapeHtml(statusClass)}">
-          ${escapeHtml(item.status || "new")}
-        </span>
-      </div>
+        return `
+          <div class="request-item">
+            <div class="request-item-top">
+              <div>
+                <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
+                <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
+              </div>
+              <span class="request-status-pill status-${escapeHtml(statusClass)}">
+                ${escapeHtml(item.status || "new")}
+              </span>
+            </div>
 
-      <div class="request-meta">
-        <span>📍 ${escapeHtml(item.city || "—")}</span>
-        <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-        <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-      </div>
+            <div class="request-meta">
+              <span>📍 ${escapeHtml(item.city || "—")}</span>
+              <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
+              <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+            </div>
 
-      <p class="request-desc">${escapeHtml(item.description || "")}</p>
+            ${
+              latestActivity
+                ? `
+                  <div class="request-latest-activity">
+                    <span>🕒 Latest activity:</span>
+                    <strong>${escapeHtml(getActivityText(latestActivity))}</strong>
+                    <span class="request-latest-activity-time">${escapeHtml(formatDate(latestActivity.createdAt))}</span>
+                  </div>
+                `
+                : `
+                  <div class="request-latest-activity">
+                    <span>🕒 Latest activity:</span>
+                    <strong>No activity yet</strong>
+                  </div>
+                `
+            }
 
-      <div class="request-contact">
-        <span>👤 ${escapeHtml(item.name || "—")}</span>
-        <span>✉️ ${escapeHtml(item.email || "—")}</span>
-        <span>📞 ${escapeHtml(item.phone || "—")}</span>
-      </div>
+            <p class="request-desc">${escapeHtml(item.description || "")}</p>
 
-      <div class="request-actions">
-        ${canCancel ? `
-          <button
-            type="button"
-            class="request-cancel-btn"
-            data-requestid="${escapeHtml(item._docId || "")}"
-            data-servicetype="${escapeHtml(item.serviceType || "this request")}"
-          >
-            Cancel Request
-          </button>
-        ` : ""}
-      </div>
-    </div>
-  `;
-}).join("");
+            <div class="request-contact">
+              <span>👤 ${escapeHtml(item.name || "—")}</span>
+              <span>✉️ ${escapeHtml(item.email || "—")}</span>
+              <span>📞 ${escapeHtml(item.phone || "—")}</span>
+            </div>
+
+            ${
+              assignedContractor
+                ? `
+                  <p class="assignment-note">
+                    Assigned contractor:
+                    <strong>${escapeHtml(assignedContractor)}</strong>
+                  </p>
+                `
+                : ""
+            }
+
+            <div class="request-actions">
+              ${canCancel ? `
+                <button
+                  type="button"
+                  class="request-cancel-btn"
+                  data-requestid="${escapeHtml(item._docId || "")}"
+                  data-servicetype="${escapeHtml(item.serviceType || "this request")}"
+                >
+                  Cancel Request
+                </button>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function startMyRequestsListener(currentUser) {
+      if (unsubscribeRequestsListener) {
+        unsubscribeRequestsListener();
+      }
+
+      const q = query(
+        collection(db, "serviceRequests"),
+        where("ownerUid", "==", currentUser.uid)
+      );
+
+      unsubscribeRequestsListener = onSnapshot(
+        q,
+        (snapshot) => {
+          myRequests = snapshot.docs
+            .map(docSnap => ({
+              _docId: docSnap.id,
+              ...docSnap.data()
+            }))
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+          renderRequests(myRequests);
+        },
+        (err) => {
+          console.error(err);
+          renderEmpty(`Could not load your requests: ${err.message}`);
+        }
+      );
+    }
+
+    function startMyRequestActivityListener(currentUser) {
+      if (unsubscribeRequestActivityListener) {
+        unsubscribeRequestActivityListener();
+      }
+
+      const q = query(
+        collection(db, "requestActivity"),
+        where("ownerUid", "==", currentUser.uid)
+      );
+
+      unsubscribeRequestActivityListener = onSnapshot(
+        q,
+        (snapshot) => {
+          myRequestActivity = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          renderRequests(myRequests);
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
     }
 
     async function loadMyRequests() {
@@ -154,62 +289,78 @@
         return;
       }
 
+      startMyRequestsListener(currentUser);
+      startMyRequestActivityListener(currentUser);
+    }
+
+    requestsList.addEventListener("click", async (e) => {
+      const cancelBtn = e.target.closest(".request-cancel-btn");
+      if (!cancelBtn) return;
+
+      const currentUser = await waitForAKOAuth();
+      const requestId = cancelBtn.getAttribute("data-requestid");
+      const serviceType = cancelBtn.getAttribute("data-servicetype") || "this request";
+
+      if (!requestId) {
+        alert("Could not cancel this request.");
+        return;
+      }
+
+      const requestItem = myRequests.find(item => item._docId === requestId);
+      if (!requestItem) {
+        alert("Could not find this request.");
+        return;
+      }
+
+      const currentStatus = String(requestItem.status || "new").toLowerCase();
+      if (currentStatus === "cancelled" || currentStatus === "closed") {
+        alert("This request can no longer be cancelled.");
+        return;
+      }
+
+      const confirmed = confirm(`Cancel "${serviceType}"?`);
+      if (!confirmed) return;
+
+      const now = Date.now();
+
       try {
-        const q = query(
-          collection(db, "serviceRequests"),
-          where("ownerUid", "==", currentUser.uid)
-        );
+        await updateDoc(doc(db, "serviceRequests", requestId), {
+          status: "cancelled",
+          cancelledAt: now,
+          updatedAt: now
+        });
 
-        const snapshot = await getDocs(q);
+        try {
+          await addDoc(collection(db, "requestActivity"), {
+            requestId: requestId,
+            ownerUid: requestItem.ownerUid || "",
+            contractorUid: requestItem.assignedContractorUid || "",
+            actorUid: currentUser?.uid || "",
+            actorName: currentUser?.name || currentUser?.email || "Customer",
+            actorRole: "customer",
+            actionType: "status-updated",
+            previousStatus: requestItem.status || "new",
+            nextStatus: "cancelled",
+            serviceType: requestItem.serviceType || "",
+            category: requestItem.category || "",
+            contractorCompanyName: requestItem.assignedContractorCompanyName || "",
+            contractorContactName: requestItem.assignedContractorContactName || "",
+            createdAt: now
+          });
+        } catch (activityErr) {
+          console.warn("Request activity log write failed:", activityErr);
+        }
 
-        const items = snapshot.docs
-          .map(doc => ({
-            _docId: doc.id,
-            ...doc.data()
-          }))
-          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-        renderRequests(items);
+        alert("Request cancelled.");
       } catch (err) {
         console.error(err);
-        requestsList.innerHTML = `
-          <div class="request-item">
-            <p style="margin:0;font-weight:800;">Could not load your requests: ${escapeHtml(err.message)}</p>
-          </div>
-        `;
+        alert(
+          "Could not cancel request:\n" +
+          "message: " + err.message
+        );
       }
-    }
-requestsList.addEventListener("click", async (e) => {
-  const cancelBtn = e.target.closest(".request-cancel-btn");
-  if (!cancelBtn) return;
-
-  const requestId = cancelBtn.getAttribute("data-requestid");
-  const serviceType = cancelBtn.getAttribute("data-servicetype") || "this request";
-
-  if (!requestId) {
-    alert("Could not cancel this request.");
-    return;
-  }
-
-  const confirmed = confirm(`Cancel "${serviceType}"?`);
-  if (!confirmed) return;
-
-  try {
-    await updateDoc(doc(db, "serviceRequests", requestId), {
-      status: "cancelled",
-      cancelledAt: Date.now()
     });
 
-    await loadMyRequests();
-    alert("Request cancelled.");
-  } catch (err) {
-    console.error(err);
-    alert(
-      "Could not cancel request:\n" +
-      "message: " + err.message
-    );
-  }
-});
     loadMyRequests();
   </script>
 </body>
