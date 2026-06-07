@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=37">
 </head>
 <body>
   <section class="contractor-hero">
@@ -421,6 +421,18 @@
       return doc(db, "contractors", getProfileDocId(uid, categoryKey));
     }
 
+    function forceVisible(element, show) {
+      if (!element) return;
+
+      element.hidden = !show;
+
+      if (show) {
+        element.style.removeProperty("display");
+      } else {
+        element.style.setProperty("display", "none", "important");
+      }
+    }
+
     async function getCategoryProfile(currentUser, categoryKey) {
       const categoryRef = getProfileDocRef(currentUser.uid, categoryKey);
       const categorySnap = await getDoc(categoryRef);
@@ -460,6 +472,7 @@
         ...legacyData,
         category: categoryKey,
         categoryLabel: config.label,
+        profileDocId: getProfileDocId(currentUser.uid, categoryKey),
         migratedFromLegacyUid: currentUser.uid,
         migratedFromLegacyAt: Date.now(),
         updatedAt: legacyData.updatedAt || Date.now()
@@ -596,8 +609,17 @@
       coDocMcDotProofLabel.textContent = "3. USDOT / MC proof";
       coDocEquipmentProofLabel.textContent = "4. Equipment / truck proof";
 
-      coDocMcDotProofRow.hidden = categoryKey !== "trucking";
-      coDocEquipmentProofRow.hidden = categoryKey !== "trucking";
+      const isTrucking = categoryKey === "trucking";
+
+      forceVisible(coDocMcDotProofRow, isTrucking);
+      forceVisible(coDocEquipmentProofRow, isTrucking);
+
+      if (!isTrucking) {
+        if (coDocMcDotProof) coDocMcDotProof.value = "";
+        if (coDocEquipmentProof) coDocEquipmentProof.value = "";
+        coDocMcDotProofStatus.innerHTML = "";
+        coDocEquipmentProofStatus.innerHTML = "";
+      }
     }
 
     function applyCategoryUI(categoryKey, selectedBusinessType = "") {
@@ -621,9 +643,9 @@
       const isTrucking = activeCategory === "trucking";
       const isHvac = activeCategory === "hvac";
 
-      coTruckIdWrap.hidden = !isTrucking;
-      coEquipmentWrap.hidden = !isTrucking;
-      coHvacLicenseWrap.hidden = !isHvac;
+      forceVisible(coTruckIdWrap, isTrucking);
+      forceVisible(coEquipmentWrap, isTrucking);
+      forceVisible(coHvacLicenseWrap, isHvac);
 
       if (!isTrucking) {
         document.querySelectorAll('input[name="equipment"]').forEach((el) => {
@@ -815,8 +837,6 @@
     }
 
     function renderResubmissionCues(profileData) {
-      if (!contractorResubmissionBox || !contractorResubmissionList || !contractorResubmissionHint) return;
-
       const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
       const shouldShow = safeStatus === "pending" || safeStatus === "rejected";
 
