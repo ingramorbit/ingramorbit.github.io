@@ -499,6 +499,19 @@
       return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.trucking;
     }
 
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
     function getContractorDocId(uid, categoryKey) {
       return `${uid}__${categoryKey}`;
     }
@@ -686,15 +699,6 @@
         if (!file) continue;
 
         const safeName = String(file.name || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
-
-        /*
-          IMPORTANT:
-          This uses the OLD storage path shape your existing Firebase Storage rules
-          are most likely already allowing:
-          contractor-documents/{uid}/{docKey}/{fileName}
-
-          We only add the category into the FILE NAME, not as another folder level.
-        */
         const fileName = `${activeCategory}_${Date.now()}_${safeName}`;
         const path = `contractor-documents/${currentUser.uid}/${entry.key}/${fileName}`;
         const fileRef = storageRef(storage, path);
@@ -1027,11 +1031,6 @@
       if (snap.exists()) {
         data = snap.data();
       } else {
-        /*
-          Legacy fallback:
-          if the user still has the OLD single-doc contractor record at {uid},
-          only use it when it matches the requested category.
-        */
         const legacyRef = doc(db, "contractors", currentUser.uid);
         const legacySnap = await getDoc(legacyRef);
 
