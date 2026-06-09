@@ -4,214 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Requests</title>
-  <link rel="stylesheet" href="styles.css?v=14">
-</head>
-<body>
-  <section class="requests-hero">
-
-    <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
-    </div>
-
-    <a class="requests-back requests-back-floating" href="index.html">← Back to Home</a>
-
-    <div class="container">
-      <div class="requests-hero-content">
-        <div class="requests-brand">AssistKingOnline</div>
-        <h1 class="requests-title">🧾 My Requests</h1>
-        <p>Review the service requests you’ve submitted.</p>
-      </div>
-    </div>
-  </section>
-
-  <main class="container requests-wrap">
-    <div class="requests-card">
-      <strong>Your submitted requests</strong>
-      <p style="margin:8px 0 14px">This page updates live as your request status changes.</p>
-
-      <div id="requestsList" class="requests-list">
-        <div class="request-item">
-          <p style="margin:0;font-weight:800;">Loading your requests...</p>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <script type="module" src="auth.js?v=16"></script>
-  <script type="module">
-    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      where,
-      updateDoc,
-      addDoc,
-      doc,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const app = getApp();
-    const db = getFirestore(app);
-
-    const requestsList = document.getElementById("requestsList");
-
-    let myRequests = [];
-    let myRequestActivity = [];
-    let unsubscribeRequestsListener = null;
-    let unsubscribeRequestActivityListener = null;
-
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
-    function formatDate(value) {
-      if (!value) return "—";
-      try {
-        return new Date(value).toLocaleString();
-      } catch {
-        return "—";
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
-    function renderEmpty(message) {
-      requestsList.innerHTML = `
-        <div class="request-item">
-          <p style="margin:0;font-weight:800;">${escapeHtml(message)}</p>
-        </div>
-      `;
-    }
-
-    function getActivitiesForRequest(item) {
-      return myRequestActivity
-        .filter(activity => activity.requestId === item._docId)
-        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-    }
-
-    function getActivityText(activity) {
-      const contractorName =
-        activity.contractorCompanyName ||
-        activity.contractorContactName ||
-        "contractor";
-
-      switch (String(activity.actionType || "").toLowerCase()) {
-        case "assigned":
-          return `Lead assigned to ${contractorName}`;
-        case "reassigned":
-          return `Lead reassigned to ${contractorName}`;
-        case "accepted":
-          return "Contractor accepted lead";
-        case "declined":
-          return "Contractor declined lead";
-        case "status-updated":
-          return `Status changed from ${activity.previousStatus || "—"} to ${activity.nextStatus || "—"}`;
-        default:
-          return activity.message || "Activity recorded";
-      }
-    }
-
-    function getLatestActivityForRequest(item) {
-      const activities = getActivitiesForRequest(item);
-      return activities.length ? activities[0] : null;
-    }
-
-    function getAssignedContractorLabel(item) {
-      if (item.assignedContractorCompanyName) return item.assignedContractorCompanyName;
-      if (item.assignedContractorContactName) return item.assignedContractorContactName;
-      return "";
-    }
-
-    function renderRequests(items) {
-      if (!items.length) {
-        renderEmpty("You have not submitted any requests yet.");
-        return;
-      }
-
-      requestsList.innerHTML = items.map(item => {
-        const rawStatus = String(item.status || "new").toLowerCase();
-        const statusClass = rawStatus.replace(/\s+/g, "-");
-        const canCancel = rawStatus !== "cancelled" && rawStatus !== "closed";
-        const latestActivity = getLatestActivityForRequest(item);
-        const assignedContractor = getAssignedContractorLabel(item);
-
-        return `
-          <div class="request-item">
-            <div class="request-item-top">
-              <div>
-                <h3 class="request-item-title">${escapeHtml(item.serviceType || "Service Request")}</h3>
-                <p class="request-item-subtitle">${escapeHtml(item.categoryLabel || item.category || "")}</p>
-              </div>
-              <span class="request-status-pill status-${escapeHtml(statusClass)}">
-                ${escapeHtml(item.status || "new")}
-              </span>
-            </div>
-
-            <div class="request-meta">
-              <span>📍 ${escapeHtml(item.city || "—")}</span>
-              <span>⏱ ${escapeHtml(item.urgency || "—")}</span>
-              <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
-            </div>
-
-            ${
-              latestActivity
-                ? `
-                  <div class="request-latest-activity">
-                    <span>🕒 Latest activity:</span>
-                    <strong>${escapeHtml(getActivityText(latestActivity))}</strong>
-                    <span class="request-latest-activity-time">${escapeHtml(formatDate(latestActivity.createdAt))}</span>
-                  </div>
-                `
-                : `
-                  <div class="request-latest-activity">
-                    <span>🕒 Latest activity:</span>
-                    <strong>No activity yet</strong>
-                  </div>
-                `
-            }
-
-            <p class="request-desc">${escapeHtml(item.description || "")}</p>
-
-            <div class="request-contact">
-              <span>👤 ${escapeHtml(item.name || "—")}</span>
-              <span>✉️ ${escapeHtml(item.email || "—")}</span>
-              <span>📞 ${escapeHtml(item.phone || "—")}</span>
-            </div>
-
-            ${
-              assignedContractor
-                ? `
-                  <p class="assignment-note">
-                    Assigned contractor:
-                    <strong>${escapeHtml(assignedContractor)}</strong>
-                  </p>
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AssistKingOnline — My Requests</title>
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=37">
 </head>
 <body>
   <section class="requests-hero">
@@ -285,6 +78,25 @@
       });
     }
 
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
+      return raw;
+    }
+
     function formatDate(value) {
       if (!value) return "—";
       try {
@@ -309,6 +121,33 @@
           <p style="margin:0;font-weight:800;">${escapeHtml(message)}</p>
         </div>
       `;
+    }
+
+    async function createContractorNotification({
+      contractorUid,
+      contractorRecordId = "",
+      category = "",
+      title,
+      message,
+      type = "general",
+      actorUid = "",
+      actorName = "Customer"
+    }) {
+      const safeContractorUid = String(contractorUid || "").trim();
+      if (!safeContractorUid || !title || !message) return;
+
+      await addDoc(collection(db, "contractorNotifications"), {
+        contractorUid: safeContractorUid,
+        contractorRecordId: String(contractorRecordId || "").trim(),
+        category: normalizeCategory(category || ""),
+        title: String(title).trim(),
+        message: String(message).trim(),
+        type: String(type || "general").trim(),
+        actorUid: String(actorUid || "").trim(),
+        actorName: String(actorName || "Customer").trim(),
+        isRead: false,
+        createdAt: Date.now()
+      });
     }
 
     function getActivitiesForRequest(item) {
@@ -345,9 +184,17 @@
     }
 
     function getAssignedContractorLabel(item) {
-      if (item.assignedContractorCompanyName) return item.assignedContractorCompanyName;
-      if (item.assignedContractorContactName) return item.assignedContractorContactName;
-      return "";
+      const companyOrName =
+        item.assignedContractorCompanyName ||
+        item.assignedContractorContactName ||
+        "";
+
+      const categoryLabel = String(item.assignedContractorCategory || "").trim();
+
+      if (!companyOrName) return "";
+      if (!categoryLabel) return companyOrName;
+
+      return `${companyOrName} (${categoryLabel})`;
     }
 
     function renderRequests(items) {
@@ -540,6 +387,7 @@
 
         const leadRef = doc(db, "contractorLeads", requestId);
         const leadSnap = await getDoc(leadRef);
+        const leadData = leadSnap.exists() ? leadSnap.data() : null;
 
         if (leadSnap.exists()) {
           await updateDoc(leadRef, {
@@ -553,7 +401,9 @@
           await addDoc(collection(db, "requestActivity"), {
             requestId: requestId,
             ownerUid: requestItem.ownerUid || "",
-            contractorUid: requestItem.assignedContractorUid || "",
+            contractorUid: requestItem.assignedContractorUid || leadData?.contractorUid || "",
+            contractorRecordId: requestItem.assignedContractorRecordId || leadData?.contractorRecordId || "",
+            contractorCategory: requestItem.assignedContractorCategory || leadData?.contractorCategory || "",
             actorUid: currentUser?.uid || "",
             actorName: currentUser?.name || currentUser?.email || "Customer",
             actorRole: "customer",
@@ -562,12 +412,31 @@
             nextStatus: "cancelled",
             serviceType: requestItem.serviceType || "",
             category: requestItem.category || "",
-            contractorCompanyName: requestItem.assignedContractorCompanyName || "",
-            contractorContactName: requestItem.assignedContractorContactName || "",
+            contractorCompanyName: requestItem.assignedContractorCompanyName || leadData?.contractorCompanyName || "",
+            contractorContactName: requestItem.assignedContractorContactName || leadData?.contractorContactName || "",
             createdAt: now
           });
         } catch (activityErr) {
           console.warn("Request activity log write failed:", activityErr);
+        }
+
+        const contractorUid = String(
+          requestItem.assignedContractorUid ||
+          leadData?.contractorUid ||
+          ""
+        ).trim();
+
+        if (contractorUid) {
+          await createContractorNotification({
+            contractorUid,
+            contractorRecordId: requestItem.assignedContractorRecordId || leadData?.contractorRecordId || "",
+            category: requestItem.assignedContractorCategory || leadData?.contractorCategory || normalizeCategory(requestItem.category || requestItem.categoryLabel || ""),
+            title: "Customer cancelled request",
+            message: `${requestItem.serviceType || "A request"} in ${requestItem.city || "your area"} was cancelled by the customer.`,
+            type: "request-cancelled",
+            actorUid: currentUser?.uid || "",
+            actorName: currentUser?.name || currentUser?.email || "Customer"
+          });
         }
 
         alert("Request cancelled.");
