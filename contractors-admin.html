@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=38">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -31,7 +31,7 @@
     <div class="contractors-admin-card">
       <strong>Contractor review queue</strong>
       <p style="margin:8px 0 14px;">
-        Only <strong>approved</strong> contractors will appear in trucking assignment recommendations and dropdowns.
+        Only <strong>approved</strong> contractors will appear in assignment recommendations and dropdowns for their category.
       </p>
 
       <div class="contractors-admin-filters">
@@ -103,6 +103,63 @@
     let unsubscribeContractorsListener = null;
     let unsubscribeContractorReviewActivityListener = null;
 
+    const CATEGORY_DOC_CONFIG = {
+      trucking: [
+        { key: "businessIdentity", label: "Legal business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "mcDotProof", label: "USDOT / MC proof", required: true },
+        { key: "equipmentProof", label: "Equipment / truck proof", required: false }
+      ],
+      plumbing: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "plumbingLicense", label: "Plumbing contractor / plumber license (upload if applicable)", required: false },
+        { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
+      ],
+      electricians: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "electricalLicense", label: "Electrical contractor / electrician license (upload if applicable)", required: false },
+        { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
+      ],
+      carpentry: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "contractorLicense", label: "Contractor license (upload if applicable)", required: false },
+        { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
+      ],
+      auto: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Garage / liability insurance certificate", required: true },
+        { key: "aseOrRepairCert", label: "ASE certification or repair license (upload if applicable)", required: false },
+        { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
+      ],
+      hvac: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "hvacLicense", label: "HVAC contractor license", required: false },
+        { key: "epa608Proof", label: "EPA 608 certification (recommended)", required: false }
+      ],
+      "financial-help": [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Professional liability / E&O insurance (if available)", required: true },
+        { key: "financeCert", label: "Professional certification or license (upload if applicable)", required: false },
+        { key: "businessRegistration", label: "Business registration or tax prep credential (recommended)", required: false }
+      ],
+      "lawn-care": [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "pesticideLicense", label: "Pesticide / applicator license (upload if applicable)", required: false },
+        { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
+      ],
+      food: [
+        { key: "businessIdentity", label: "Business / identity document", required: true },
+        { key: "insuranceProof", label: "Insurance certificate", required: true },
+        { key: "foodPermit", label: "Food permit / health permit (upload if applicable)", required: false },
+        { key: "servsafeProof", label: "ServSafe or food safety certificate (recommended)", required: false }
+      ]
+    };
+
     function waitForAKOAuth() {
       return new Promise((resolve) => {
         if (window.AKOReady) {
@@ -114,6 +171,25 @@
           resolve(e.detail.user);
         }, { once: true });
       });
+    }
+
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
+      return raw;
     }
 
     function escapeHtml(value) {
@@ -132,6 +208,307 @@
       } catch {
         return "—";
       }
+    }
+
+    function getContractorOwnerUid(contractor) {
+      const direct = String(
+        contractor?.ownerUid ||
+        contractor?.uid ||
+        contractor?.userUid ||
+        contractor?.contractorUid ||
+        ""
+      ).trim();
+
+      if (direct) return direct;
+
+      const recordId = String(contractor?._docId || "").trim();
+      if (recordId.includes("__")) {
+        return recordId.split("__")[0];
+      }
+
+      return recordId;
+    }
+
+    function getContractorRecordId(contractor) {
+      const recordId = String(contractor?._docId || "").trim();
+      if (recordId) return recordId;
+
+      const ownerUid = getContractorOwnerUid(contractor);
+      const categoryKey = getCategoryKey(contractor);
+
+      if (ownerUid && categoryKey) {
+        return `${ownerUid}__${categoryKey}`;
+      }
+
+      return ownerUid;
+    }
+
+    function getCategoryKey(item) {
+      return normalizeCategory(item.category || item.categoryLabel || "") || "trucking";
+    }
+
+    function getCategoryLabel(item) {
+      return String(item.categoryLabel || item.category || "—");
+    }
+
+    function getChecklistConfig(item) {
+      const categoryKey = getCategoryKey(item);
+
+      if (categoryKey === "trucking") {
+        return [
+          { key: "legalIdentityVerified", label: "Legal company / contact verified" },
+          { key: "mcDotVerified", label: "USDOT / MC checked" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "equipmentVerified", label: "Equipment matches profile" },
+          { key: "serviceAreaVerified", label: "Service area / lanes confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "hvac") {
+        return [
+          { key: "licenseVerified", label: "HVAC license reviewed" },
+          { key: "epaVerified", label: "EPA / required certifications reviewed" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "serviceAreaVerified", label: "Service area confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "plumbing") {
+        return [
+          { key: "licenseVerified", label: "Plumbing license reviewed" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "serviceAreaVerified", label: "Service area confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "electricians") {
+        return [
+          { key: "licenseVerified", label: "Electrical license reviewed" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "serviceAreaVerified", label: "Service area confirmed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "food") {
+        return [
+          { key: "identityVerified", label: "Business identity verified" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "permitVerified", label: "Permit / health document reviewed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      if (categoryKey === "financial-help") {
+        return [
+          { key: "identityVerified", label: "Business identity verified" },
+          { key: "insuranceVerified", label: "Insurance proof reviewed" },
+          { key: "credentialVerified", label: "Credential / certification reviewed" },
+          { key: "contactVerified", label: "Phone / email verified" }
+        ];
+      }
+
+      return [
+        { key: "identityVerified", label: "Business identity verified" },
+        { key: "insuranceVerified", label: "Insurance proof reviewed" },
+        { key: "serviceAreaVerified", label: "Service area confirmed" },
+        { key: "contactVerified", label: "Phone / email verified" }
+      ];
+    }
+
+    function getChecklistState(item) {
+      return item.reviewChecklist || {};
+    }
+
+    function getChecklistProgress(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+      const completed = config.filter(entry => state[entry.key] === true).length;
+
+      return {
+        completed,
+        total: config.length
+      };
+    }
+
+    function getContractorDocumentEntries(item) {
+      const categoryKey = getCategoryKey(item);
+      return CATEGORY_DOC_CONFIG[categoryKey] || CATEGORY_DOC_CONFIG.trucking;
+    }
+
+    function getRequiredContractorDocumentKeys(item) {
+      return getContractorDocumentEntries(item)
+        .filter(entry => entry.required)
+        .map(entry => entry.key);
+    }
+
+    function getRequiredContractorDocumentLabelMap(item) {
+      return Object.fromEntries(
+        getContractorDocumentEntries(item).map(entry => [entry.key, entry.label])
+      );
+    }
+
+    function getRequiredDocumentApprovalSummary(item) {
+      const requiredKeys = getRequiredContractorDocumentKeys(item);
+      const documents = item.documents || {};
+      const documentReview = item.documentReview || {};
+
+      let uploaded = 0;
+      let approved = 0;
+
+      requiredKeys.forEach(key => {
+        if (documents?.[key]?.url) {
+          uploaded += 1;
+        }
+
+        if (String(documentReview?.[key]?.status || "").toLowerCase() === "approved") {
+          approved += 1;
+        }
+      });
+
+      return {
+        requiredTotal: requiredKeys.length,
+        uploaded,
+        approved
+      };
+    }
+
+    function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) {
+      const requiredKeys = getRequiredContractorDocumentKeys(item);
+      const documents = item.documents || {};
+      const documentReview = documentReviewOverride || item.documentReview || {};
+      const labelMap = getRequiredContractorDocumentLabelMap(item);
+
+      return requiredKeys.flatMap(key => {
+        const label = labelMap[key] || key;
+        const hasUploadedFile = !!documents?.[key]?.url;
+        const reviewStatus = String(documentReview?.[key]?.status || "pending").toLowerCase();
+
+        if (!hasUploadedFile) {
+          return [`${label} — missing upload`];
+        }
+
+        if (reviewStatus !== "approved") {
+          return [`${label} — ${reviewStatus}`];
+        }
+
+        return [];
+      });
+    }
+
+    function getAutoDocumentFeedbackLines(item, documentReviewOverride = null) {
+      const docEntries = getContractorDocumentEntries(item);
+      const documents = item.documents || {};
+      const documentReview = documentReviewOverride || item.documentReview || {};
+
+      return docEntries.flatMap(entry => {
+        const hasUploadedFile = !!documents?.[entry.key]?.url;
+        const review = documentReview[entry.key] || {};
+        const reviewStatus = String(review.status || "pending").toLowerCase();
+        const reviewNote = String(review.note || "").trim();
+
+        if (!hasUploadedFile) {
+          if (entry.required) {
+            return [`${entry.label}: upload required document.`];
+          }
+          return [];
+        }
+
+        if (reviewStatus === "approved") {
+          return [];
+        }
+
+        if (reviewStatus === "needs-replacement") {
+          return [
+            reviewNote
+              ? `${entry.label}: needs replacement — ${reviewNote}`
+              : `${entry.label}: needs replacement.`
+          ];
+        }
+
+        if (reviewStatus === "rejected") {
+          return [
+            reviewNote
+              ? `${entry.label}: rejected — ${reviewNote}`
+              : `${entry.label}: rejected.`
+          ];
+        }
+
+        if (reviewStatus === "pending") {
+          return [
+            reviewNote
+              ? `${entry.label}: pending review — ${reviewNote}`
+              : `${entry.label}: pending review.`
+          ];
+        }
+
+        return [
+          reviewNote
+            ? `${entry.label}: ${reviewNote}`
+            : `${entry.label}: ${reviewStatus}.`
+        ];
+      });
+    }
+
+    function buildContractorFacingReviewFeedback(item, documentReviewOverride = null, manualFeedbackOverride = null) {
+      const manualFeedback = String(
+        manualFeedbackOverride ?? item.reviewFeedbackManual ?? ""
+      ).trim();
+
+      const documentLines = getAutoDocumentFeedbackLines(item, documentReviewOverride);
+      const parts = [];
+
+      if (manualFeedback) {
+        parts.push(manualFeedback);
+      }
+
+      if (documentLines.length) {
+        parts.push(`Document action items:\n- ${documentLines.join("\n- ")}`);
+      }
+
+      return parts.join("\n\n").trim();
+    }
+
+    async function createContractorNotification({
+      contractorUid,
+      contractorRecordId = "",
+      category = "",
+      title,
+      message,
+      type = "general",
+      actorUid = "",
+      actorName = "Admin"
+    }) {
+      const safeContractorUid = String(contractorUid || "").trim();
+      if (!safeContractorUid || !title || !message) return;
+
+      await addDoc(collection(db, "contractorNotifications"), {
+        contractorUid: safeContractorUid,
+        contractorRecordId: String(contractorRecordId || "").trim(),
+        category: normalizeCategory(category || ""),
+        title: String(title).trim(),
+        message: String(message).trim(),
+        type: String(type || "general").trim(),
+        actorUid: String(actorUid || "").trim(),
+        actorName: String(actorName || "Admin").trim(),
+        isRead: false,
+        createdAt: Date.now()
+      });
+    }
+
+    function areRequiredDocumentsApproved(item) {
+      return getBlockingRequiredDocumentLabels(item).length === 0;
+    }
+
+    function canApproveContractor(item) {
+      const config = getChecklistConfig(item);
+      const state = getChecklistState(item);
+      const checklistComplete = config.every(entry => state[entry.key] === true);
+
+      return checklistComplete && areRequiredDocumentsApproved(item);
     }
 
     function renderContractorReviewActivity(items = []) {
@@ -155,6 +532,7 @@
 
           <div class="contractor-review-activity-meta">
             <span><strong>Contractor:</strong> ${escapeHtml(item.contractorCompanyName || item.contractorContactName || "—")}</span>
+            <span><strong>Category:</strong> ${escapeHtml(item.categoryLabel || item.category || "—")}</span>
             <span><strong>Admin:</strong> ${escapeHtml(item.actorName || "Admin")}</span>
           </div>
 
@@ -178,7 +556,8 @@
       if (!contractor?._docId || !summary) return;
 
       await addDoc(collection(db, "contractorReviewActivity"), {
-        contractorUid: contractor._docId,
+        contractorUid: getContractorOwnerUid(contractor),
+        contractorRecordId: getContractorRecordId(contractor),
         contractorCompanyName: contractor.companyName || "",
         contractorContactName: contractor.contactName || "",
         contractorEmail: contractor.email || "",
@@ -187,7 +566,8 @@
         actionType: actionType || "general",
         summary: String(summary).trim(),
         details: String(details || "").trim(),
-        category: contractor.category || contractor.categoryLabel || "",
+        category: getCategoryKey(contractor),
+        categoryLabel: getCategoryLabel(contractor),
         statusAtTime: statusAtTime || contractor.status || "",
         createdAt: Date.now()
       });
@@ -226,238 +606,6 @@
           }
         }
       );
-    }
-
-    function getCategoryKey(item) {
-      const raw = String(item.category || item.categoryLabel || "").toLowerCase();
-
-      if (raw.includes("trucking")) return "trucking";
-      if (raw.includes("hvac")) return "hvac";
-
-      return "general";
-    }
-
-    function getChecklistConfig(item) {
-      const categoryKey = getCategoryKey(item);
-
-      if (categoryKey === "trucking") {
-        return [
-          { key: "legalIdentityVerified", label: "Legal company / contact verified" },
-          { key: "mcDotVerified", label: "USDOT / MC checked" },
-          { key: "insuranceVerified", label: "Insurance proof reviewed" },
-          { key: "equipmentVerified", label: "Equipment matches profile" },
-          { key: "serviceAreaVerified", label: "Service area / lanes confirmed" },
-          { key: "contactVerified", label: "Phone / email verified" }
-        ];
-      }
-
-      if (categoryKey === "hvac") {
-        return [
-          { key: "stateLicenseVerified", label: "State license verified" },
-          { key: "epa608Verified", label: "EPA 608 / required certs reviewed" },
-          { key: "insuranceVerified", label: "Insurance proof reviewed" },
-          { key: "serviceAreaVerified", label: "Service area confirmed" },
-          { key: "contactVerified", label: "Phone / email verified" }
-        ];
-      }
-
-      return [
-        { key: "identityVerified", label: "Business identity verified" },
-        { key: "insuranceVerified", label: "Insurance proof reviewed" },
-        { key: "contactVerified", label: "Phone / email verified" }
-      ];
-    }
-
-    function getChecklistState(item) {
-      return item.reviewChecklist || {};
-    }
-
-    function getChecklistProgress(item) {
-      const config = getChecklistConfig(item);
-      const state = getChecklistState(item);
-      const completed = config.filter(entry => state[entry.key] === true).length;
-
-      return {
-        completed,
-        total: config.length
-      };
-    }
-
-    function getRequiredContractorDocumentKeys(item) {
-      const rawCategory = String(item.category || item.categoryLabel || "").toLowerCase();
-
-      if (rawCategory.includes("trucking")) {
-        return ["businessIdentity", "insuranceProof", "mcDotProof"];
-      }
-
-      if (rawCategory.includes("hvac")) {
-        return ["businessIdentity", "insuranceProof"];
-      }
-
-      return ["businessIdentity", "insuranceProof"];
-    }
-
-    function getRequiredContractorDocumentLabelMap() {
-      return {
-        businessIdentity: "Business / identity",
-        insuranceProof: "Insurance certificate",
-        mcDotProof: "USDOT / MC proof",
-        equipmentProof: "Equipment / truck proof"
-      };
-    }
-
-    function getRequiredDocumentApprovalSummary(item) {
-      const requiredKeys = getRequiredContractorDocumentKeys(item);
-      const documents = item.documents || {};
-      const documentReview = item.documentReview || {};
-
-      let uploaded = 0;
-      let approved = 0;
-
-      requiredKeys.forEach(key => {
-        if (documents?.[key]?.url) {
-          uploaded += 1;
-        }
-
-        if (String(documentReview?.[key]?.status || "").toLowerCase() === "approved") {
-          approved += 1;
-        }
-      });
-
-      return {
-        requiredTotal: requiredKeys.length,
-        uploaded,
-        approved
-      };
-    }
-
-    function getBlockingRequiredDocumentLabels(item, documentReviewOverride = null) {
-      const requiredKeys = getRequiredContractorDocumentKeys(item);
-      const documents = item.documents || {};
-      const documentReview = documentReviewOverride || item.documentReview || {};
-      const labelMap = getRequiredContractorDocumentLabelMap();
-
-      return requiredKeys.flatMap(key => {
-        const label = labelMap[key] || key;
-        const hasUploadedFile = !!documents?.[key]?.url;
-        const reviewStatus = String(documentReview?.[key]?.status || "pending").toLowerCase();
-
-        if (!hasUploadedFile) {
-          return [`${label} — missing upload`];
-        }
-
-        if (reviewStatus !== "approved") {
-          return [`${label} — ${reviewStatus}`];
-        }
-
-        return [];
-      });
-    }
-
-    function getAutoDocumentFeedbackLines(item, documentReviewOverride = null) {
-      const requiredKeys = getRequiredContractorDocumentKeys(item);
-      const documents = item.documents || {};
-      const documentReview = documentReviewOverride || item.documentReview || {};
-      const labelMap = getRequiredContractorDocumentLabelMap();
-
-      return requiredKeys.flatMap(key => {
-        const label = labelMap[key] || key;
-        const hasUploadedFile = !!documents?.[key]?.url;
-        const review = documentReview[key] || {};
-        const reviewStatus = String(review.status || "pending").toLowerCase();
-        const reviewNote = String(review.note || "").trim();
-
-        if (!hasUploadedFile) {
-          return [`${label}: upload required document.`];
-        }
-
-        if (reviewStatus === "approved") {
-          return [];
-        }
-
-        if (reviewStatus === "needs-replacement") {
-          return [
-            reviewNote
-              ? `${label}: needs replacement — ${reviewNote}`
-              : `${label}: needs replacement.`
-          ];
-        }
-
-        if (reviewStatus === "rejected") {
-          return [
-            reviewNote
-              ? `${label}: rejected — ${reviewNote}`
-              : `${label}: rejected.`
-          ];
-        }
-
-        if (reviewStatus === "pending") {
-          return [
-            reviewNote
-              ? `${label}: pending review — ${reviewNote}`
-              : `${label}: pending review.`
-          ];
-        }
-
-        return [
-          reviewNote
-            ? `${label}: ${reviewNote}`
-            : `${label}: ${reviewStatus}.`
-        ];
-      });
-    }
-
-    function buildContractorFacingReviewFeedback(item, documentReviewOverride = null, manualFeedbackOverride = null) {
-      const manualFeedback = String(
-        manualFeedbackOverride ?? item.reviewFeedbackManual ?? ""
-      ).trim();
-
-      const documentLines = getAutoDocumentFeedbackLines(item, documentReviewOverride);
-      const parts = [];
-
-      if (manualFeedback) {
-        parts.push(manualFeedback);
-      }
-
-      if (documentLines.length) {
-        parts.push(`Document action items:\n- ${documentLines.join("\n- ")}`);
-      }
-
-      return parts.join("\n\n").trim();
-    }
-
-    async function createContractorNotification({
-      contractorId,
-      title,
-      message,
-      type = "general",
-      actorUid = "",
-      actorName = "Admin"
-    }) {
-      if (!contractorId || !title || !message) return;
-
-      await addDoc(collection(db, "contractorNotifications"), {
-        contractorUid: contractorId,
-        title: String(title).trim(),
-        message: String(message).trim(),
-        type: String(type || "general").trim(),
-        actorUid: String(actorUid || "").trim(),
-        actorName: String(actorName || "Admin").trim(),
-        isRead: false,
-        createdAt: Date.now()
-      });
-    }
-
-    function areRequiredDocumentsApproved(item) {
-      return getBlockingRequiredDocumentLabels(item).length === 0;
-    }
-
-    function canApproveContractor(item) {
-      const config = getChecklistConfig(item);
-      const state = getChecklistState(item);
-      const checklistComplete = config.every(entry => state[entry.key] === true);
-
-      return checklistComplete && areRequiredDocumentsApproved(item);
     }
 
     function renderChecklist(item) {
@@ -502,32 +650,27 @@
       `;
     }
 
-    function getContractorDocumentEntries() {
-      return [
-        { key: "businessIdentity", label: "Business / identity" },
-        { key: "insuranceProof", label: "Insurance certificate" },
-        { key: "mcDotProof", label: "USDOT / MC proof" },
-        { key: "equipmentProof", label: "Equipment / truck proof" }
-      ];
-    }
-
     function renderContractorDocuments(item) {
       const documents = item.documents || {};
       const documentReview = item.documentReview || {};
+      const docEntries = getContractorDocumentEntries(item);
 
       return `
         <div class="contractor-admin-docs">
           <div class="contractor-admin-docs-title">Uploaded documents</div>
 
           <div class="contractor-admin-docs-list">
-            ${getContractorDocumentEntries().map(entry => {
+            ${docEntries.map(entry => {
               const meta = documents[entry.key];
               const review = documentReview[entry.key] || {};
               const reviewStatus = String(review.status || "pending").toLowerCase();
 
               return `
                 <div class="contractor-admin-doc-row">
-                  <span class="contractor-admin-doc-label">${escapeHtml(entry.label)}</span>
+                  <span class="contractor-admin-doc-label">
+                    ${escapeHtml(entry.label)}
+                    ${entry.required ? " · required" : " · recommended"}
+                  </span>
 
                   ${
                     meta?.url
@@ -601,6 +744,7 @@
             item.state,
             item.businessType,
             item.category,
+            item.categoryLabel,
             item.notes,
             ...(Array.isArray(item.equipmentTypes) ? item.equipmentTypes : [])
           ].join(" ").toLowerCase();
@@ -672,7 +816,7 @@
             <div class="contractor-admin-meta">
               <span>📍 ${escapeHtml(item.city || "—")}${item.state ? `, ${escapeHtml(item.state)}` : ""}</span>
               <span>🏷 ${escapeHtml(item.businessType || "—")}</span>
-              <span>🚚 ${escapeHtml(item.categoryLabel || item.category || "—")}</span>
+              <span>📂 ${escapeHtml(getCategoryLabel(item))}</span>
             </div>
 
             <div class="contractor-admin-contact">
@@ -680,6 +824,8 @@
               <span>📞 ${escapeHtml(item.phone || "—")}</span>
             </div>
 
+            <p class="contractor-admin-dates"><strong>Record ID:</strong> ${escapeHtml(getContractorRecordId(item))}</p>
+            <p class="contractor-admin-dates"><strong>Owner UID:</strong> ${escapeHtml(getContractorOwnerUid(item) || "—")}</p>
             <p class="contractor-admin-equipment"><strong>Equipment:</strong> ${escapeHtml(equipmentText)}</p>
             <p class="contractor-admin-dates"><strong>Created:</strong> ${escapeHtml(formatDate(item.createdAt))}</p>
             <p class="contractor-admin-dates"><strong>Updated:</strong> ${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</p>
@@ -791,26 +937,7 @@
       renderContractors(items);
     }
 
-    async function loadContractors() {
-      const currentUser = await waitForAKOAuth();
-
-      if (!currentUser) {
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
-        return;
-      }
-
-      if (currentUser.tier !== "admin") {
-        contractorsAdminList.innerHTML = `
-          <div class="contractor-admin-item">
-            <p style="margin:0;font-weight:800;">Admin access is required.</p>
-          </div>
-        `;
-        contractorsAdminSummary.textContent = "Admin access is required.";
-        return;
-      }
-
-      startContractorReviewActivityListener();
-
+    function startContractorsListener() {
       if (unsubscribeContractorsListener) {
         unsubscribeContractorsListener();
       }
@@ -837,6 +964,28 @@
       );
     }
 
+    async function loadContractors() {
+      const currentUser = await waitForAKOAuth();
+
+      if (!currentUser) {
+        window.location.href = `index.html?auth=1&return=${encodeURIComponent("contractors-admin.html")}`;
+        return;
+      }
+
+      if (currentUser.tier !== "admin") {
+        contractorsAdminList.innerHTML = `
+          <div class="contractor-admin-item">
+            <p style="margin:0;font-weight:800;">Admin access is required.</p>
+          </div>
+        `;
+        contractorsAdminSummary.textContent = "Admin access is required.";
+        return;
+      }
+
+      startContractorReviewActivityListener();
+      startContractorsListener();
+    }
+
     contractorsAdminList.addEventListener("click", async (e) => {
       const currentUser = await waitForAKOAuth();
       if (!currentUser || currentUser.tier !== "admin") {
@@ -853,6 +1002,10 @@
           alert("Could not find this contractor.");
           return;
         }
+
+        const contractorUid = getContractorOwnerUid(contractor);
+        const contractorRecordId = getContractorRecordId(contractor);
+        const contractorCategory = getCategoryKey(contractor);
 
         const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
           .find(el => el.getAttribute("data-contractorid") === contractorId);
@@ -891,9 +1044,11 @@
           });
 
           await createContractorNotification({
-            contractorId,
+            contractorUid,
+            contractorRecordId,
+            category: contractorCategory,
             title: "Review feedback updated",
-            message: "Admin updated your contractor review feedback. Open your onboarding page or My Leads to review the latest notes.",
+            message: "Admin updated your contractor review feedback. Open your onboarding page to review the latest notes.",
             type: "review-feedback",
             actorUid: currentUser.uid,
             actorName: currentUser.name || currentUser.email || "Admin"
@@ -917,14 +1072,19 @@
           return;
         }
 
+        const contractorUid = getContractorOwnerUid(contractor);
+        const contractorRecordId = getContractorRecordId(contractor);
+        const contractorCategory = getCategoryKey(contractor);
+
         const nextDocumentReview = {
           ...(contractor.documentReview || {})
         };
 
         const documents = contractor.documents || {};
         const now = Date.now();
+        const docEntries = getContractorDocumentEntries(contractor);
 
-        for (const entry of getContractorDocumentEntries()) {
+        for (const entry of docEntries) {
           const selectEl = [...contractorsAdminList.querySelectorAll(".contractor-doc-review-select")]
             .find(el =>
               el.getAttribute("data-contractorid") === contractorId &&
@@ -1013,7 +1173,9 @@
               : "Admin reviewed your uploaded documents. Your required document review is up to date.";
 
           await createContractorNotification({
-            contractorId,
+            contractorUid,
+            contractorRecordId,
+            category: contractorCategory,
             title: docReviewTitle,
             message: docReviewMessage,
             type: "document-review",
@@ -1045,6 +1207,10 @@
           alert("Could not find this contractor.");
           return;
         }
+
+        const contractorUid = getContractorOwnerUid(contractor);
+        const contractorRecordId = getContractorRecordId(contractor);
+        const contractorCategory = getCategoryKey(contractor);
 
         const config = getChecklistConfig(contractor);
         const checkboxMap = {};
@@ -1099,7 +1265,9 @@
           });
 
           await createContractorNotification({
-            contractorId,
+            contractorUid,
+            contractorRecordId,
+            category: contractorCategory,
             title: shouldAutoResetToPending
               ? "Checklist update changed your approval status"
               : "Checklist review updated",
@@ -1149,6 +1317,10 @@
         alert("Could not find contractor data.");
         return;
       }
+
+      const contractorUid = getContractorOwnerUid(contractor);
+      const contractorRecordId = getContractorRecordId(contractor);
+      const contractorCategory = getCategoryKey(contractor);
 
       const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
         .find(el => el.getAttribute("data-contractorid") === contractorId);
@@ -1230,7 +1402,9 @@
         };
 
         await createContractorNotification({
-          contractorId,
+          contractorUid,
+          contractorRecordId,
+          category: contractorCategory,
           title: statusTitleMap[nextStatus] || "Contractor profile updated",
           message: statusMessageMap[nextStatus] || "Your contractor review status was updated.",
           type: "approval-status",
@@ -1256,4 +1430,4 @@
     loadContractors();
   </script>
 </body>
-</html>
+  </html>
