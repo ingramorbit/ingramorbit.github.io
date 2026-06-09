@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — All Requests</title>
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=37">
 </head>
 <body>
   <section class="all-requests-hero">
@@ -117,6 +117,25 @@
       });
     }
 
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
+      return raw;
+    }
+
     function formatDate(value) {
       if (!value) return "—";
       try {
@@ -139,6 +158,53 @@
       const raw = String(value || "").trim();
       const cleaned = raw.replace(/[^\d+]/g, "");
       return cleaned || raw;
+    }
+
+    function getContractorOwnerUid(contractor) {
+      const direct = String(
+        contractor?.ownerUid ||
+        contractor?.uid ||
+        contractor?.userUid ||
+        contractor?.contractorUid ||
+        ""
+      ).trim();
+
+      if (direct) return direct;
+
+      const recordId = String(
+        contractor?._docId ||
+        contractor?.contractorRecordId ||
+        ""
+      ).trim();
+
+      if (recordId.includes("__")) {
+        return recordId.split("__")[0];
+      }
+
+      return recordId;
+    }
+
+    function getContractorRecordId(contractor) {
+      const direct = String(
+        contractor?._docId ||
+        contractor?.contractorRecordId ||
+        ""
+      ).trim();
+
+      if (direct) return direct;
+
+      const ownerUid = getContractorOwnerUid(contractor);
+      const categoryKey = normalizeCategory(contractor?.category || contractor?.categoryLabel || "");
+
+      if (ownerUid && categoryKey) {
+        return `${ownerUid}__${categoryKey}`;
+      }
+
+      return ownerUid;
+    }
+
+    function getContractorCategoryKey(contractor) {
+      return normalizeCategory(contractor?.category || contractor?.categoryLabel || "");
     }
 
     function renderAccessDenied() {
@@ -200,6 +266,7 @@
             item.status,
             item.assignedContractorCompanyName,
             item.assignedContractorContactName,
+            item.assignedContractorCategory,
             latestActivity ? getActivityText(latestActivity) : "",
             latestActivity ? getActivityActorLabel(latestActivity) : "",
             latestActivity ? formatDate(latestActivity.createdAt) : ""
@@ -277,17 +344,22 @@
     }
 
     async function createContractorNotification({
-      contractorId,
+      contractorUid,
+      contractorRecordId = "",
+      category = "",
       title,
       message,
       type = "general",
       actorUid = "",
       actorName = "Admin"
     }) {
-      if (!contractorId || !title || !message) return;
+      const safeContractorUid = String(contractorUid || "").trim();
+      if (!safeContractorUid || !title || !message) return;
 
       await addDoc(collection(db, "contractorNotifications"), {
-        contractorUid: String(contractorId).trim(),
+        contractorUid: safeContractorUid,
+        contractorRecordId: String(contractorRecordId || "").trim(),
+        category: normalizeCategory(category || ""),
         title: String(title).trim(),
         message: String(message).trim(),
         type: String(type || "general").trim(),
@@ -299,25 +371,34 @@
     }
 
     function isTruckingRequest(item) {
-      const raw = String(item.category || item.categoryLabel || "").toLowerCase();
-      return raw.includes("trucking");
+      const raw = normalizeCategory(item.category || item.categoryLabel || "");
+      return raw === "trucking";
     }
 
     function getMatchingContractorsForRequest(item) {
       if (!isTruckingRequest(item)) return [];
 
       return allContractors
-        .filter(contractor =>
-          String(contractor.category || "").toLowerCase() === "trucking" &&
-          String(contractor.status || "pending").toLowerCase() === "approved"
-        )
+        .filter(contractor => {
+          const contractorCategory = getContractorCategoryKey(contractor);
+          const contractorStatus = String(contractor.status || "pending").toLowerCase();
+          return contractorCategory === "trucking" && contractorStatus === "approved";
+        })
         .sort((a, b) => String(a.companyName || "").localeCompare(String(b.companyName || "")));
     }
 
     function getAssignedContractorLabel(item) {
-      if (item.assignedContractorCompanyName) return item.assignedContractorCompanyName;
-      if (item.assignedContractorContactName) return item.assignedContractorContactName;
-      return "";
+      const companyOrName =
+        item.assignedContractorCompanyName ||
+        item.assignedContractorContactName ||
+        "";
+
+      const categoryLabel = String(item.assignedContractorCategory || "").trim();
+
+      if (!companyOrName) return "";
+      if (!categoryLabel) return companyOrName;
+
+      return `${companyOrName} (${categoryLabel})`;
     }
 
     async function loadContractors() {
@@ -427,10 +508,10 @@
       if (!isTruckingRequest(item)) return null;
       if (getLeadResponseLabel(item) !== "declined") return null;
 
-      const currentUid = String(item.assignedContractorUid || "").trim();
+      const currentRecordId = String(item.assignedContractorRecordId || "").trim();
 
       const candidates = getRankedContractorsForRequest(item).filter(contractor => {
-        return String(contractor._docId || "").trim() !== currentUid;
+        return String(getContractorRecordId(contractor) || "").trim() !== currentRecordId;
       });
 
       return candidates[0] || null;
@@ -438,8 +519,8 @@
 
     function getDefaultContractorSelection(item) {
       const suggested = getSuggestedReplacementContractor(item);
-      if (suggested) return suggested._docId || "";
-      return String(item.assignedContractorUid || "").trim();
+      if (suggested) return getContractorRecordId(suggested) || "";
+      return String(item.assignedContractorRecordId || "").trim();
     }
 
     function getAssignmentButtonLabel(item) {
@@ -594,6 +675,7 @@
                 <div class="assignment-recommendation-meta">
                   ${contractor.city ? `${escapeHtml(contractor.city)}` : "City not set"}
                   ${contractor.businessType ? ` · ${escapeHtml(contractor.businessType)}` : ""}
+                  ${getContractorCategoryKey(contractor) ? ` · ${escapeHtml(getContractorCategoryKey(contractor))}` : ""}
                 </div>
 
                 <div class="assignment-recommendation-reasons">
@@ -612,7 +694,7 @@
 
     function renderContractorOptions(item) {
       const contractors = getRankedContractorsForRequest(item);
-      const selectedUid = getDefaultContractorSelection(item);
+      const selectedRecordId = getDefaultContractorSelection(item);
 
       if (!contractors.length) {
         return `<option value="">No approved trucking contractors available</option>`;
@@ -622,11 +704,12 @@
         `<option value="">Select trucking contractor</option>`,
         ...contractors.map((contractor, index) => {
           const reasonText = (contractor._match?.reasons || []).join(" · ");
+          const recordId = getContractorRecordId(contractor);
 
           return `
             <option
-              value="${escapeHtml(contractor._docId || "")}"
-              ${selectedUid === contractor._docId ? "selected" : ""}
+              value="${escapeHtml(recordId || "")}"
+              ${selectedRecordId === recordId ? "selected" : ""}
             >
               ${escapeHtml(contractor.companyName || contractor.contactName || "Contractor")}
               ${contractor.city ? ` — ${escapeHtml(contractor.city)}` : ""}
@@ -1026,6 +1109,7 @@
             requestId: requestId,
             ownerUid: requestItem.ownerUid || "",
             contractorUid: requestItem.assignedContractorUid || "",
+            contractorRecordId: requestItem.assignedContractorRecordId || "",
             actorUid: currentUser?.uid || "",
             actorName: currentUser?.name || currentUser?.email || "Admin",
             actorRole: "admin",
@@ -1088,13 +1172,16 @@
           return;
         }
 
-        const contractorUid = (contractorSelect.value || "").trim();
-        if (!contractorUid) {
+        const selectedRecordId = (contractorSelect.value || "").trim();
+        if (!selectedRecordId) {
           alert("Select a trucking contractor first.");
           return;
         }
 
-        const contractor = allContractors.find(item => item._docId === contractorUid);
+        const contractor = allContractors.find(item => {
+          return String(getContractorRecordId(item) || "").trim() === selectedRecordId;
+        });
+
         if (!contractor) {
           alert("Could not find the selected contractor.");
           return;
@@ -1105,8 +1192,17 @@
           return;
         }
 
-        if (String(contractor.category || "").toLowerCase() !== "trucking") {
+        if (getContractorCategoryKey(contractor) !== "trucking") {
           alert("This page can only assign approved trucking contractors right now.");
+          return;
+        }
+
+        const contractorUid = getContractorOwnerUid(contractor);
+        const contractorRecordId = getContractorRecordId(contractor);
+        const contractorCategory = getContractorCategoryKey(contractor);
+
+        if (!contractorUid || !contractorRecordId) {
+          alert("This contractor record is missing a valid ID.");
           return;
         }
 
@@ -1122,11 +1218,13 @@
           requestId: requestId,
           ownerUid: requestItem.ownerUid || "",
           contractorUid: contractorUid,
+          contractorRecordId: contractorRecordId,
+          contractorCategory: contractorCategory,
           contractorCompanyName: contractor.companyName || "",
           contractorContactName: contractor.contactName || "",
           contractorEmail: contractor.email || "",
           contractorPhone: contractor.phone || "",
-          category: requestItem.category || "",
+          category: normalizeCategory(requestItem.category || requestItem.categoryLabel || ""),
           categoryLabel: requestItem.categoryLabel || "",
           serviceType: requestItem.serviceType || "",
           customerName: requestItem.name || "",
@@ -1150,6 +1248,8 @@
           await updateDoc(doc(db, "serviceRequests", requestId), {
             status: "matched",
             assignedContractorUid: contractorUid,
+            assignedContractorRecordId: contractorRecordId,
+            assignedContractorCategory: contractorCategory,
             assignedContractorCompanyName: contractor.companyName || "",
             assignedContractorContactName: contractor.contactName || "",
             assignedContractorEmail: contractor.email || "",
@@ -1163,6 +1263,8 @@
               requestId: requestId,
               ownerUid: requestItem.ownerUid || "",
               contractorUid: contractorUid,
+              contractorRecordId: contractorRecordId,
+              contractorCategory: contractorCategory,
               actorUid: currentUser?.uid || "",
               actorName: currentUser?.name || currentUser?.email || "Admin",
               actorRole: "admin",
@@ -1178,7 +1280,9 @@
           }
 
           await createContractorNotification({
-            contractorId: contractorUid,
+            contractorUid: contractorUid,
+            contractorRecordId: contractorRecordId,
+            category: contractorCategory,
             title: isReassignment ? "A lead was reassigned to you" : "A new lead was assigned to you",
             message: `${requestItem.serviceType || "A request"} in ${requestItem.city || "your area"} is ready for your review in My Leads.`,
             type: isReassignment ? "lead-reassigned" : "lead-assigned",
@@ -1252,6 +1356,8 @@
             requestId: requestId,
             ownerUid: requestItem?.ownerUid || "",
             contractorUid: requestItem?.assignedContractorUid || "",
+            contractorRecordId: requestItem?.assignedContractorRecordId || "",
+            contractorCategory: requestItem?.assignedContractorCategory || "",
             actorUid: currentUser?.uid || "",
             actorName: currentUser?.name || currentUser?.email || "Admin",
             actorRole: "admin",
@@ -1270,7 +1376,9 @@
 
         if (requestItem?.assignedContractorUid) {
           await createContractorNotification({
-            contractorId: requestItem.assignedContractorUid,
+            contractorUid: requestItem.assignedContractorUid,
+            contractorRecordId: requestItem.assignedContractorRecordId || "",
+            category: requestItem.assignedContractorCategory || normalizeCategory(requestItem.category || requestItem.categoryLabel || ""),
             title: "Lead request status changed",
             message: `${requestItem.serviceType || "A request"} was updated to "${nextStatus}". Check My Leads for the latest status.`,
             type: "request-status-updated",
