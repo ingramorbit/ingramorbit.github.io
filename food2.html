@@ -59,9 +59,10 @@
       </p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <a class="food-cta" href="contractor-onboarding.html?category=food">Join as Food Services Provider</a>
         <a class="food-cta" href="lead.html">Get Leads</a>
         <a class="food-cta" href="#postFoodJob">Post a Job</a>
-        <a class="food-cta" href="my-leads.html">My Leads</a>
+        <a class="food-cta" href="my-leads.html?category=food">My Leads</a>
       </div>
     </div>
 
@@ -190,7 +191,7 @@
         const description = escapeHtml(job.description || "Apply for this food-service opportunity.");
         const ownerEmail = String(job.ownerEmail || "").trim();
         const applyHref = ownerEmail
-          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Food Services Job"}`)}`
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(\`Application: \${job.title || "Food Services Job"}\`)}`
           : "";
         const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
 
@@ -302,7 +303,7 @@
           return;
         }
 
-        const confirmed = confirm(`Delete "${jobTitle}"?`);
+        const confirmed = confirm(\`Delete "\${jobTitle}"?\`);
         if (!confirmed) return;
 
         try {
