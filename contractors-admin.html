@@ -824,8 +824,6 @@
               <span>📞 ${escapeHtml(item.phone || "—")}</span>
             </div>
 
-            <p class="contractor-admin-dates"><strong>Record ID:</strong> ${escapeHtml(getContractorRecordId(item))}</p>
-            <p class="contractor-admin-dates"><strong>Owner UID:</strong> ${escapeHtml(getContractorOwnerUid(item) || "—")}</p>
             <p class="contractor-admin-equipment"><strong>Equipment:</strong> ${escapeHtml(equipmentText)}</p>
             <p class="contractor-admin-dates"><strong>Created:</strong> ${escapeHtml(formatDate(item.createdAt))}</p>
             <p class="contractor-admin-dates"><strong>Updated:</strong> ${escapeHtml(formatDate(item.updatedAt || item.createdAt))}</p>
@@ -1430,4 +1428,4 @@
     loadContractors();
   </script>
 </body>
-  </html>
+</html>
