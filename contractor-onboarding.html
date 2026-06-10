@@ -476,6 +476,8 @@
       }
     };
 
+    const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
+
     function normalizeCategory(value) {
       const raw = String(value || "")
         .trim()
@@ -988,6 +990,8 @@
       unsubscribeContractorNotificationsListener = onSnapshot(
         notificationsQuery,
         (snapshot) => {
+          const currentRecordId = getContractorDocId(currentUser.uid, activeCategory);
+
           let items = snapshot.docs.map((docSnap) => ({
             _docId: docSnap.id,
             ...docSnap.data()
@@ -995,6 +999,12 @@
 
           items = items.filter((item) => {
             const itemCategory = normalizeCategory(item.category || item.categoryLabel || "");
+            const itemRecordId = String(item.contractorRecordId || "").trim();
+
+            if (itemRecordId && itemRecordId !== currentRecordId) {
+              return false;
+            }
+
             return !itemCategory || itemCategory === activeCategory;
           });
 
@@ -1009,8 +1019,6 @@
         }
       );
     }
-
-    const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
 
     async function loadProfile() {
       const currentUser = await waitForAKOAuth();
@@ -1027,6 +1035,7 @@
       const snap = await getDoc(contractorRef);
 
       let data = null;
+      const expectedRecordId = getContractorDocId(currentUser.uid, requestedCategory);
 
       if (snap.exists()) {
         data = snap.data();
@@ -1045,6 +1054,8 @@
               await setDoc(contractorRef, {
                 ...legacyData,
                 ownerUid: currentUser.uid,
+                contractorUid: currentUser.uid,
+                contractorRecordId: expectedRecordId,
                 category: requestedCategory,
                 categoryLabel: getCategoryConfig(requestedCategory).label,
                 migratedFromLegacy: true,
@@ -1058,6 +1069,34 @@
       }
 
       if (data) {
+        if (
+          data.ownerUid !== currentUser.uid ||
+          data.contractorUid !== currentUser.uid ||
+          data.contractorRecordId !== expectedRecordId
+        ) {
+          try {
+            await setDoc(contractorRef, {
+              ownerUid: currentUser.uid,
+              contractorUid: currentUser.uid,
+              contractorRecordId: expectedRecordId,
+              category: requestedCategory,
+              categoryLabel: getCategoryConfig(requestedCategory).label,
+              updatedAt: Date.now()
+            }, { merge: true });
+
+            data = {
+              ...data,
+              ownerUid: currentUser.uid,
+              contractorUid: currentUser.uid,
+              contractorRecordId: expectedRecordId,
+              category: requestedCategory,
+              categoryLabel: getCategoryConfig(requestedCategory).label
+            };
+          } catch (err) {
+            console.warn("Contractor identity field normalization skipped:", err);
+          }
+        }
+
         applyCategoryUI(requestedCategory, data.businessType || "");
 
         coCategory.value = getCategoryConfig(requestedCategory).label;
@@ -1187,7 +1226,8 @@
 
         const payload = {
           ownerUid: currentUser.uid,
-          contractorUid: contractorRecordId,
+          contractorUid: currentUser.uid,
+          contractorRecordId: contractorRecordId,
           category: activeCategory,
           categoryLabel: config.label,
           companyName,
@@ -1299,4 +1339,4 @@
     loadProfile();
   </script>
 </body>
-  </html>
+</html>
