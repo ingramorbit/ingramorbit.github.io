@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — My Leads</title>
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
   <section class="contractor-leads-hero">
@@ -154,15 +154,22 @@
     let contractorProfile = null;
     let contractorLeads = [];
     let contractorLeadNotificationItems = [];
+
+    let contractorLeadsFromUid = [];
+    let contractorLeadsFromRecordId = [];
+    let contractorNotificationsFromUid = [];
+    let contractorNotificationsFromRecordId = [];
+
     let unsubscribeContractorProfileListener = null;
-    let unsubscribeContractorLeadsListener = null;
-    let unsubscribeContractorLeadNotificationsListener = null;
+    let unsubscribeContractorLeadsUidListener = null;
+    let unsubscribeContractorLeadsRecordListener = null;
+    let unsubscribeContractorLeadNotificationsUidListener = null;
+    let unsubscribeContractorLeadNotificationsRecordListener = null;
 
     const CATEGORY_CONFIG = {
       trucking: {
         key: "trucking",
         label: "Trucking",
-        icon: "🚚",
         page: "trucking.html",
         backText: "Back to Trucking",
         title: "📦 Trucking My Leads",
@@ -172,7 +179,6 @@
       plumbing: {
         key: "plumbing",
         label: "Plumbing",
-        icon: "🔧",
         page: "plumbing.html",
         backText: "Back to Plumbing",
         title: "📦 Plumbing My Leads",
@@ -182,17 +188,15 @@
       electricians: {
         key: "electricians",
         label: "Electricians",
-        icon: "⚡",
         page: "electricians.html",
         backText: "Back to Electricians",
         title: "📦 Electricians My Leads",
         subtitle: "Review and respond to leads assigned to your electricians contractor profile.",
-        intro: "This is where assigned electricians leads will appear."
+        intro: "This is where assigned electrician leads will appear."
       },
       carpentry: {
         key: "carpentry",
         label: "Carpentry",
-        icon: "🪚",
         page: "carpentry.html",
         backText: "Back to Carpentry",
         title: "📦 Carpentry My Leads",
@@ -202,7 +206,6 @@
       auto: {
         key: "auto",
         label: "Auto Services",
-        icon: "🚗",
         page: "auto.html",
         backText: "Back to Auto Services",
         title: "📦 Auto Services My Leads",
@@ -212,7 +215,6 @@
       hvac: {
         key: "hvac",
         label: "HVAC",
-        icon: "❄️",
         page: "hvac.html",
         backText: "Back to HVAC",
         title: "📦 HVAC My Leads",
@@ -222,7 +224,6 @@
       "financial-help": {
         key: "financial-help",
         label: "Financial Help",
-        icon: "💵",
         page: "financial-help.html",
         backText: "Back to Financial Help",
         title: "📦 Financial Help My Leads",
@@ -232,7 +233,6 @@
       "lawn-care": {
         key: "lawn-care",
         label: "Lawn Care",
-        icon: "🌿",
         page: "lawn-care.html",
         backText: "Back to Lawn Care",
         title: "📦 Lawn Care My Leads",
@@ -242,7 +242,6 @@
       food: {
         key: "food",
         label: "Food Services",
-        icon: "🍽️",
         page: "food2.html",
         backText: "Back to Food Services",
         title: "📦 Food Services My Leads",
@@ -308,21 +307,6 @@
       ]
     };
 
-    const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
-
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
     function normalizeCategory(value) {
       const raw = String(value || "")
         .trim()
@@ -342,6 +326,8 @@
       return "";
     }
 
+    const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
+
     function getCategoryConfig(categoryKey) {
       return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.trucking;
     }
@@ -352,6 +338,19 @@
 
     function getContractorDocId(uid, categoryKey) {
       return `${uid}__${categoryKey}`;
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
     }
 
     function applyCategoryUI(categoryKey) {
@@ -672,10 +671,79 @@
       renderResubmissionCues(profileData);
     }
 
-    function renderContractorLeadNotifications(items = []) {
-      contractorLeadNotificationItems = [...items].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    function mergeUniqueByDocId(items = []) {
+      const map = new Map();
 
-      const unreadCount = contractorLeadNotificationItems.filter(item => item.isRead !== true).length;
+      items.forEach(item => {
+        const key = String(item?._docId || "").trim();
+        if (!key) return;
+        if (!map.has(key)) {
+          map.set(key, item);
+        }
+      });
+
+      return [...map.values()];
+    }
+
+    function syncVisibleNotifications(categoryKey, currentUser) {
+      const recordId = getContractorDocId(currentUser.uid, categoryKey);
+
+      contractorLeadNotificationItems = mergeUniqueByDocId([
+        ...contractorNotificationsFromUid,
+        ...contractorNotificationsFromRecordId
+      ])
+        .filter(item => {
+          const itemCategory = normalizeCategory(item.category || "");
+          const itemRecordId = String(item.contractorRecordId || "").trim();
+
+          if (itemRecordId && itemRecordId !== recordId) {
+            return false;
+          }
+
+          if (itemCategory && itemCategory !== categoryKey) {
+            return false;
+          }
+
+          return true;
+        })
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+      renderContractorLeadNotifications(contractorLeadNotificationItems);
+    }
+
+    function syncVisibleLeads(categoryKey, currentUser) {
+      const recordId = getContractorDocId(currentUser.uid, categoryKey);
+
+      contractorLeads = mergeUniqueByDocId([
+        ...contractorLeadsFromUid,
+        ...contractorLeadsFromRecordId
+      ])
+        .filter(item => {
+          const itemRecordId = String(item.contractorRecordId || "").trim();
+          const itemCategory = normalizeCategory(
+            item.contractorCategory ||
+            item.category ||
+            item.categoryLabel ||
+            ""
+          );
+
+          if (itemRecordId && itemRecordId !== recordId) {
+            return false;
+          }
+
+          if (itemCategory && itemCategory !== categoryKey) {
+            return false;
+          }
+
+          return true;
+        })
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+
+      renderLeads(contractorLeads);
+    }
+
+    function renderContractorLeadNotifications(items = []) {
+      const unreadCount = items.filter(item => item.isRead !== true).length;
 
       if (contractorLeadNotificationsBadge) {
         contractorLeadNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
@@ -692,12 +760,12 @@
 
       if (!contractorLeadNotificationsList) return;
 
-      if (!contractorLeadNotificationItems.length) {
+      if (!items.length) {
         contractorLeadNotificationsList.innerHTML = `<p class="contractor-notification-empty">No notifications yet.</p>`;
         return;
       }
 
-      contractorLeadNotificationsList.innerHTML = contractorLeadNotificationItems.slice(0, 8).map(item => `
+      contractorLeadNotificationsList.innerHTML = items.slice(0, 8).map(item => `
         <div class="contractor-notification-item ${item.isRead === true ? "" : "is-unread"}">
           <div class="contractor-notification-row">
             <div class="contractor-notification-title">${escapeHtml(item.title || "Review update")}</div>
@@ -814,41 +882,33 @@
     }
 
     function startContractorLeadNotificationsListener(currentUser, categoryKey) {
-      if (unsubscribeContractorLeadNotificationsListener) {
-        unsubscribeContractorLeadNotificationsListener();
+      if (unsubscribeContractorLeadNotificationsUidListener) {
+        unsubscribeContractorLeadNotificationsUidListener();
       }
 
-      const notificationsQuery = query(
+      if (unsubscribeContractorLeadNotificationsRecordListener) {
+        unsubscribeContractorLeadNotificationsRecordListener();
+      }
+
+      contractorNotificationsFromUid = [];
+      contractorNotificationsFromRecordId = [];
+
+      const recordId = getContractorDocId(currentUser.uid, categoryKey);
+
+      const notificationsByUidQuery = query(
         collection(db, "contractorNotifications"),
         where("contractorUid", "==", currentUser.uid)
       );
 
-      unsubscribeContractorLeadNotificationsListener = onSnapshot(
-        notificationsQuery,
+      unsubscribeContractorLeadNotificationsUidListener = onSnapshot(
+        notificationsByUidQuery,
         (snapshot) => {
-          const recordId = getContractorDocId(currentUser.uid, categoryKey);
+          contractorNotificationsFromUid = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
 
-          const items = snapshot.docs
-            .map(docSnap => ({
-              _docId: docSnap.id,
-              ...docSnap.data()
-            }))
-            .filter(item => {
-              const itemCategory = normalizeCategory(item.category || "");
-              const itemRecordId = String(item.contractorRecordId || "").trim();
-
-              if (itemRecordId && itemRecordId !== recordId) {
-                return false;
-              }
-
-              if (itemCategory && itemCategory !== categoryKey) {
-                return false;
-              }
-
-              return true;
-            });
-
-          renderContractorLeadNotifications(items);
+          syncVisibleNotifications(categoryKey, currentUser);
         },
         (err) => {
           console.error(err);
@@ -858,49 +918,84 @@
           }
         }
       );
+
+      const notificationsByRecordQuery = query(
+        collection(db, "contractorNotifications"),
+        where("contractorUid", "==", recordId)
+      );
+
+      unsubscribeContractorLeadNotificationsRecordListener = onSnapshot(
+        notificationsByRecordQuery,
+        (snapshot) => {
+          contractorNotificationsFromRecordId = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          syncVisibleNotifications(categoryKey, currentUser);
+        },
+        (err) => {
+          console.warn("Legacy contractor notification listener skipped:", err);
+          contractorNotificationsFromRecordId = [];
+          syncVisibleNotifications(categoryKey, currentUser);
+        }
+      );
     }
 
     function startContractorLeadsListener(currentUser, categoryKey) {
-      if (unsubscribeContractorLeadsListener) {
-        unsubscribeContractorLeadsListener();
+      if (unsubscribeContractorLeadsUidListener) {
+        unsubscribeContractorLeadsUidListener();
       }
 
-      const q = query(
+      if (unsubscribeContractorLeadsRecordListener) {
+        unsubscribeContractorLeadsRecordListener();
+      }
+
+      contractorLeadsFromUid = [];
+      contractorLeadsFromRecordId = [];
+
+      const recordId = getContractorDocId(currentUser.uid, categoryKey);
+
+      const leadsByUidQuery = query(
         collection(db, "contractorLeads"),
         where("contractorUid", "==", currentUser.uid)
       );
 
-      unsubscribeContractorLeadsListener = onSnapshot(
-        q,
+      unsubscribeContractorLeadsUidListener = onSnapshot(
+        leadsByUidQuery,
         (snapshot) => {
-          const recordId = getContractorDocId(currentUser.uid, categoryKey);
+          contractorLeadsFromUid = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
 
-          contractorLeads = snapshot.docs
-            .map(docSnap => ({
-              _docId: docSnap.id,
-              ...docSnap.data()
-            }))
-            .filter(item => {
-              const itemCategory = normalizeCategory(item.category || item.categoryLabel || "");
-              const itemRecordId = String(item.contractorRecordId || "").trim();
-
-              if (itemRecordId && itemRecordId !== recordId) {
-                return false;
-              }
-
-              if (itemCategory && itemCategory !== categoryKey) {
-                return false;
-              }
-
-              return true;
-            })
-            .sort((a, b) => (Number(b.createdAt || 0) - Number(a.createdAt || 0)));
-
-          renderLeads(contractorLeads);
+          syncVisibleLeads(categoryKey, currentUser);
         },
         (err) => {
           console.error(err);
           renderEmpty(`Could not load your leads: ${err.message}`);
+        }
+      );
+
+      const leadsByRecordQuery = query(
+        collection(db, "contractorLeads"),
+        where("contractorUid", "==", recordId)
+      );
+
+      unsubscribeContractorLeadsRecordListener = onSnapshot(
+        leadsByRecordQuery,
+        (snapshot) => {
+          contractorLeadsFromRecordId = snapshot.docs.map(docSnap => ({
+            _docId: docSnap.id,
+            ...docSnap.data()
+          }));
+
+          syncVisibleLeads(categoryKey, currentUser);
+        },
+        (err) => {
+          console.warn("Legacy contractor lead listener skipped:", err);
+          contractorLeadsFromRecordId = [];
+          syncVisibleLeads(categoryKey, currentUser);
         }
       );
     }
@@ -914,8 +1009,24 @@
 
       unsubscribeContractorProfileListener = onSnapshot(
         profileRef,
-        (snap) => {
+        async (snap) => {
           if (!snap.exists()) {
+            const legacyRef = doc(db, "contractors", currentUser.uid);
+            const legacySnap = await getDoc(legacyRef);
+
+            if (legacySnap.exists()) {
+              const legacyData = legacySnap.data();
+              const legacyCategory = normalizeCategory(legacyData.category || legacyData.categoryLabel) || "trucking";
+
+              if (legacyCategory === categoryKey) {
+                contractorProfile = legacyData;
+                renderApprovalStatus(contractorProfile);
+                renderLeadDocumentSummary(contractorProfile);
+                renderLeads(contractorLeads);
+                return;
+              }
+            }
+
             contractorProfile = null;
             renderApprovalStatus(null);
             renderLeadDocumentSummary(null);
@@ -1017,6 +1128,7 @@
               ownerUid: lead.ownerUid || "",
               contractorUid: currentUser.uid,
               contractorRecordId: getContractorDocId(currentUser.uid, requestedCategory),
+              contractorCategory: requestedCategory,
               actorUid: currentUser.uid,
               actorName: contractorProfile?.companyName || contractorProfile?.contactName || currentUser.name || currentUser.email || "Contractor",
               actorRole: "contractor",
@@ -1075,6 +1187,7 @@
               ownerUid: lead.ownerUid || "",
               contractorUid: currentUser.uid,
               contractorRecordId: getContractorDocId(currentUser.uid, requestedCategory),
+              contractorCategory: requestedCategory,
               actorUid: currentUser.uid,
               actorName: contractorProfile?.companyName || contractorProfile?.contactName || currentUser.name || currentUser.email || "Contractor",
               actorRole: "contractor",
