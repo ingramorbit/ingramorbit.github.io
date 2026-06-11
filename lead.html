@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Get Leads</title>
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
   <section class="lead-hero">
@@ -16,27 +16,33 @@
       </div>
     </div>
 
-    <a class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
+    <a id="leadBackLink" class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
 
     <div class="container">
       <div class="lead-hero-content">
         <div class="lead-brand">AssistKingOnline</div>
-        <h1 class="lead-title">📈 Get Leads</h1>
-        <p>Tell us about your business so we can help connect you with customers.</p>
+        <h1 id="leadPageTitle" class="lead-title">📈 Get Leads</h1>
+        <p id="leadPageSubtitle">Tell us about your business so we can help connect you with customers.</p>
       </div>
     </div>
   </section>
 
   <main class="container lead-wrap">
     <div class="lead-card">
-      <strong>Business lead form</strong>
-      <p style="margin:8px 0 14px">
+      <strong id="leadCardHeading">Business lead form</strong>
+      <p id="leadCardIntro" style="margin:8px 0 14px">
         Complete the form below and tell us what type of customers you want to reach.
       </p>
 
       <form action="https://formspree.io/f/mgvpwola" method="POST" class="lead-form">
-        <input type="hidden" name="_subject" value="New Lead Request from AssistKingOnline">
-        <input type="hidden" name="_redirect" value="thank-you.html">
+        <input
+          id="leadSubject"
+          type="hidden"
+          name="_subject"
+          value="New Lead Request from AssistKingOnline"
+        />
+        <input type="hidden" name="_redirect" value="thank-you.html" />
+        <input id="leadCategoryLabelHidden" type="hidden" name="category_label" value="" />
 
         <input id="leadFullName" name="name" placeholder="Full Name" required />
         <input id="leadBusinessName" name="business_name" placeholder="Business Name" required />
@@ -46,15 +52,16 @@
 
         <select id="leadCategory" name="category" required>
           <option value="">Select service category</option>
-          <option>Plumbing</option>
-          <option>Electricians</option>
-          <option>Carpentry</option>
-          <option>Trucking</option>
-          <option>Auto</option>
-          <option>HVAC</option>
-          <option>Financial Help</option>
-          <option>Food Services</option>
-          <option>Other</option>
+          <option value="plumbing">Plumbing</option>
+          <option value="electricians">Electricians</option>
+          <option value="carpentry">Carpentry</option>
+          <option value="trucking">Trucking</option>
+          <option value="auto">Auto Services</option>
+          <option value="hvac">HVAC</option>
+          <option value="financial-help">Financial Help</option>
+          <option value="lawn-care">Lawn Care</option>
+          <option value="food">Food Services</option>
+          <option value="other">Other</option>
         </select>
 
         <input
@@ -72,7 +79,7 @@
           required
         ></textarea>
 
-        <button type="submit" class="lead-cta">Send Lead Request</button>
+        <button id="leadSubmitBtn" type="submit" class="lead-cta">Send Lead Request</button>
       </form>
 
       <p class="lead-note" style="margin:14px 0 0">
@@ -82,5 +89,279 @@
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+  <script type="module">
+    const params = new URLSearchParams(window.location.search);
+
+    const leadBackLink = document.getElementById("leadBackLink");
+    const leadPageTitle = document.getElementById("leadPageTitle");
+    const leadPageSubtitle = document.getElementById("leadPageSubtitle");
+    const leadCardHeading = document.getElementById("leadCardHeading");
+    const leadCardIntro = document.getElementById("leadCardIntro");
+    const leadSubject = document.getElementById("leadSubject");
+    const leadCategory = document.getElementById("leadCategory");
+    const leadCategoryLabelHidden = document.getElementById("leadCategoryLabelHidden");
+    const leadService = document.getElementById("leadService");
+    const leadMessage = document.getElementById("leadMessage");
+    const leadSubmitBtn = document.getElementById("leadSubmitBtn");
+
+    const leadFullName = document.getElementById("leadFullName");
+    const leadEmail = document.getElementById("leadEmail");
+
+    const CATEGORY_CONFIG = {
+      plumbing: {
+        label: "Plumbing",
+        icon: "🔧",
+        backHref: "plumbing.html",
+        backText: "← Back to Plumbing",
+        title: "📈 Plumbing Leads",
+        subtitle: "Tell us about your plumbing business so we can help connect you with plumbing customers.",
+        cardHeading: "Plumbing business lead form",
+        cardIntro: "Complete the form below so we can learn about your plumbing business and the type of customers you want to reach.",
+        subject: "New Plumbing Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main plumbing service offered (example: Drain cleaning, leak repair, water heater installs)",
+        messagePlaceholder: "Describe your plumbing business, service area, emergency availability, ideal customers, and anything else we should know...",
+        submitText: "Send Plumbing Lead Request"
+      },
+      electricians: {
+        label: "Electricians",
+        icon: "⚡",
+        backHref: "electricians.html",
+        backText: "← Back to Electricians",
+        title: "📈 Electricians Leads",
+        subtitle: "Tell us about your electrical business so we can help connect you with electrical customers.",
+        cardHeading: "Electrical business lead form",
+        cardIntro: "Complete the form below so we can learn about your electrical business and the type of customers you want to reach.",
+        subject: "New Electricians Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main electrical service offered (example: Panel upgrades, outlet repair, EV charger installs)",
+        messagePlaceholder: "Describe your electrical business, service area, emergency availability, ideal customers, and anything else we should know...",
+        submitText: "Send Electrical Lead Request"
+      },
+      carpentry: {
+        label: "Carpentry",
+        icon: "🪚",
+        backHref: "carpentry.html",
+        backText: "← Back to Carpentry",
+        title: "📈 Carpentry Leads",
+        subtitle: "Tell us about your carpentry business so we can help connect you with carpentry customers.",
+        cardHeading: "Carpentry business lead form",
+        cardIntro: "Complete the form below so we can learn about your carpentry business and the type of customers you want to reach.",
+        subject: "New Carpentry Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main carpentry service offered (example: Trim work, framing, custom builds)",
+        messagePlaceholder: "Describe your carpentry business, service area, ideal customers, specialties, and anything else we should know...",
+        submitText: "Send Carpentry Lead Request"
+      },
+      trucking: {
+        label: "Trucking",
+        icon: "🚚",
+        backHref: "trucking.html",
+        backText: "← Back to Trucking",
+        title: "📈 Trucking Leads",
+        subtitle: "Tell us about your trucking business so we can help connect you with freight and trucking customers.",
+        cardHeading: "Trucking business lead form",
+        cardIntro: "Complete the form below so we can learn about your trucking operation and the type of customers you want to reach.",
+        subject: "New Trucking Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main trucking service offered (example: OTR freight, local delivery, hotshot)",
+        messagePlaceholder: "Describe your trucking business, lanes, equipment, service area, ideal customers, and anything else we should know...",
+        submitText: "Send Trucking Lead Request"
+      },
+      auto: {
+        label: "Auto Services",
+        icon: "🚗",
+        backHref: "auto.html",
+        backText: "← Back to Auto Services",
+        title: "📈 Auto Services Leads",
+        subtitle: "Tell us about your auto business so we can help connect you with auto-service customers.",
+        cardHeading: "Auto services lead form",
+        cardIntro: "Complete the form below so we can learn about your auto business and the type of customers you want to reach.",
+        subject: "New Auto Services Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main auto service offered (example: Brake repair, diagnostics, mobile mechanic)",
+        messagePlaceholder: "Describe your auto business, service area, shop or mobile setup, ideal customers, and anything else we should know...",
+        submitText: "Send Auto Lead Request"
+      },
+      hvac: {
+        label: "HVAC",
+        icon: "❄️",
+        backHref: "hvac.html",
+        backText: "← Back to HVAC",
+        title: "📈 HVAC Leads",
+        subtitle: "Tell us about your HVAC business so we can help connect you with heating and cooling customers.",
+        cardHeading: "HVAC business lead form",
+        cardIntro: "Complete the form below so we can learn about your HVAC business and the type of customers you want to reach.",
+        subject: "New HVAC Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main HVAC service offered (example: AC repair, heating installs, ductwork)",
+        messagePlaceholder: "Describe your HVAC business, service area, certifications, ideal customers, and anything else we should know...",
+        submitText: "Send HVAC Lead Request"
+      },
+      "financial-help": {
+        label: "Financial Help",
+        icon: "💵",
+        backHref: "financial-help.html",
+        backText: "← Back to Financial Help",
+        title: "📈 Financial Help Leads",
+        subtitle: "Tell us about your financial services so we can help connect you with customers who need support.",
+        cardHeading: "Financial help lead form",
+        cardIntro: "Complete the form below so we can learn about your services and the type of customers you want to reach.",
+        subject: "New Financial Help Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main service offered (example: Bookkeeping, tax prep support, budgeting guidance)",
+        messagePlaceholder: "Describe your financial services, service area, ideal customers, specialties, and anything else we should know...",
+        submitText: "Send Financial Help Lead Request"
+      },
+      "lawn-care": {
+        label: "Lawn Care",
+        icon: "🌿",
+        backHref: "lawn-care.html",
+        backText: "← Back to Lawn Care",
+        title: "📈 Lawn Care Leads",
+        subtitle: "Tell us about your lawn care business so we can help connect you with outdoor-service customers.",
+        cardHeading: "Lawn care lead form",
+        cardIntro: "Complete the form below so we can learn about your lawn care business and the type of customers you want to reach.",
+        subject: "New Lawn Care Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main lawn care service offered (example: mowing, cleanup, hedge trimming, weed control)",
+        messagePlaceholder: "Describe your lawn care business, service area, residential or commercial focus, ideal customers, and anything else we should know...",
+        submitText: "Send Lawn Care Lead Request"
+      },
+      food: {
+        label: "Food Services",
+        icon: "🍽️",
+        backHref: "food2.html",
+        backText: "← Back to Food Services",
+        title: "📈 Food Services Leads",
+        subtitle: "Tell us about your food-service business so we can help connect you with customers.",
+        cardHeading: "Food services lead form",
+        cardIntro: "Complete the form below so we can learn about your food-service business and the type of customers you want to reach.",
+        subject: "New Food Services Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main food service offered (example: Catering, meal prep, event staffing, food truck)",
+        messagePlaceholder: "Describe your food-service business, service area, event types or specialties, ideal customers, and anything else we should know...",
+        submitText: "Send Food Services Lead Request"
+      },
+      other: {
+        label: "Other",
+        icon: "📈",
+        backHref: "index.html",
+        backText: "← Back to Home",
+        title: "📈 Get Leads",
+        subtitle: "Tell us about your business so we can help connect you with customers.",
+        cardHeading: "Business lead form",
+        cardIntro: "Complete the form below and tell us what type of customers you want to reach.",
+        subject: "New Lead Request from AssistKingOnline",
+        servicePlaceholder: "Main service offered",
+        messagePlaceholder: "Describe your business, service area, ideal customers, and anything else we should know...",
+        submitText: "Send Lead Request"
+      }
+    };
+
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      if (!raw) return "";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "trucking") return "trucking";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food-services" || raw === "food2") return "food";
+      if (raw === "other") return "other";
+      return "";
+    }
+
+    function getCategoryConfig(categoryKey) {
+      return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.other;
+    }
+
+    function applyCategoryUI(categoryKey) {
+      const config = getCategoryConfig(categoryKey);
+
+      document.title = `AssistKingOnline — ${config.label === "Other" ? "Get Leads" : config.label + " Leads"}`;
+
+      if (leadBackLink) {
+        leadBackLink.href = config.backHref;
+        leadBackLink.textContent = config.backText;
+      }
+
+      if (leadPageTitle) {
+        leadPageTitle.textContent = config.title;
+      }
+
+      if (leadPageSubtitle) {
+        leadPageSubtitle.textContent = config.subtitle;
+      }
+
+      if (leadCardHeading) {
+        leadCardHeading.textContent = config.cardHeading;
+      }
+
+      if (leadCardIntro) {
+        leadCardIntro.textContent = config.cardIntro;
+      }
+
+      if (leadSubject) {
+        leadSubject.value = config.subject;
+      }
+
+      if (leadService) {
+        leadService.placeholder = config.servicePlaceholder;
+      }
+
+      if (leadMessage) {
+        leadMessage.placeholder = config.messagePlaceholder;
+      }
+
+      if (leadSubmitBtn) {
+        leadSubmitBtn.textContent = config.submitText;
+      }
+
+      if (leadCategoryLabelHidden) {
+        leadCategoryLabelHidden.value = config.label;
+      }
+    }
+
+    function waitForAKOAuth() {
+      return new Promise((resolve) => {
+        if (window.AKOReady) {
+          resolve(window.AKOUser);
+          return;
+        }
+
+        document.addEventListener("ako-auth-ready", (e) => {
+          resolve(e.detail.user);
+        }, { once: true });
+      });
+    }
+
+    async function prefillLoggedInUser() {
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) return;
+
+      if (leadFullName && !leadFullName.value.trim()) {
+        leadFullName.value = currentUser.name || currentUser.displayName || "";
+      }
+
+      if (leadEmail && !leadEmail.value.trim()) {
+        leadEmail.value = currentUser.email || "";
+      }
+    }
+
+    const requestedCategory = normalizeCategory(params.get("category")) || "other";
+
+    if (leadCategory && requestedCategory && CATEGORY_CONFIG[requestedCategory]) {
+      leadCategory.value = requestedCategory;
+    }
+
+    applyCategoryUI(leadCategory?.value || requestedCategory || "other");
+    prefillLoggedInUser();
+
+    if (leadCategory) {
+      leadCategory.addEventListener("change", () => {
+        const selectedCategory = normalizeCategory(leadCategory.value) || "other";
+        applyCategoryUI(selectedCategory);
+      });
+    }
+  </script>
 </body>
 </html>
