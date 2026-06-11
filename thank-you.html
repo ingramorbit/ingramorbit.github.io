@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Thank You</title>
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=34">
 </head>
 <body>
   <section class="lead-hero">
@@ -16,32 +16,156 @@
       </div>
     </div>
 
-    <a class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
+    <a id="thankYouBackLink" class="lead-back lead-back-floating" href="index.html">← Back to Home</a>
 
     <div class="container">
       <div class="lead-hero-content">
         <div class="lead-brand">AssistKingOnline</div>
-        <h1 class="lead-title">✅ Thank You</h1>
-        <p>Your submission was received successfully.</p>
+        <h1 id="thankYouHeroTitle" class="lead-title">✅ Thank You</h1>
+        <p id="thankYouHeroSubtitle">Your submission was received successfully.</p>
       </div>
     </div>
   </section>
 
   <main class="container lead-wrap">
     <div class="lead-card">
-      <strong>We got your request</strong>
-      <p class="lead-note" style="margin:8px 0 14px;">
+      <strong id="thankYouCardTitle">We got your request</strong>
+
+      <p id="thankYouCardMessage" class="lead-note" style="margin:8px 0 14px;">
         Your lead has been sent to AssistKingOnline. We’ll review it shortly and follow up as needed.
       </p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a href="index.html" class="lead-cta">Return Home</a>
-        <a href="plans.html" class="lead-cta">View Plans</a>
-        <a href="contact.html" class="lead-cta">Contact Us</a>
+        <a id="thankYouReturnBtn" href="index.html" class="lead-cta">Return Home</a>
+        <a id="thankYouPlansBtn" href="plans.html" class="lead-cta">View Plans</a>
+        <a id="thankYouContactBtn" href="contact.html" class="lead-cta">Contact Us</a>
       </div>
     </div>
   </main>
 
   <script type="module" src="auth.js?v=16"></script>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const thankYouBackLink = document.getElementById("thankYouBackLink");
+    const thankYouHeroTitle = document.getElementById("thankYouHeroTitle");
+    const thankYouHeroSubtitle = document.getElementById("thankYouHeroSubtitle");
+    const thankYouCardTitle = document.getElementById("thankYouCardTitle");
+    const thankYouCardMessage = document.getElementById("thankYouCardMessage");
+    const thankYouReturnBtn = document.getElementById("thankYouReturnBtn");
+    const thankYouPlansBtn = document.getElementById("thankYouPlansBtn");
+    const thankYouContactBtn = document.getElementById("thankYouContactBtn");
+
+    const CATEGORY_CONFIG = {
+      trucking: {
+        label: "Trucking",
+        page: "trucking.html",
+        backText: "Back to Trucking"
+      },
+      plumbing: {
+        label: "Plumbing",
+        page: "plumbing.html",
+        backText: "Back to Plumbing"
+      },
+      electricians: {
+        label: "Electricians",
+        page: "electricians.html",
+        backText: "Back to Electricians"
+      },
+      carpentry: {
+        label: "Carpentry",
+        page: "carpentry.html",
+        backText: "Back to Carpentry"
+      },
+      auto: {
+        label: "Auto Services",
+        page: "auto.html",
+        backText: "Back to Auto Services"
+      },
+      hvac: {
+        label: "HVAC",
+        page: "hvac.html",
+        backText: "Back to HVAC"
+      },
+      "financial-help": {
+        label: "Financial Help",
+        page: "financial-help.html",
+        backText: "Back to Financial Help"
+      },
+      "lawn-care": {
+        label: "Lawn Care",
+        page: "lawn-care.html",
+        backText: "Back to Lawn Care"
+      },
+      food: {
+        label: "Food Services",
+        page: "food2.html",
+        backText: "Back to Food Services"
+      }
+    };
+
+    function normalizeCategory(value) {
+      const raw = String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[_\s]+/g, "-");
+
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
+      if (raw === "hvac") return "hvac";
+      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
+      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
+      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
+      return "";
+    }
+
+    function applyThankYouUI() {
+      const categoryKey = normalizeCategory(
+        params.get("category") || sessionStorage.getItem("akoLastLeadCategory") || ""
+      );
+
+      const config = CATEGORY_CONFIG[categoryKey];
+
+      if (!config) {
+        document.title = "AssistKingOnline — Thank You";
+        thankYouBackLink.href = "index.html";
+        thankYouBackLink.textContent = "← Back to Home";
+        thankYouHeroTitle.textContent = "✅ Thank You";
+        thankYouHeroSubtitle.textContent = "Your submission was received successfully.";
+        thankYouCardTitle.textContent = "We got your request";
+        thankYouCardMessage.textContent = "Your lead has been sent to AssistKingOnline. We’ll review it shortly and follow up as needed.";
+        thankYouReturnBtn.href = "index.html";
+        thankYouReturnBtn.textContent = "Return Home";
+        thankYouPlansBtn.href = "plans.html";
+        thankYouContactBtn.href = "contact.html";
+        return;
+      }
+
+      const lowerLabel = config.label.toLowerCase();
+
+      document.title = `AssistKingOnline — ${config.label} Thank You`;
+      thankYouBackLink.href = config.page;
+      thankYouBackLink.textContent = `← ${config.backText}`;
+
+      thankYouHeroTitle.textContent = "✅ Thank You";
+      thankYouHeroSubtitle.textContent = `Your ${lowerLabel} submission was received successfully.`;
+
+      thankYouCardTitle.textContent = `We got your ${lowerLabel} request`;
+      thankYouCardMessage.textContent =
+        `Your ${lowerLabel} lead request has been sent to AssistKingOnline. We’ll review it shortly and follow up as needed.`;
+
+      thankYouReturnBtn.href = config.page;
+      thankYouReturnBtn.textContent = `Return to ${config.label}`;
+      thankYouPlansBtn.href = "plans.html";
+      thankYouContactBtn.href = "contact.html";
+    }
+
+    applyThankYouUI();
+  </script>
 </body>
 </html>
