@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Get Leads</title>
-  <link rel="stylesheet" href="styles.css?v=34">
+  <link rel="stylesheet" href="styles.css?v=35">
 </head>
 <body>
   <section class="lead-hero">
@@ -34,14 +34,26 @@
         Complete the form below and tell us what type of customers you want to reach.
       </p>
 
-      <form action="https://formspree.io/f/mgvpwola" method="POST" class="lead-form">
+      <form
+        id="leadForm"
+        action="https://formspree.io/f/mgvpwola"
+        method="POST"
+        class="lead-form"
+      >
         <input
           id="leadSubject"
           type="hidden"
           name="_subject"
           value="New Lead Request from AssistKingOnline"
         />
-        <input type="hidden" name="_redirect" value="thank-you.html" />
+
+        <input
+          id="leadRedirect"
+          type="hidden"
+          name="_redirect"
+          value="thank-you.html"
+        />
+
         <input id="leadCategoryLabelHidden" type="hidden" name="category_label" value="" />
 
         <input id="leadFullName" name="name" placeholder="Full Name" required />
@@ -92,12 +104,14 @@
   <script type="module">
     const params = new URLSearchParams(window.location.search);
 
+    const leadForm = document.getElementById("leadForm");
     const leadBackLink = document.getElementById("leadBackLink");
     const leadPageTitle = document.getElementById("leadPageTitle");
     const leadPageSubtitle = document.getElementById("leadPageSubtitle");
     const leadCardHeading = document.getElementById("leadCardHeading");
     const leadCardIntro = document.getElementById("leadCardIntro");
     const leadSubject = document.getElementById("leadSubject");
+    const leadRedirect = document.getElementById("leadRedirect");
     const leadCategory = document.getElementById("leadCategory");
     const leadCategoryLabelHidden = document.getElementById("leadCategoryLabelHidden");
     const leadService = document.getElementById("leadService");
@@ -274,8 +288,23 @@
       return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.other;
     }
 
+    function updateThankYouRedirect(categoryKey) {
+      const safeCategory = normalizeCategory(categoryKey) || "other";
+
+      if (leadRedirect) {
+        leadRedirect.value = `thank-you.html?category=${encodeURIComponent(safeCategory)}`;
+      }
+
+      try {
+        sessionStorage.setItem("akoLastLeadCategory", safeCategory);
+      } catch {
+        // ignore storage errors
+      }
+    }
+
     function applyCategoryUI(categoryKey) {
-      const config = getCategoryConfig(categoryKey);
+      const safeCategory = normalizeCategory(categoryKey) || "other";
+      const config = getCategoryConfig(safeCategory);
 
       document.title = `AssistKingOnline — ${config.label === "Other" ? "Get Leads" : config.label + " Leads"}`;
 
@@ -319,6 +348,8 @@
       if (leadCategoryLabelHidden) {
         leadCategoryLabelHidden.value = config.label;
       }
+
+      updateThankYouRedirect(safeCategory);
     }
 
     function waitForAKOAuth() {
@@ -360,6 +391,13 @@
       leadCategory.addEventListener("change", () => {
         const selectedCategory = normalizeCategory(leadCategory.value) || "other";
         applyCategoryUI(selectedCategory);
+      });
+    }
+
+    if (leadForm) {
+      leadForm.addEventListener("submit", () => {
+        const selectedCategory = normalizeCategory(leadCategory?.value) || "other";
+        updateThankYouRedirect(selectedCategory);
       });
     }
   </script>
