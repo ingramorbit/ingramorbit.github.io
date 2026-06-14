@@ -977,7 +977,7 @@
       );
     }
 
-    function startContractorNotificationsListener(currentUser) {
+    function startContractorNotificationsListener(currentUser, categoryKey = activeCategory) {
       if (unsubscribeContractorNotificationsListener) {
         unsubscribeContractorNotificationsListener();
       }
@@ -990,7 +990,7 @@
       unsubscribeContractorNotificationsListener = onSnapshot(
         notificationsQuery,
         (snapshot) => {
-          const currentRecordId = getContractorDocId(currentUser.uid, activeCategory);
+          const currentRecordId = getContractorDocId(currentUser.uid, categoryKey);
 
           let items = snapshot.docs.map((docSnap) => ({
             _docId: docSnap.id,
@@ -1001,11 +1001,7 @@
             const itemCategory = normalizeCategory(item.category || item.categoryLabel || "");
             const itemRecordId = String(item.contractorRecordId || "").trim();
 
-            if (itemRecordId && itemRecordId !== currentRecordId) {
-              return false;
-            }
-
-            return !itemCategory || itemCategory === activeCategory;
+            return itemCategory === categoryKey && itemRecordId === currentRecordId;
           });
 
           renderContractorNotifications(items);
@@ -1126,7 +1122,7 @@
       }
 
       startProfileReviewListener(currentUser, requestedCategory);
-      startContractorNotificationsListener(currentUser);
+      startContractorNotificationsListener(currentUser, requestedCategory);
       return currentUser;
     }
 
