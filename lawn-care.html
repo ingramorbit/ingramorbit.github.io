@@ -222,7 +222,7 @@
         const description = escapeHtml(job.description || "Apply for this lawn care opportunity.");
         const ownerEmail = String(job.ownerEmail || "").trim();
         const applyHref = ownerEmail
-          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(\`Application: ${job.title || "Lawn Care Job"}\`)}`
+          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Lawn Care Job"}`)}`
           : "";
         const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
 
