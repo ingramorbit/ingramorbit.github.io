@@ -686,6 +686,22 @@
       });
     }
 
+    function renderSelectedDocumentState() {
+      const visibleDocs = getRenderedDocumentConfig(activeCategory);
+
+      visibleDocs.forEach((entry) => {
+        const file = entry.inputEl?.files?.[0];
+        if (!file || !entry.statusEl) return;
+
+        entry.statusEl.innerHTML = `
+          <span class="contractor-doc-status-pill uploaded">Selected</span>
+          <span class="contractor-doc-meta">
+            ${escapeHtml(file.name)} · Ready to upload when you save your contractor profile.
+          </span>
+        `;
+      });
+    }
+
     function getMissingRequiredDocumentLabels(existingDocuments = {}) {
       return getRenderedDocumentConfig(activeCategory)
         .filter((entry) => entry.required && !existingDocuments?.[entry.key]?.url && !(entry.inputEl?.files?.[0]))
@@ -879,7 +895,11 @@
 
       renderApprovalStatus(profileData);
       renderDocumentUploadStatus(profileData?.documents || {}, profileData?.documentReview || {});
+      renderSelectedDocumentState();
+
       window.currentContractorProfileStatus = safeStatus;
+      window.currentContractorProfileDocuments = profileData?.documents || {};
+      window.currentContractorProfileDocumentReview = profileData?.documentReview || {};
 
       if (contractorSubmitBtn) {
         if (safeStatus === "rejected") {
@@ -1267,9 +1287,13 @@
         };
 
         window.currentContractorProfileStatus = payload.status;
+        window.currentContractorProfileDocuments = uploadedDocuments;
+        window.currentContractorProfileDocumentReview = nextDocumentReview;
+
         applyCategoryUI(activeCategory, businessType);
         renderApprovalStatus(displayProfile);
         renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
+        renderSelectedDocumentState();
 
         if (contractorSubmitBtn) {
           if (payload.status === "approved") {
@@ -1292,6 +1316,18 @@
         console.error(err);
         contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
       }
+    });
+
+    documentSlots.forEach((slot) => {
+      if (!slot.inputEl) return;
+
+      slot.inputEl.addEventListener("change", () => {
+        renderDocumentUploadStatus(
+          window.currentContractorProfileDocuments || {},
+          window.currentContractorProfileDocumentReview || {}
+        );
+        renderSelectedDocumentState();
+      });
     });
 
     if (contractorNotificationsList) {
