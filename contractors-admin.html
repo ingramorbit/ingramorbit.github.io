@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Review</title>
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
   <section class="contractors-admin-hero">
@@ -37,13 +37,27 @@
       <div class="contractors-admin-filters">
         <input
           id="contractorsAdminSearch"
-          class="contractors-admin-filter-input"
+          class="contractorsAdmin-filter-input"
           type="text"
           placeholder="Search company, contact, email, city, business type..."
         />
 
+        <select id="contractorsAdminCategory" class="contractors-admin-filter-select">
+          <option value="">All categories</option>
+          <option value="trucking">Trucking</option>
+          <option value="plumbing">Plumbing</option>
+          <option value="electricians">Electricians</option>
+          <option value="carpentry">Carpentry</option>
+          <option value="auto">Auto Services</option>
+          <option value="hvac">HVAC</option>
+          <option value="financial-help">Financial Help</option>
+          <option value="lawn-care">Lawn Care</option>
+          <option value="food">Food Services</option>
+        </select>
+
         <select id="contractorsAdminStatus" class="contractors-admin-filter-select">
           <option value="">All statuses</option>
+          <option value="not-submitted">not submitted</option>
           <option value="pending">pending</option>
           <option value="approved">approved</option>
           <option value="rejected">rejected</option>
@@ -94,12 +108,14 @@
     const db = getFirestore(app);
 
     const contractorsAdminSearch = document.getElementById("contractorsAdminSearch");
+    const contractorsAdminCategory = document.getElementById("contractorsAdminCategory");
     const contractorsAdminStatus = document.getElementById("contractorsAdminStatus");
     const contractorsAdminSummary = document.getElementById("contractorsAdminSummary");
     const contractorsAdminList = document.getElementById("contractorsAdminList");
     const contractorReviewActivityList = document.getElementById("contractorReviewActivityList");
 
     let contractors = [];
+    let contractorReviewActivityItems = [];
     let unsubscribeContractorsListener = null;
     let unsubscribeContractorReviewActivityListener = null;
 
@@ -230,6 +246,9 @@
     }
 
     function getContractorRecordId(contractor) {
+      const direct = String(contractor?.contractorRecordId || "").trim();
+      if (direct) return direct;
+
       const recordId = String(contractor?._docId || "").trim();
       if (recordId) return recordId;
 
@@ -248,7 +267,21 @@
     }
 
     function getCategoryLabel(item) {
-      return String(item.categoryLabel || item.category || "—");
+      const categoryKey = getCategoryKey(item);
+
+      const labelMap = {
+        trucking: "Trucking",
+        plumbing: "Plumbing",
+        electricians: "Electricians",
+        carpentry: "Carpentry",
+        auto: "Auto Services",
+        hvac: "HVAC",
+        "financial-help": "Financial Help",
+        "lawn-care": "Lawn Care",
+        food: "Food Services"
+      };
+
+      return String(item.categoryLabel || labelMap[categoryKey] || item.category || "—");
     }
 
     function getChecklistConfig(item) {
@@ -476,6 +509,7 @@
       contractorUid,
       contractorRecordId = "",
       category = "",
+      categoryLabel = "",
       title,
       message,
       type = "general",
@@ -489,6 +523,7 @@
         contractorUid: safeContractorUid,
         contractorRecordId: String(contractorRecordId || "").trim(),
         category: normalizeCategory(category || ""),
+        categoryLabel: String(categoryLabel || "").trim(),
         title: String(title).trim(),
         message: String(message).trim(),
         type: String(type || "general").trim(),
@@ -509,6 +544,36 @@
       const checklistComplete = config.every(entry => state[entry.key] === true);
 
       return checklistComplete && areRequiredDocumentsApproved(item);
+    }
+
+    function getFilteredReviewActivity() {
+      const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
+      const categoryValue = normalizeCategory(contractorsAdminCategory?.value || "");
+
+      let items = [...contractorReviewActivityItems];
+
+      if (categoryValue) {
+        items = items.filter(item => getCategoryKey(item) === categoryValue);
+      }
+
+      if (searchValue) {
+        items = items.filter(item => {
+          const haystack = [
+            item.summary,
+            item.details,
+            item.contractorCompanyName,
+            item.contractorContactName,
+            item.contractorEmail,
+            item.category,
+            item.categoryLabel,
+            item.actorName
+          ].join(" ").toLowerCase();
+
+          return haystack.includes(searchValue);
+        });
+      }
+
+      return items.slice(0, 40);
     }
 
     function renderContractorReviewActivity(items = []) {
@@ -581,18 +646,18 @@
       const activityQuery = query(
         collection(db, "contractorReviewActivity"),
         orderBy("createdAt", "desc"),
-        limit(40)
+        limit(80)
       );
 
       unsubscribeContractorReviewActivityListener = onSnapshot(
         activityQuery,
         (snapshot) => {
-          const items = snapshot.docs.map(docSnap => ({
+          contractorReviewActivityItems = snapshot.docs.map(docSnap => ({
             _docId: docSnap.id,
             ...docSnap.data()
           }));
 
-          renderContractorReviewActivity(items);
+          renderContractorReviewActivity(getFilteredReviewActivity());
         },
         (err) => {
           console.error(err);
@@ -617,7 +682,7 @@
         <div class="contractor-checklist">
           <div class="contractor-checklist-title-row">
             <div class="contractor-checklist-title">
-              Review checklist · ${escapeHtml(getCategoryKey(item).toUpperCase())}
+              Review checklist · ${escapeHtml(getCategoryLabel(item))}
             </div>
             <div class="contractor-checklist-progress">
               ${progress.completed}/${progress.total} complete
@@ -730,6 +795,7 @@
     function getFilteredContractors() {
       const searchValue = (contractorsAdminSearch?.value || "").trim().toLowerCase();
       const statusValue = (contractorsAdminStatus?.value || "").trim().toLowerCase();
+      const categoryValue = normalizeCategory(contractorsAdminCategory?.value || "");
 
       let items = [...contractors];
 
@@ -751,6 +817,10 @@
 
           return haystack.includes(searchValue);
         });
+      }
+
+      if (categoryValue) {
+        items = items.filter(item => getCategoryKey(item) === categoryValue);
       }
 
       if (statusValue) {
@@ -933,6 +1003,7 @@
       const items = getFilteredContractors();
       updateSummary(items);
       renderContractors(items);
+      renderContractorReviewActivity(getFilteredReviewActivity());
     }
 
     function startContractorsListener() {
@@ -1004,6 +1075,7 @@
         const contractorUid = getContractorOwnerUid(contractor);
         const contractorRecordId = getContractorRecordId(contractor);
         const contractorCategory = getCategoryKey(contractor);
+        const contractorCategoryLabel = getCategoryLabel(contractor);
 
         const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
           .find(el => el.getAttribute("data-contractorid") === contractorId);
@@ -1045,8 +1117,9 @@
             contractorUid,
             contractorRecordId,
             category: contractorCategory,
+            categoryLabel: contractorCategoryLabel,
             title: "Review feedback updated",
-            message: "Admin updated your contractor review feedback. Open your onboarding page to review the latest notes.",
+            message: `Admin updated your ${contractorCategoryLabel.toLowerCase()} review feedback. Open onboarding to read the latest notes.`,
             type: "review-feedback",
             actorUid: currentUser.uid,
             actorName: currentUser.name || currentUser.email || "Admin"
@@ -1073,6 +1146,7 @@
         const contractorUid = getContractorOwnerUid(contractor);
         const contractorRecordId = getContractorRecordId(contractor);
         const contractorCategory = getCategoryKey(contractor);
+        const contractorCategoryLabel = getCategoryLabel(contractor);
 
         const nextDocumentReview = {
           ...(contractor.documentReview || {})
@@ -1152,7 +1226,7 @@
             contractor,
             actionType: "document-review-updated",
             summary: shouldAutoResetToPending
-              ? "Updated contractor document review and reset status to pending"
+              ? "Updated document review and reset contractor to pending"
               : "Updated contractor document review",
             details: blockingRequiredDocs.length
               ? `Blocking items: ${blockingRequiredDocs.join("; ")}`
@@ -1161,19 +1235,22 @@
           });
 
           const docReviewTitle = shouldAutoResetToPending
-            ? "Document review changed your approval status"
-            : "Document review updated";
+            ? "Required documents need attention"
+            : blockingRequiredDocs.length
+              ? "Document review needs attention"
+              : "Document review updated";
 
           const docReviewMessage = shouldAutoResetToPending
-            ? `Admin reviewed your documents. Your status was moved to pending because of: ${blockingRequiredDocs.join("; ")}.`
+            ? `Your ${contractorCategoryLabel.toLowerCase()} profile moved to pending. Fix: ${blockingRequiredDocs.join("; ")}.`
             : blockingRequiredDocs.length
-              ? `Admin reviewed your documents. Action needed on: ${blockingRequiredDocs.join("; ")}.`
-              : "Admin reviewed your uploaded documents. Your required document review is up to date.";
+              ? `Action needed on your ${contractorCategoryLabel.toLowerCase()} documents: ${blockingRequiredDocs.join("; ")}.`
+              : `Your ${contractorCategoryLabel.toLowerCase()} document review is up to date.`;
 
           await createContractorNotification({
             contractorUid,
             contractorRecordId,
             category: contractorCategory,
+            categoryLabel: contractorCategoryLabel,
             title: docReviewTitle,
             message: docReviewMessage,
             type: "document-review",
@@ -1209,6 +1286,7 @@
         const contractorUid = getContractorOwnerUid(contractor);
         const contractorRecordId = getContractorRecordId(contractor);
         const contractorCategory = getCategoryKey(contractor);
+        const contractorCategoryLabel = getCategoryLabel(contractor);
 
         const config = getChecklistConfig(contractor);
         const checkboxMap = {};
@@ -1256,7 +1334,7 @@
             contractor,
             actionType: "checklist-updated",
             summary: shouldAutoResetToPending
-              ? "Updated contractor checklist and reset status to pending"
+              ? "Updated checklist and reset contractor to pending"
               : "Updated contractor review checklist",
             details: `${completedCount}/${config.length} checklist items complete`,
             statusAtTime: updatePayload.status || contractor.status || ""
@@ -1266,12 +1344,13 @@
             contractorUid,
             contractorRecordId,
             category: contractorCategory,
+            categoryLabel: contractorCategoryLabel,
             title: shouldAutoResetToPending
-              ? "Checklist update changed your approval status"
+              ? "Checklist needs attention"
               : "Checklist review updated",
             message: shouldAutoResetToPending
-              ? `Admin updated your contractor review checklist. Your status moved to pending because only ${completedCount}/${config.length} checklist items are complete.`
-              : `Admin updated your contractor review checklist. ${completedCount}/${config.length} checklist items are marked complete.`,
+              ? `Your ${contractorCategoryLabel.toLowerCase()} profile moved to pending. ${completedCount}/${config.length} checklist items are complete.`
+              : `Your ${contractorCategoryLabel.toLowerCase()} checklist was updated. ${completedCount}/${config.length} items are complete.`,
             type: "checklist-updated",
             actorUid: currentUser.uid,
             actorName: currentUser.name || currentUser.email || "Admin"
@@ -1319,6 +1398,7 @@
       const contractorUid = getContractorOwnerUid(contractor);
       const contractorRecordId = getContractorRecordId(contractor);
       const contractorCategory = getCategoryKey(contractor);
+      const contractorCategoryLabel = getCategoryLabel(contractor);
 
       const feedbackInput = [...contractorsAdminList.querySelectorAll(".contractor-review-feedback-input")]
         .find(el => el.getAttribute("data-contractorid") === contractorId);
@@ -1388,21 +1468,22 @@
         });
 
         const statusTitleMap = {
-          approved: "Contractor profile approved",
-          pending: "Contractor profile set to pending",
-          rejected: "Contractor profile rejected"
+          approved: `${contractorCategoryLabel} profile approved`,
+          pending: `${contractorCategoryLabel} profile pending`,
+          rejected: `${contractorCategoryLabel} profile rejected`
         };
 
         const statusMessageMap = {
-          approved: "Your contractor profile is approved. You can appear in assignment recommendations.",
-          pending: "Your contractor profile is currently pending review. Check your feedback and document review results for next steps.",
-          rejected: "Your contractor profile was rejected. Review the feedback and document action items, then update and resubmit."
+          approved: `Your ${contractorCategoryLabel.toLowerCase()} contractor profile is approved.`,
+          pending: `Your ${contractorCategoryLabel.toLowerCase()} contractor profile is currently pending review.`,
+          rejected: `Your ${contractorCategoryLabel.toLowerCase()} contractor profile was rejected. Review the feedback and fix the listed items.`
         };
 
         await createContractorNotification({
           contractorUid,
           contractorRecordId,
           category: contractorCategory,
+          categoryLabel: contractorCategoryLabel,
           title: statusTitleMap[nextStatus] || "Contractor profile updated",
           message: statusMessageMap[nextStatus] || "Your contractor review status was updated.",
           type: "approval-status",
@@ -1419,6 +1500,10 @@
 
     if (contractorsAdminSearch) {
       contractorsAdminSearch.addEventListener("input", applyFilters);
+    }
+
+    if (contractorsAdminCategory) {
+      contractorsAdminCategory.addEventListener("change", applyFilters);
     }
 
     if (contractorsAdminStatus) {
