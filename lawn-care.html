@@ -1,340 +1,314 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Lawn Care</title>
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
-  <section class="lawn-care-hero">
 
-    <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
+<section class="lawn-care-hero">
+  <div class="login-button">
+    <div id="authArea">
+      <span id="welcomeUser" class="welcome-user"></span>
+      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
+  </div>
 
-    <a class="lawn-care-back lawn-care-back-floating" href="index.html">← Back to Home</a>
+  <a class="lawn-care-back lawn-care-back-floating" href="index.html">← Back to Home</a>
 
-    <div class="container">
-      <div class="lawn-care-hero-content">
-        <div class="lawn-care-brand">AssistKingOnline</div>
-        <h1 class="lawn-care-title">🌿 Lawn Care</h1>
-        <p>Find trusted lawn care professionals for residential and commercial outdoor needs.</p>
+  <div class="container">
+    <div class="lawn-care-hero-content">
+      <div class="lawn-care-brand">AssistKingOnline</div>
+      <h1 class="lawn-care-title">🌿 Lawn Care</h1>
+      <p>Find trusted lawn care professionals for residential and commercial outdoor needs.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container lawn-care-wrap">
+
+  <div class="lawn-care-card">
+    <strong>Popular lawn care services</strong>
+    <div style="margin-top:10px;">
+      <span class="lawn-care-pill">Grass Cutting</span>
+      <span class="lawn-care-pill">Edging</span>
+      <span class="lawn-care-pill">Mulching</span>
+      <span class="lawn-care-pill">Bush Trimming</span>
+      <span class="lawn-care-pill">Leaf Cleanup</span>
+      <span class="lawn-care-pill">Seasonal Cleanup</span>
+      <span class="lawn-care-pill">Weed Control</span>
+      <span class="lawn-care-pill">Yard Cleanup</span>
+    </div>
+  </div>
+
+  <div class="lawn-care-card">
+    <strong>Residential or commercial</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Whether you need help with a home lawn, rental property, office exterior, or business grounds, we can help point you in the right direction.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="lawn-care-cta" href="residential.html">Residential Services</a>
+      <a class="lawn-care-cta" href="commercial.html">Commercial Services</a>
+    </div>
+  </div>
+
+  <div class="lawn-care-card">
+    <strong>Related service categories</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Browse other categories that often go along with lawn and outdoor property work.</p>
+    <div class="categories">
+      <a class="cat cat-lawn"      href="lawn-care.html"><span class="top">🌿 Lawn Care</span></a>
+      <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
+      <a class="cat cat-plumbing"  href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
+      <a class="cat cat-hvac"      href="hvac.html"><span class="top">❄️ HVAC</span></a>
+      <a class="cat cat-trucking"  href="trucking.html"><span class="top">🚚 Trucking</span></a>
+      <a class="cat cat-finance"   href="financial-help.html"><span class="top">💳 Financial Help</span></a>
+    </div>
+  </div>
+
+  <div class="lawn-care-card">
+    <strong>Get matched</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Tell us what outdoor work you need and we'll connect you with lawn care pros.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a class="lawn-care-cta" href="request-service.html?category=lawn-care">Start Lawn Care Request</a>
+      <a class="lawn-care-cta" href="my-requests.html">My Requests</a>
+    </div>
+  </div>
+
+  <div class="lawn-care-card">
+    <strong>Own a lawn care business?</strong>
+    <p style="margin:8px 0 0;color:var(--text-body);">Grow visibility for your business, request more customer leads, and post lawn care opportunities for your team.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <a class="lawn-care-cta" href="contractor-onboarding.html?category=lawn-care">Join as Lawn Care Contractor</a>
+      <a class="lawn-care-cta" href="lead.html?category=lawn-care">Get Leads</a>
+      <a class="lawn-care-cta" href="#postLawnCareJob">Post a Job</a>
+      <a class="lawn-care-cta" href="my-leads.html?category=lawn-care">My Leads</a>
+    </div>
+  </div>
+
+  <div class="lawn-care-card" id="postLawnCareJob">
+    <strong>Post a Job</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Add a lawn care job or opportunity to the board.</p>
+
+    <form id="postJobForm" class="post-load-form">
+      <input id="pjTitle"    placeholder="Job Title" required />
+      <input id="pjCompany"  placeholder="Company Name" required />
+      <input id="pjLocation" placeholder="Location" required />
+      <input id="pjPay"      placeholder="Pay / Budget (example: $250 cleanup or $22/hr)" required />
+
+      <select id="pjType" required>
+        <option value="">Select job type</option>
+        <option>Full-Time</option>
+        <option>Part-Time</option>
+        <option>Contract</option>
+        <option>Residential</option>
+        <option>Commercial</option>
+        <option>Seasonal</option>
+      </select>
+
+      <input id="pjCategory" value="lawn-care" readonly />
+      <input id="pjDescription" placeholder="Short job description" required />
+
+      <button type="submit" class="lawn-care-cta">Post Job</button>
+    </form>
+  </div>
+
+  <section style="margin-top:24px;">
+    <h2 style="margin:0 0 10px;font-family:'DM Serif Display',serif;font-weight:700;color:var(--text-heading);">Lawn Care Job Board</h2>
+    <p style="margin:0 0 14px;color:var(--text-body);">Find mowing, cleanup, landscaping support, seasonal work, and outdoor property service opportunities.</p>
+
+    <div class="lawn-care-card">
+      <strong>Featured Opportunities</strong>
+      <div id="jobBoardList" class="job-board-list">
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <main class="container lawn-care-wrap">
-    <div class="lawn-care-card">
-      <strong>Popular lawn care services</strong>
-      <div>
-        <span class="lawn-care-pill">Grass Cutting</span>
-        <span class="lawn-care-pill">Edging</span>
-        <span class="lawn-care-pill">Mulching</span>
-        <span class="lawn-care-pill">Bush Trimming</span>
-        <span class="lawn-care-pill">Leaf Cleanup</span>
-        <span class="lawn-care-pill">Seasonal Cleanup</span>
-        <span class="lawn-care-pill">Weed Control</span>
-        <span class="lawn-care-pill">Yard Cleanup</span>
-      </div>
-    </div>
+</main>
 
-    <div class="lawn-care-card">
-      <strong>Residential or commercial</strong>
-      <p style="margin:8px 0 14px;">
-        Whether you need help with a home lawn, rental property, office exterior, or business grounds,
-        we can help point you in the right direction.
-      </p>
+<script type="module" src="auth.js?v=16"></script>
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="lawn-care-cta" href="residential.html">Residential Services</a>
-        <a class="lawn-care-cta" href="commercial.html">Commercial Services</a>
-      </div>
-    </div>
+  const app = getApp();
+  const db  = getFirestore(app);
 
-    <div class="lawn-care-card">
-      <strong>Related service categories</strong>
-      <p style="margin:8px 0 14px;">
-        Browse other categories that often go along with lawn and outdoor property work.
-      </p>
+  const jobBoardList  = document.getElementById("jobBoardList");
+  const postJobForm   = document.getElementById("postJobForm");
+  const pjTitle       = document.getElementById("pjTitle");
+  const pjCompany     = document.getElementById("pjCompany");
+  const pjLocation    = document.getElementById("pjLocation");
+  const pjPay         = document.getElementById("pjPay");
+  const pjType        = document.getElementById("pjType");
+  const pjCategory    = document.getElementById("pjCategory");
+  const pjDescription = document.getElementById("pjDescription");
 
-      <div class="categories">
-        <a class="cat cat-lawn" href="lawn-care.html"><span class="top">🌿 Lawn Care</span></a>
-        <a class="cat cat-carpentry" href="carpentry.html"><span class="top">🪚 Carpentry</span></a>
-        <a class="cat cat-plumbing" href="plumbing.html"><span class="top">🔧 Plumbing</span></a>
-        <a class="cat cat-hvac" href="hvac.html"><span class="top">❄️ HVAC</span></a>
-        <a class="cat cat-trucking" href="trucking.html"><span class="top">🚚 Trucking</span></a>
-        <a class="cat cat-finance" href="financial-help.html"><span class="top">💳 Financial Help</span></a>
-      </div>
-    </div>
+  let unsubscribeJobsListener = null;
 
-    <div class="lawn-care-card">
-      <strong>Get matched</strong>
-      <p style="margin:8px 0 14px;">
-        Tell us what outdoor work you need and we'll connect you with lawn care pros.
-      </p>
+  function escapeHtml(v) {
+    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <a class="lawn-care-cta" href="request-service.html?category=lawn-care">Start Lawn Care Request</a>
-        <a class="lawn-care-cta" href="my-requests.html">My Requests</a>
-      </div>
-    </div>
+  function getCurrentUser() { return window.AKOUser || null; }
+  function isAdminUser()    { return !!window.AKOUser && window.AKOUser.tier === "admin"; }
 
-    <div class="lawn-care-card">
-      <strong>Own a lawn care business?</strong>
-      <p style="margin:8px 0 0">
-        Grow visibility for your business, request more customer leads, and post lawn care opportunities for your team.
-      </p>
+  function waitForAKOAuth() {
+    return new Promise(resolve => {
+      if (window.AKOReady) { resolve(window.AKOUser); return; }
+      document.addEventListener("ako-auth-ready", e => resolve(e.detail.user), { once: true });
+    });
+  }
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="lawn-care-cta" href="contractor-onboarding.html?category=lawn-care">Join as Lawn Care Contractor</a>
-        <a class="lawn-care-cta" href="lead.html?category=lawn-care">Get Leads</a>
-        <a class="lawn-care-cta" href="#postLawnCareJob">Post a Job</a>
-        <a class="lawn-care-cta" href="my-leads.html?category=lawn-care">My Leads</a>
-      </div>
-    </div>
+  function renderJobs(list) {
+    if (!jobBoardList) return;
+    if (!list.length) {
+      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No lawn care jobs posted right now.</p></div>`;
+      return;
+    }
+    jobBoardList.innerHTML = list.map(job => {
+      const title       = escapeHtml(job.title || "");
+      const company     = escapeHtml(job.company || "");
+      const location    = escapeHtml(job.location || "");
+      const pay         = escapeHtml(job.pay || "");
+      const type        = escapeHtml(job.type || "Job");
+      const category    = escapeHtml(job.category || "lawn-care");
+      const description = escapeHtml(job.description || "Apply for this lawn care opportunity.");
+      const ownerEmail  = String(job.ownerEmail || "").trim();
+      const applyHref   = ownerEmail ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title||"Lawn Care Job"}`)}` : "";
+      const canDelete   = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
 
-    <div class="lawn-care-card" id="postLawnCareJob">
-      <strong>Post a Job</strong>
-      <p style="margin:8px 0 14px">Add a lawn care job or opportunity to the board.</p>
-
-      <form id="postJobForm" class="post-load-form">
-        <input id="pjTitle" placeholder="Job Title" required />
-        <input id="pjCompany" placeholder="Company Name" required />
-        <input id="pjLocation" placeholder="Location" required />
-        <input id="pjPay" placeholder="Pay / Budget (example: $250 cleanup or $22/hr)" required />
-
-        <select id="pjType" required>
-          <option value="">Select job type</option>
-          <option>Full-Time</option>
-          <option>Part-Time</option>
-          <option>Contract</option>
-          <option>Residential</option>
-          <option>Commercial</option>
-          <option>Seasonal</option>
-        </select>
-
-        <input id="pjCategory" value="lawn-care" readonly />
-        <input id="pjDescription" placeholder="Short job description" required />
-
-        <button type="submit" class="lawn-care-cta">Post Job</button>
-      </form>
-    </div>
-
-    <section style="margin-top:24px">
-      <h2 style="margin:0 0 10px;font-weight:900">Lawn Care Job Board</h2>
-      <p style="margin:0 0 14px">
-        Find mowing, cleanup, landscaping support, seasonal work, and outdoor property service opportunities.
-      </p>
-
-      <div class="lawn-care-card">
-        <strong>Featured Opportunities</strong>
-
-        <div id="jobBoardList" class="job-board-list">
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+      return `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${title}</h3>
+              <p class="job-company">${company}</p>
+            </div>
+            <span class="job-badge">${type}</span>
           </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script type="module" src="auth.js?v=16"></script>
-  <script type="module">
-    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      deleteDoc,
-      doc,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const app = getApp();
-    const db = getFirestore(app);
-
-    const jobBoardList = document.getElementById("jobBoardList");
-
-    const postJobForm = document.getElementById("postJobForm");
-    const pjTitle = document.getElementById("pjTitle");
-    const pjCompany = document.getElementById("pjCompany");
-    const pjLocation = document.getElementById("pjLocation");
-    const pjPay = document.getElementById("pjPay");
-    const pjType = document.getElementById("pjType");
-    const pjCategory = document.getElementById("pjCategory");
-    const pjDescription = document.getElementById("pjDescription");
-
-    let unsubscribeJobsListener = null;
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
-    function getCurrentUser() {
-      return window.AKOUser || null;
-    }
-
-    function isAdminUser() {
-      return !!window.AKOUser && window.AKOUser.tier === "admin";
-    }
-
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) { resolve(window.AKOUser); return; }
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
-    function renderJobs(list) {
-      if (!jobBoardList) return;
-      if (!list.length) {
-        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No lawn care jobs posted right now.</p></div>`;
-        return;
-      }
-      jobBoardList.innerHTML = list.map(job => {
-        const title = escapeHtml(job.title || "");
-        const company = escapeHtml(job.company || "");
-        const location = escapeHtml(job.location || "");
-        const pay = escapeHtml(job.pay || "");
-        const type = escapeHtml(job.type || "Job");
-        const category = escapeHtml(job.category || "lawn-care");
-        const description = escapeHtml(job.description || "Apply for this lawn care opportunity.");
-        const ownerEmail = String(job.ownerEmail || "").trim();
-        const applyHref = ownerEmail
-          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Lawn Care Job"}`)}`
-          : "";
-        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
-
-        return `
-          <div class="job-card">
-            <div class="job-card-top">
-              <div>
-                <h3 class="job-title">${title}</h3>
-                <p class="job-company">${company}</p>
-              </div>
-              <span class="job-badge">${type}</span>
-            </div>
-            <div class="job-meta">
-              <span>📍 ${location || "—"}</span>
-              <span>💵 ${pay || "—"}</span>
-              <span>🌿 ${category}</span>
-            </div>
-            <p class="job-desc">${description}</p>
-            <div class="lb-actions">
-              ${ownerEmail
-                ? `<a href="${applyHref}" class="lawn-care-cta">Apply Now</a>`
-                : `<span class="assignment-note assignment-note-muted">No contact email available.</span>`
-              }
-              ${canDelete
-                ? `<button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId || "")}" data-jobtitle="${title || "this job"}">Delete</button>`
-                : ""
-              }
-            </div>
+          <div class="job-meta">
+            <span>📍 ${location||"—"}</span>
+            <span>💵 ${pay||"—"}</span>
+            <span>🌿 ${category}</span>
           </div>
-        `;
-      }).join("");
-    }
+          <p class="job-desc">${description}</p>
+          <div class="lb-actions">
+            ${ownerEmail
+              ? `<a href="${applyHref}" class="lawn-care-cta">Apply Now</a>`
+              : `<span class="assignment-note assignment-note-muted">No contact email available.</span>`
+            }
+            ${canDelete
+              ? `<button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId||"")}" data-jobtitle="${title||"this job"}">Delete</button>`
+              : ""
+            }
+          </div>
+        </div>`;
+    }).join("");
+  }
 
-    function startLawnCareJobsListener() {
-      if (!jobBoardList) return;
-      if (unsubscribeJobsListener) unsubscribeJobsListener();
-      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
-      unsubscribeJobsListener = onSnapshot(
-        collection(db, "jobs"),
-        (snapshot) => {
-          const jobs = snapshot.docs
-            .map(docSnap => ({ _docId: docSnap.id, ...docSnap.data() }))
-            .filter(job => String(job.category || "").toLowerCase() === "lawn-care")
-            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-          renderJobs(jobs);
-        },
-        (err) => {
-          console.error(err);
-          jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
-        }
-      );
-    }
-
-    if (jobBoardList) {
-      jobBoardList.addEventListener("click", async (e) => {
-        const deleteBtn = e.target.closest(".lb-delete-job-btn");
-        if (!deleteBtn) return;
-        const currentUser = await waitForAKOAuth();
-        if (!currentUser) {
-          window.location.href = `index.html?auth=1&return=${encodeURIComponent("lawn-care.html")}`;
-          return;
-        }
-        const jobId = deleteBtn.getAttribute("data-jobid");
-        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
-        if (!jobId) { alert("Could not delete this job."); return; }
-        const confirmed = confirm(`Delete "${jobTitle}"?`);
-        if (!confirmed) return;
-        try {
-          await deleteDoc(doc(db, "jobs", jobId));
-          alert("Job deleted.");
-        } catch (err) {
-          console.error(err);
-          alert("Could not delete job:\ncode: " + err.code + "\nmessage: " + err.message);
-        }
-      });
-    }
-
-    if (postJobForm) {
-      postJobForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const currentUser = await waitForAKOAuth();
-        if (!currentUser) {
-          window.location.href = `index.html?auth=1&return=${encodeURIComponent("lawn-care.html")}`;
-          return;
-        }
-        const newJob = {
-          title: (pjTitle.value || "").trim(),
-          company: (pjCompany.value || "").trim(),
-          location: (pjLocation.value || "").trim(),
-          pay: (pjPay.value || "").trim(),
-          type: (pjType.value || "").trim(),
-          category: (pjCategory.value || "").trim(),
-          description: (pjDescription.value || "").trim(),
-          ownerUid: currentUser.uid,
-          ownerEmail: currentUser.email || "",
-          createdAt: Date.now()
-        };
-        if (!newJob.title || !newJob.company || !newJob.location || !newJob.pay || !newJob.type || !newJob.category || !newJob.description) {
-          alert("Please complete all job fields.");
-          return;
-        }
-        try {
-          await addDoc(collection(db, "jobs"), newJob);
-          postJobForm.reset();
-          if (pjCategory) pjCategory.value = "lawn-care";
-          alert("Lawn care job posted successfully.");
-        } catch (err) {
-          console.error(err);
-          alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
-        }
-      });
-    }
-
-    try {
-      await waitForAKOAuth();
-      startLawnCareJobsListener();
-    } catch (err) {
-      console.error(err);
-      if (jobBoardList) {
-        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p></div>`;
+  function startLawnCareJobsListener() {
+    if (!jobBoardList) return;
+    if (unsubscribeJobsListener) unsubscribeJobsListener();
+    jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
+    unsubscribeJobsListener = onSnapshot(
+      collection(db, "jobs"),
+      snapshot => {
+        const jobs = snapshot.docs
+          .map(d => ({ _docId: d.id, ...d.data() }))
+          .filter(j => String(j.category||"").toLowerCase() === "lawn-care")
+          .sort((a, b) => Number(b.createdAt||0) - Number(a.createdAt||0));
+        renderJobs(jobs);
+      },
+      err => {
+        console.error(err);
+        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
       }
-    }
-  </script>
+    );
+  }
+
+  if (jobBoardList) {
+    jobBoardList.addEventListener("click", async e => {
+      const deleteBtn = e.target.closest(".lb-delete-job-btn");
+      if (!deleteBtn) return;
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent("lawn-care.html")}`; return; }
+      const jobId    = deleteBtn.getAttribute("data-jobid");
+      const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+      if (!jobId) { alert("Could not delete this job."); return; }
+      if (!confirm(`Delete "${jobTitle}"?`)) return;
+      try { await deleteDoc(doc(db,"jobs",jobId)); alert("Job deleted."); }
+      catch(err) { console.error(err); alert("Could not delete job:\n"+err.message); }
+    });
+  }
+
+  if (postJobForm) {
+    postJobForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent("lawn-care.html")}`; return; }
+      const newJob = {
+        title:       (pjTitle.value||"").trim(),
+        company:     (pjCompany.value||"").trim(),
+        location:    (pjLocation.value||"").trim(),
+        pay:         (pjPay.value||"").trim(),
+        type:        (pjType.value||"").trim(),
+        category:    (pjCategory.value||"").trim(),
+        description: (pjDescription.value||"").trim(),
+        ownerUid:    currentUser.uid,
+        ownerEmail:  currentUser.email||"",
+        createdAt:   Date.now()
+      };
+      if (!newJob.title||!newJob.company||!newJob.location||!newJob.pay||!newJob.type||!newJob.category||!newJob.description) {
+        alert("Please complete all job fields."); return;
+      }
+      try {
+        await addDoc(collection(db,"jobs"), newJob);
+        postJobForm.reset();
+        if (pjCategory) pjCategory.value = "lawn-care";
+        alert("Lawn care job posted successfully.");
+      } catch(err) { console.error(err); alert("Could not save job:\n"+err.message); }
+    });
+  }
+
+  try {
+    await waitForAKOAuth();
+    startLawnCareJobsListener();
+  } catch(err) {
+    console.error(err);
+    if (jobBoardList) jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p></div>`;
+  }
+</script>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <span class="theme-toggle-icon">☀️</span>
+  <span id="toggleLabel">Light Mode</span>
+</button>
+
+<script>
+  (function(){
+    const html=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    const label=document.getElementById('toggleLabel');
+    const icon=btn.querySelector('.theme-toggle-icon');
+    const saved=localStorage.getItem('ako-theme')||'dark';
+    html.setAttribute('data-theme',saved);
+    label.textContent=saved==='dark'?'Light Mode':'Dark Mode';
+    icon.textContent=saved==='dark'?'☀️':'🌙';
+    btn.addEventListener('click',function(){
+      const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+      html.setAttribute('data-theme',next);
+      localStorage.setItem('ako-theme',next);
+      label.textContent=next==='dark'?'Light Mode':'Dark Mode';
+      icon.textContent=next==='dark'?'☀️':'🌙';
+    });
+  })();
+</script>
+
 </body>
 </html>
