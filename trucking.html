@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Trucking</title>
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=38">
 </head>
 <body>
   <section class="trucking-hero">
@@ -46,8 +46,8 @@
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
         <a class="trucking-cta" href="request-service.html?category=trucking">Start trucking request</a>
-        <a class="trucking-cta" href="contractor-onboarding.html">Join as Trucking Contractor</a>
-        <a class="trucking-cta" href="my-leads.html">My Leads</a>
+        <a class="trucking-cta" href="contractor-onboarding.html?category=trucking">Join as Trucking Contractor</a>
+        <a class="trucking-cta" href="my-leads.html?category=trucking">My Leads</a>
         <a class="trucking-cta" href="plans.html">View Plans</a>
       </div>
     </div>
@@ -241,7 +241,6 @@
           resolve(window.AKOUser);
           return;
         }
-
         document.addEventListener("ako-auth-ready", (e) => {
           resolve(e.detail.user);
         }, { once: true });
@@ -274,30 +273,18 @@
     function matches(load, q) {
       const s = (q || "").toLowerCase().trim();
       if (!s) return true;
-
       const hay = [
-        load.id,
-        load.pickupCity,
-        load.dropCity,
-        load.equipment,
-        load.commodity,
-        load.contact
+        load.id, load.pickupCity, load.dropCity,
+        load.equipment, load.commodity, load.contact
       ].join(" ").toLowerCase();
-
       return hay.includes(s);
     }
 
     function buildJobApplyMarkup(job) {
       const ownerEmail = String(job.ownerEmail || "").trim();
-
       if (!ownerEmail) {
-        return `
-          <span class="trucking-cta" style="opacity:.55;cursor:not-allowed;">
-            No contact email
-          </span>
-        `;
+        return `<span class="trucking-cta" style="opacity:.55;cursor:not-allowed;">No contact email</span>`;
       }
-
       return `
         <a
           href="mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Trucking Job"}`)}"
@@ -310,15 +297,12 @@
 
     function render(list) {
       if (!body) return;
-
       if (!list.length) {
         body.innerHTML = `<tr><td colspan="10">No matching loads right now.</td></tr>`;
         return;
       }
-
       body.innerHTML = list.map(load => {
         const perMile = rpm(load);
-
         return `
           <tr>
             <td>${escapeHtml(load.id || "")}</td>
@@ -332,23 +316,9 @@
             <td>${escapeHtml(load.contact || "")}</td>
             <td>
               <div class="lb-actions">
-                <button
-                  type="button"
-                  class="lb-contact-btn"
-                  data-contact="${escapeHtml(load.contact || "")}"
-                >
-                  Contact
-                </button>
-
+                <button type="button" class="lb-contact-btn" data-contact="${escapeHtml(load.contact || "")}">Contact</button>
                 ${isAdminUser() ? `
-                  <button
-                    type="button"
-                    class="lb-delete-btn"
-                    data-docid="${escapeHtml(load._docId || "")}"
-                    data-loadid="${escapeHtml(load.id || "")}"
-                  >
-                    Delete
-                  </button>
+                  <button type="button" class="lb-delete-btn" data-docid="${escapeHtml(load._docId || "")}" data-loadid="${escapeHtml(load.id || "")}">Delete</button>
                 ` : ""}
               </div>
             </td>
@@ -359,18 +329,11 @@
 
     function renderJobs(list) {
       if (!jobBoardList) return;
-
       if (!list.length) {
-        jobBoardList.innerHTML = `
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p>
-          </div>
-        `;
+        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No trucking jobs posted right now.</p></div>`;
         return;
       }
-
       const currentUser = getCurrentUser();
-
       jobBoardList.innerHTML = list.map(job => `
         <div class="job-card">
           <div class="job-card-top">
@@ -380,27 +343,16 @@
             </div>
             <span class="job-badge">${escapeHtml(job.type || "Job")}</span>
           </div>
-
           <div class="job-meta">
             <span>📍 ${escapeHtml(job.location || "")}</span>
             <span>💵 ${escapeHtml(job.pay || "")}</span>
             <span>🚚 ${escapeHtml(job.category || "")}</span>
           </div>
-
           <p class="job-desc">${escapeHtml(job.description || "Apply for this trucking opportunity.")}</p>
-
           <div class="lb-actions">
             ${buildJobApplyMarkup(job)}
-
             ${(job.ownerUid === currentUser?.uid || isAdminUser()) ? `
-              <button
-                type="button"
-                class="lb-delete-job-btn"
-                data-jobid="${escapeHtml(job._docId || "")}"
-                data-jobtitle="${escapeHtml(job.title || "this job")}"
-              >
-                Delete
-              </button>
+              <button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId || "")}" data-jobtitle="${escapeHtml(job.title || "this job")}">Delete</button>
             ` : ""}
           </div>
         </div>
@@ -411,32 +363,21 @@
       const q = search?.value || "";
       const e = equip?.value || "";
       const mode = sort?.value || "date";
-
       let list = loads.filter(load => matches(load, q));
-
-      if (e) {
-        list = list.filter(load => String(load.equipment || "") === e);
-      }
-
+      if (e) list = list.filter(load => String(load.equipment || "") === e);
       list.sort((a, b) => {
         if (mode === "rateDesc") return (Number(b.rate) || 0) - (Number(a.rate) || 0);
         if (mode === "rpmDesc") return rpm(b) - rpm(a);
         if (mode === "milesAsc") return (Number(a.miles) || 0) - (Number(b.miles) || 0);
         return String(a.pickupDate || "").localeCompare(String(b.pickupDate || ""));
       });
-
       render(list);
     }
 
     function startLoadsListener() {
       if (!body) return;
-
-      if (unsubscribeLoadsListener) {
-        unsubscribeLoadsListener();
-      }
-
+      if (unsubscribeLoadsListener) unsubscribeLoadsListener();
       body.innerHTML = `<tr><td colspan="10">Connecting to Firebase...</td></tr>`;
-
       unsubscribeLoadsListener = onSnapshot(
         collection(db, "loads"),
         (snapshot) => {
@@ -445,7 +386,6 @@
             id: docSnap.data().id || docSnap.id,
             ...docSnap.data()
           }));
-
           applyFilters();
         },
         (err) => {
@@ -457,37 +397,20 @@
 
     function startTruckingJobsListener() {
       if (!jobBoardList) return;
-
-      if (unsubscribeJobsListener) {
-        unsubscribeJobsListener();
-      }
-
-      jobBoardList.innerHTML = `
-        <div class="job-card">
-          <p style="margin:0;font-weight:800;">Loading jobs...</p>
-        </div>
-      `;
-
+      if (unsubscribeJobsListener) unsubscribeJobsListener();
+      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
       unsubscribeJobsListener = onSnapshot(
         collection(db, "jobs"),
         (snapshot) => {
           truckingJobs = snapshot.docs
-            .map(docSnap => ({
-              _docId: docSnap.id,
-              ...docSnap.data()
-            }))
+            .map(docSnap => ({ _docId: docSnap.id, ...docSnap.data() }))
             .filter(job => String(job.category || "").toLowerCase() === "trucking")
-            .sort((a, b) => (Number(b.createdAt || 0) - Number(a.createdAt || 0)));
-
+            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
           renderJobs(truckingJobs);
         },
         (err) => {
           console.error(err);
-          jobBoardList.innerHTML = `
-            <div class="job-card">
-              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
-            </div>
-          `;
+          jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
         }
       );
     }
@@ -506,59 +429,29 @@
         const contactBtn = e.target.closest(".lb-contact-btn");
         if (contactBtn) {
           const contact = String(contactBtn.getAttribute("data-contact") || "").trim();
-
-          if (!contact) {
-            alert("No contact info available.");
-            return;
-          }
-
+          if (!contact) { alert("No contact info available."); return; }
           const phoneMatch = contact.match(/(\+?\d[\d\-\(\)\s]{6,}\d)/);
           const emailMatch = contact.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
-
-          if (phoneMatch) {
-            const phone = phoneMatch[1].replace(/[^\d+]/g, "");
-            window.location.href = "tel:" + phone;
-            return;
-          }
-
-          if (emailMatch) {
-            window.location.href = "mailto:" + emailMatch[0];
-            return;
-          }
-
+          if (phoneMatch) { window.location.href = "tel:" + phoneMatch[1].replace(/[^\d+]/g, ""); return; }
+          if (emailMatch) { window.location.href = "mailto:" + emailMatch[0]; return; }
           alert("Contact: " + contact);
           return;
         }
 
         const deleteBtn = e.target.closest(".lb-delete-btn");
         if (!deleteBtn) return;
-
-        if (!isAdminUser()) {
-          alert("Admin access is required to delete loads.");
-          return;
-        }
-
+        if (!isAdminUser()) { alert("Admin access is required to delete loads."); return; }
         const docId = deleteBtn.getAttribute("data-docid");
         const loadId = deleteBtn.getAttribute("data-loadid") || "this load";
-
-        if (!docId) {
-          alert("Could not delete this load.");
-          return;
-        }
-
+        if (!docId) { alert("Could not delete this load."); return; }
         const confirmed = confirm(`Delete ${loadId}?`);
         if (!confirmed) return;
-
         try {
           await deleteDoc(doc(db, "loads", docId));
           alert("Load deleted.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not delete load:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not delete load:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -567,35 +460,20 @@
       jobBoardList.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".lb-delete-job-btn");
         if (!deleteBtn) return;
-
         const currentUser = getCurrentUser();
         const jobId = deleteBtn.getAttribute("data-jobid");
         const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
         const job = truckingJobs.find(item => item._docId === jobId);
-
-        if (!jobId || !job) {
-          alert("Could not delete this job.");
-          return;
-        }
-
-        if (!(job.ownerUid === currentUser?.uid || isAdminUser())) {
-          alert("You do not have permission to delete this job.");
-          return;
-        }
-
+        if (!jobId || !job) { alert("Could not delete this job."); return; }
+        if (!(job.ownerUid === currentUser?.uid || isAdminUser())) { alert("You do not have permission to delete this job."); return; }
         const confirmed = confirm(`Delete "${jobTitle}"?`);
         if (!confirmed) return;
-
         try {
           await deleteDoc(doc(db, "jobs", jobId));
           alert("Job deleted.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not delete job:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not delete job:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -603,14 +481,8 @@
     if (postForm) {
       postForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const currentUser = getCurrentUser();
-
-        if (!currentUser) {
-          redirectToLogin();
-          return;
-        }
-
+        if (!currentUser) { redirectToLogin(); return; }
         const newLoad = {
           id: (plId.value || "").trim() || ("AK-" + Date.now()),
           pickupCity: (plPickupCity.value || "").trim(),
@@ -627,31 +499,17 @@
           createdAt: Date.now(),
           updatedAt: Date.now()
         };
-
-        if (
-          !newLoad.pickupCity ||
-          !newLoad.dropCity ||
-          !newLoad.equipment ||
-          !newLoad.miles ||
-          !newLoad.rate ||
-          !newLoad.pickupDate ||
-          !newLoad.contact
-        ) {
+        if (!newLoad.pickupCity || !newLoad.dropCity || !newLoad.equipment || !newLoad.miles || !newLoad.rate || !newLoad.pickupDate || !newLoad.contact) {
           alert("Please complete all required load fields.");
           return;
         }
-
         try {
           await addDoc(collection(db, "loads"), newLoad);
           postForm.reset();
           alert("Load posted to board.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not save load:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not save load:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -659,14 +517,8 @@
     if (postJobForm) {
       postJobForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const currentUser = getCurrentUser();
-
-        if (!currentUser) {
-          redirectToLogin();
-          return;
-        }
-
+        if (!currentUser) { redirectToLogin(); return; }
         const newJob = {
           title: (pjTitle.value || "").trim(),
           company: (pjCompany.value || "").trim(),
@@ -680,20 +532,10 @@
           createdAt: Date.now(),
           updatedAt: Date.now()
         };
-
-        if (
-          !newJob.title ||
-          !newJob.company ||
-          !newJob.location ||
-          !newJob.pay ||
-          !newJob.type ||
-          !newJob.category ||
-          !newJob.description
-        ) {
+        if (!newJob.title || !newJob.company || !newJob.location || !newJob.pay || !newJob.type || !newJob.category || !newJob.description) {
           alert("Please complete all required job fields.");
           return;
         }
-
         try {
           await addDoc(collection(db, "jobs"), newJob);
           postJobForm.reset();
@@ -701,11 +543,7 @@
           alert("Job posted successfully.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not save job:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -716,17 +554,9 @@
       startTruckingJobsListener();
     } catch (err) {
       console.error(err);
-      if (body) {
-        body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${escapeHtml(err.message)}</td></tr>`;
-      }
-      if (jobBoardList) {
-        jobBoardList.innerHTML = `
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
-          </div>
-        `;
-      }
+      if (body) body.innerHTML = `<tr><td colspan="10">Could not load Firestore data: ${escapeHtml(err.message)}</td></tr>`;
+      if (jobBoardList) jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
     }
   </script>
 </body>
-</html>
+  </html>
