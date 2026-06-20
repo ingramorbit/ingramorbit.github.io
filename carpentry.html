@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Carpentry</title>
-  <link rel="stylesheet" href="styles.css?v=35">
+  <link rel="stylesheet" href="styles.css?v=38">
 </head>
 <body>
   <section class="carpentry-hero">
@@ -43,7 +43,7 @@
     <div class="carpentry-card">
       <strong>Get matched</strong>
       <p style="margin:8px 0 0">
-        Tell us what carpentry help you need and we’ll connect you with the right professional.
+        Tell us what carpentry help you need and we'll connect you with the right professional.
       </p>
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
@@ -60,7 +60,7 @@
 
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
         <a class="carpentry-cta" href="contractor-onboarding.html?category=carpentry">Join as Carpentry Contractor</a>
-        <a class="carpentry-cta" href="lead.html">Get Leads</a>
+        <a class="carpentry-cta" href="lead.html?category=carpentry">Get Leads</a>
         <a class="carpentry-cta" href="#postCarpentryJob">Post a Job</a>
         <a class="carpentry-cta" href="my-leads.html?category=carpentry">My Leads</a>
       </div>
@@ -157,11 +157,7 @@
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
+        if (window.AKOReady) { resolve(window.AKOUser); return; }
         document.addEventListener("ako-auth-ready", (e) => {
           resolve(e.detail.user);
         }, { once: true });
@@ -170,16 +166,10 @@
 
     function renderJobs(list) {
       if (!jobBoardList) return;
-
       if (!list.length) {
-        jobBoardList.innerHTML = `
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">No carpentry jobs posted right now.</p>
-          </div>
-        `;
+        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No carpentry jobs posted right now.</p></div>`;
         return;
       }
-
       jobBoardList.innerHTML = list.map(job => {
         const title = escapeHtml(job.title || "");
         const company = escapeHtml(job.company || "");
@@ -203,41 +193,20 @@
               </div>
               <span class="job-badge">${type}</span>
             </div>
-
             <div class="job-meta">
               <span>📍 ${location || "—"}</span>
               <span>💵 ${pay || "—"}</span>
               <span>🪚 ${category}</span>
             </div>
-
             <p class="job-desc">${description}</p>
-
             <div class="lb-actions">
-              ${
-                ownerEmail
-                  ? `
-                    <a href="${applyHref}" class="carpentry-cta">
-                      Apply Now
-                    </a>
-                  `
-                  : `
-                    <span class="assignment-note assignment-note-muted">No contact email available.</span>
-                  `
+              ${ownerEmail
+                ? `<a href="${applyHref}" class="carpentry-cta">Apply Now</a>`
+                : `<span class="assignment-note assignment-note-muted">No contact email available.</span>`
               }
-
-              ${
-                canDelete
-                  ? `
-                    <button
-                      type="button"
-                      class="lb-delete-job-btn"
-                      data-jobid="${escapeHtml(job._docId || "")}"
-                      data-jobtitle="${title || "this job"}"
-                    >
-                      Delete
-                    </button>
-                  `
-                  : ""
+              ${canDelete
+                ? `<button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId || "")}" data-jobtitle="${title || "this job"}">Delete</button>`
+                : ""
               }
             </div>
           </div>
@@ -247,38 +216,20 @@
 
     function startCarpentryJobsListener() {
       if (!jobBoardList) return;
-
-      if (unsubscribeJobsListener) {
-        unsubscribeJobsListener();
-      }
-
-      jobBoardList.innerHTML = `
-        <div class="job-card">
-          <p style="margin:0;font-weight:800;">Loading jobs...</p>
-        </div>
-      `;
-
+      if (unsubscribeJobsListener) unsubscribeJobsListener();
+      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
       unsubscribeJobsListener = onSnapshot(
         collection(db, "jobs"),
         (snapshot) => {
-          let jobs = snapshot.docs.map((docSnap) => ({
-            _docId: docSnap.id,
-            ...docSnap.data()
-          }));
-
-          jobs = jobs
-            .filter((job) => String(job.category || "").toLowerCase() === "carpentry")
+          const jobs = snapshot.docs
+            .map(docSnap => ({ _docId: docSnap.id, ...docSnap.data() }))
+            .filter(job => String(job.category || "").toLowerCase() === "carpentry")
             .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-
           renderJobs(jobs);
         },
         (err) => {
           console.error(err);
-          jobBoardList.innerHTML = `
-            <div class="job-card">
-              <p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p>
-            </div>
-          `;
+          jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
         }
       );
     }
@@ -287,34 +238,22 @@
       jobBoardList.addEventListener("click", async (e) => {
         const deleteBtn = e.target.closest(".lb-delete-job-btn");
         if (!deleteBtn) return;
-
         const currentUser = await waitForAKOAuth();
         if (!currentUser) {
           window.location.href = `index.html?auth=1&return=${encodeURIComponent("carpentry.html")}`;
           return;
         }
-
         const jobId = deleteBtn.getAttribute("data-jobid");
         const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
-
-        if (!jobId) {
-          alert("Could not delete this job.");
-          return;
-        }
-
+        if (!jobId) { alert("Could not delete this job."); return; }
         const confirmed = confirm(`Delete "${jobTitle}"?`);
         if (!confirmed) return;
-
         try {
           await deleteDoc(doc(db, "jobs", jobId));
           alert("Job deleted.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not delete job:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not delete job:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -322,14 +261,11 @@
     if (postJobForm) {
       postJobForm.addEventListener("submit", async (e) => {
         e.preventDefault();
-
         const currentUser = await waitForAKOAuth();
-
         if (!currentUser) {
           window.location.href = `index.html?auth=1&return=${encodeURIComponent("carpentry.html")}`;
           return;
         }
-
         const newJob = {
           title: (pjTitle.value || "").trim(),
           company: (pjCompany.value || "").trim(),
@@ -342,20 +278,10 @@
           ownerEmail: currentUser.email || "",
           createdAt: Date.now()
         };
-
-        if (
-          !newJob.title ||
-          !newJob.company ||
-          !newJob.location ||
-          !newJob.pay ||
-          !newJob.type ||
-          !newJob.category ||
-          !newJob.description
-        ) {
+        if (!newJob.title || !newJob.company || !newJob.location || !newJob.pay || !newJob.type || !newJob.category || !newJob.description) {
           alert("Please complete all job fields.");
           return;
         }
-
         try {
           await addDoc(collection(db, "jobs"), newJob);
           postJobForm.reset();
@@ -363,11 +289,7 @@
           alert("Job posted successfully.");
         } catch (err) {
           console.error(err);
-          alert(
-            "Could not save job:\n" +
-            "code: " + err.code + "\n" +
-            "message: " + err.message
-          );
+          alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
         }
       });
     }
@@ -378,11 +300,7 @@
     } catch (err) {
       console.error(err);
       if (jobBoardList) {
-        jobBoardList.innerHTML = `
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p>
-          </div>
-        `;
+        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p></div>`;
       }
     }
   </script>
