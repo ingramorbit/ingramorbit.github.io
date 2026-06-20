@@ -1,4 +1,4 @@
-<!doctype html>
+       <!doctype html>
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
@@ -15,7 +15,6 @@
       margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;
     }
 
-    /* ── Hero ── */
     .hero-wrap {
       background: var(--bg-hero);
       color: #fff;
@@ -40,7 +39,6 @@
       opacity: 0.5;
     }
 
-    /* Top brand name — centered */
     .hero-brand-top {
       text-align: center;
       margin-bottom: 32px;
@@ -57,7 +55,6 @@
       opacity: 0.85;
     }
 
-    /* Eyebrow */
     .hero-eyebrow {
       display: flex;
       align-items: center;
@@ -90,7 +87,6 @@
       white-space: nowrap;
     }
 
-    /* Main headline + king lockup */
     .hero-lockup {
       display: flex;
       align-items: center;
@@ -130,25 +126,20 @@
       max-width: 400px;
     }
 
-    /* King image */
+    /* ── Crown logo — updated ── */
     .king-img {
-      width: 130px;
+      width: 160px;
       height: auto;
       flex-shrink: 0;
       display: block;
-      filter:
-        drop-shadow(0 0 18px rgba(201,168,76,0.55))
-        drop-shadow(0 0 40px rgba(201,168,76,0.25))
-        drop-shadow(0 8px 24px rgba(0,0,0,0.5));
       animation: kingGlow 3s ease-in-out infinite alternate;
     }
 
     @keyframes kingGlow {
-      from { filter: drop-shadow(0 0 14px rgba(201,168,76,0.45)) drop-shadow(0 0 30px rgba(201,168,76,0.2)) drop-shadow(0 8px 24px rgba(0,0,0,0.5)); }
-      to   { filter: drop-shadow(0 0 28px rgba(201,168,76,0.75)) drop-shadow(0 0 55px rgba(201,168,76,0.35)) drop-shadow(0 8px 24px rgba(0,0,0,0.5)); }
+      from { filter: drop-shadow(0 0 16px rgba(201,168,76,0.5))  drop-shadow(0 0 35px rgba(201,168,76,0.2)); }
+      to   { filter: drop-shadow(0 0 32px rgba(201,168,76,0.85)) drop-shadow(0 0 65px rgba(201,168,76,0.4)); }
     }
 
-    /* CTA buttons */
     .hero-ctas {
       display: flex;
       gap: 12px;
@@ -177,7 +168,7 @@
       transition: opacity .2s, transform .15s;
     }
 
-    .hero-cta-primary:hover { opacity: .88; transform: translateY(-2px); }
+    .hero-cta-primary:hover  { opacity: .88; transform: translateY(-2px); }
     .hero-cta-primary:active { transform: translateY(0); }
 
     .hero-cta-secondary {
@@ -205,7 +196,6 @@
       transform: translateY(-2px);
     }
 
-    /* Search bar */
     .search {
       margin: 0 auto 14px;
       display: flex;
@@ -267,7 +257,6 @@
 
     #searchBtn:not(.sr-only):hover { opacity: .88; }
 
-    /* Pills */
     .pill-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -285,13 +274,12 @@
       transition: transform .18s ease, opacity .18s;
     }
 
-    .pill:hover { transform: translateY(-2px); opacity: .9; }
+    .pill:hover  { transform: translateY(-2px); opacity: .9; }
     .pill:active { transform: translateY(0); }
     .pill.gold { background: var(--gold); color: #07111F; }
     .pill.blue { background: #1E3A8A; color: #fff; }
     .pill.red  { background: #B1432F; color: #fff; }
 
-    /* Quick links */
     .quick-links {
       text-align: center;
       margin: 8px 0 16px;
@@ -299,7 +287,6 @@
       justify-content: center; flex-wrap: wrap;
     }
 
-    /* Promo */
     .promo-section {
       background: #07111F;
       padding: 36px 0; text-align: center;
@@ -334,7 +321,6 @@
     .big-cta:hover  { opacity: .88; transform: translateY(-2px); }
     .big-cta:active { transform: translateY(0); }
 
-    /* Testimonial */
     .testi {
       background: var(--bg-card-alt);
       border-top: 1px solid var(--border-divider);
@@ -358,7 +344,6 @@
     .stars { color: var(--gold); font-size: 18px; }
     .tcopy { font-weight: 700; color: var(--text-body); }
 
-    /* Gold banner */
     .gold-banner {
       background: linear-gradient(160deg, #C9A84C 0%, #A88830 100%);
       text-align: center; color: #07111F; padding: 44px 0;
@@ -375,7 +360,6 @@
       color: rgba(7,17,31,0.75);
     }
 
-    /* Footer */
     footer {
       background: var(--bg-page);
       border-top: 1px solid var(--border-divider);
@@ -393,7 +377,6 @@
     .foot a { color: var(--text-muted); text-decoration: none; }
     .foot a:hover { color: var(--gold); }
 
-    /* Menu */
     .menu-button {
       position: absolute; top: 16px; right: 20px;
       display: flex; flex-direction: column;
@@ -433,7 +416,6 @@
     .menu-dropdown a:hover { background: rgba(201,168,76,0.1); color: var(--gold); }
     .menu-dropdown a:last-child { border-bottom: none; }
 
-    /* Auth modal */
     .modal {
       position: fixed; inset: 0;
       display: none; align-items: center; justify-content: center;
@@ -544,10 +526,9 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Responsive */
     @media (max-width: 640px) {
       .hero-lockup { flex-direction: column-reverse; align-items: flex-start; gap: 16px; }
-      .king-img { width: 90px; align-self: flex-end; margin-top: -60px; }
+      .king-img { width: 110px; align-self: flex-end; margin-top: -60px; }
       .hero-headline h1 { font-size: 38px; }
       .hero-ctas { flex-direction: column; }
       .hero-cta-primary, .hero-cta-secondary { text-align: center; justify-content: center; }
@@ -592,34 +573,30 @@
 
   <div class="container">
 
-    <!-- Brand name centered top -->
     <div class="hero-brand-top">
       <div class="hero-brand-name">AssistKingOnline</div>
     </div>
 
-    <!-- Eyebrow -->
     <div class="hero-eyebrow">
       <div class="hero-eyebrow-line"></div>
       <div class="hero-eyebrow-text">National Service Marketplace</div>
       <div class="hero-eyebrow-line right"></div>
     </div>
 
-    <!-- Headline + King lockup -->
     <div class="hero-lockup">
       <div class="hero-headline">
         <h1>Skilled pros.<em>Matched fast.</em></h1>
         <p class="hero-sub">Trusted contractors across trucking, trades, auto, financial help, and more — all in one place.</p>
       </div>
-      <img src="king.png" alt="Assist King" class="king-img">
+      <!-- ── Updated: SVG crown logo replaces king.png ── -->
+      <img src="ako-crown-logo.svg" alt="AssistKingOnline Crown" class="king-img">
     </div>
 
-    <!-- CTAs -->
     <div class="hero-ctas">
       <a href="request-service.html" class="hero-cta-primary">Request a Service</a>
       <a href="lead.html" class="hero-cta-secondary">Join as Contractor</a>
     </div>
 
-    <!-- Search -->
     <form class="search" id="searchForm">
       <label class="sr-only" for="q">Ask the King</label>
       <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
@@ -736,12 +713,10 @@
 
 <script>
 (function(){
-  const modal = document.getElementById("authModal");
-  const openBtn = document.getElementById("openAuth");
-  if (!modal || !openBtn) return;
-  const closeEls = modal.querySelectorAll("[data-close]");
-  const tabs = modal.querySelectorAll(".tab");
-  const panels = { login: document.getElementById("panel-login"), signup: document.getElementById("panel-signup") };
+  const modal=document.getElementById("authModal"), openBtn=document.getElementById("openAuth");
+  if(!modal||!openBtn) return;
+  const closeEls=modal.querySelectorAll("[data-close]"), tabs=modal.querySelectorAll(".tab");
+  const panels={login:document.getElementById("panel-login"),signup:document.getElementById("panel-signup")};
   function openModal(){ modal.classList.add("show"); modal.setAttribute("aria-hidden","false"); setTab("login"); setTimeout(()=>{ const f=modal.querySelector(".panel.active input"); if(f) f.focus(); },50); }
   function closeModal(){ modal.classList.remove("show"); modal.setAttribute("aria-hidden","true"); }
   function setTab(name){ tabs.forEach(t=>{ const a=t.dataset.tab===name; t.classList.toggle("active",a); t.setAttribute("aria-selected",a?"true":"false"); }); Object.keys(panels).forEach(k=>{ const a=k===name; panels[k].classList.toggle("active",a); panels[k].hidden=!a; }); }
@@ -755,9 +730,8 @@
 
 <script>
 (function(){
-  const menuBtn = document.querySelector(".menu-button");
-  const menuDropdown = document.getElementById("dropdownMenu");
-  if (!menuBtn || !menuDropdown) return;
+  const menuBtn=document.querySelector(".menu-button"), menuDropdown=document.getElementById("dropdownMenu");
+  if(!menuBtn||!menuDropdown) return;
   function closeMenu(){ menuDropdown.style.display="none"; menuDropdown.setAttribute("aria-hidden","true"); menuBtn.setAttribute("aria-expanded","false"); }
   function openMenu(){ menuDropdown.style.display="flex"; menuDropdown.setAttribute("aria-hidden","false"); menuBtn.setAttribute("aria-expanded","true"); }
   menuBtn.addEventListener("click",e=>{ e.stopPropagation(); menuDropdown.style.display==="flex"?closeMenu():openMenu(); });
@@ -844,4 +818,4 @@
 </script>
 
 </body>
-</html>
+</html>                                              </html>
