@@ -1,1374 +1,792 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Contractor Onboarding</title>
-  <link rel="stylesheet" href="styles.css?v=37">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
-  <section class="contractor-hero">
-    <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
 
-      <button
-        id="contractorTopNotificationJump"
-        type="button"
-        class="auth-notification-jump is-hidden"
-      >
-        0 unread
-      </button>
+<section class="contractor-hero">
+  <div class="login-button">
+    <div id="authArea">
+      <span id="welcomeUser" class="welcome-user"></span>
+      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
 
-    <a
-      id="contractorBackLink"
-      class="contractor-back contractor-back-floating"
-      href="trucking.html"
-    >
-      ← Back to Trucking
-    </a>
+    <button id="contractorTopNotificationJump" type="button" class="auth-notification-jump is-hidden">
+      0 unread
+    </button>
+  </div>
 
-    <div class="container">
-      <div class="contractor-hero-content">
-        <div class="contractor-brand">AssistKingOnline</div>
-        <h1 id="contractorPageTitle" class="contractor-title">🚚 Trucking Contractor Onboarding</h1>
-        <p id="contractorPageSubtitle">Set up your contractor profile so you can start receiving leads.</p>
+  <a id="contractorBackLink" class="contractor-back contractor-back-floating" href="trucking.html">
+    ← Back to Trucking
+  </a>
+
+  <div class="container">
+    <div class="contractor-hero-content">
+      <div class="contractor-brand">AssistKingOnline</div>
+      <h1 id="contractorPageTitle" class="contractor-title">🚚 Trucking Contractor Onboarding</h1>
+      <p id="contractorPageSubtitle">Set up your contractor profile so you can start receiving leads.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container contractor-wrap">
+  <div class="contractor-card">
+    <strong id="contractorProfileHeading">Contractor Profile</strong>
+    <p id="contractorIntroText" style="margin:8px 0 14px;color:var(--text-body);">
+      Complete your contractor profile so admin can review it and you can start receiving leads.
+    </p>
+
+    <div id="contractorReviewStatusBox" class="contractor-review-status-box">
+      <div class="contractor-review-status-top">
+        <span class="contractor-review-status-label">Approval status</span>
+        <span id="contractorReviewStatusPill" class="contractor-review-status-pill status-not-submitted">not submitted</span>
+      </div>
+      <p id="contractorReviewStatusMessage" class="contractor-review-status-message">Complete your profile and save it for review.</p>
+      <p id="contractorReviewStatusMeta" class="contractor-review-status-meta"></p>
+
+      <div id="contractorReviewFeedbackBox" class="contractor-review-feedback" hidden>
+        <div class="contractor-review-feedback-title">Admin review feedback</div>
+        <div id="contractorReviewFeedbackText" class="contractor-review-feedback-text"></div>
+      </div>
+
+      <div id="contractorResubmissionBox" class="contractor-resubmission-box" hidden>
+        <div class="contractor-resubmission-title">What to fix before re-review</div>
+        <ul id="contractorResubmissionList" class="contractor-resubmission-list"></ul>
+        <p id="contractorResubmissionHint" class="contractor-resubmission-hint">
+          Update your profile below, then save it again to resubmit for review.
+        </p>
       </div>
     </div>
-  </section>
 
-  <main class="container contractor-wrap">
-    <div class="contractor-card">
-      <strong id="contractorProfileHeading">Contractor Profile</strong>
-      <p id="contractorIntroText" style="margin:8px 0 14px">
-        Complete your contractor profile so admin can review it and you can start receiving leads.
+    <div id="contractorNotificationsBox" class="contractor-notifications-box">
+      <div class="contractor-notifications-top">
+        <div class="contractor-notifications-title">Review notifications</div>
+        <span id="contractorNotificationsBadge" class="contractor-notifications-badge">0 unread</span>
+      </div>
+      <div class="contractor-notifications-actions">
+        <button id="contractorNotificationsMarkAllBtn" type="button" class="contractor-notifications-markall-btn">
+          Mark all read
+        </button>
+      </div>
+      <div id="contractorNotificationsList" class="contractor-notifications-list">
+        <p class="contractor-notification-empty">No notifications yet.</p>
+      </div>
+    </div>
+
+    <div class="contractor-docs-box">
+      <div id="contractorDocsTitle" class="contractor-docs-title">Required documents for trucking approval</div>
+      <p id="contractorDocsNote" class="contractor-docs-note">
+        Upload these files so admin can review your contractor profile.
       </p>
+      <ul id="contractorDocsRequiredList" class="contractor-docs-required-list">
+        <li>Legal business / identity document — required</li>
+        <li>Insurance certificate — required</li>
+        <li>USDOT / MC proof — required</li>
+        <li>Equipment / truck proof — recommended</li>
+      </ul>
 
-      <div id="contractorReviewStatusBox" class="contractor-review-status-box">
-        <div class="contractor-review-status-top">
-          <span class="contractor-review-status-label">Approval status</span>
-          <span id="contractorReviewStatusPill" class="contractor-review-status-pill status-not-submitted">not submitted</span>
-        </div>
-
-        <p id="contractorReviewStatusMessage" class="contractor-review-status-message">
-          Complete your profile and save it for review.
-        </p>
-
-        <p id="contractorReviewStatusMeta" class="contractor-review-status-meta"></p>
-
-        <div id="contractorReviewFeedbackBox" class="contractor-review-feedback" hidden>
-          <div class="contractor-review-feedback-title">Admin review feedback</div>
-          <div id="contractorReviewFeedbackText" class="contractor-review-feedback-text"></div>
-        </div>
-
-        <div id="contractorResubmissionBox" class="contractor-resubmission-box" hidden>
-          <div class="contractor-resubmission-title">What to fix before re-review</div>
-          <ul id="contractorResubmissionList" class="contractor-resubmission-list"></ul>
-          <p id="contractorResubmissionHint" class="contractor-resubmission-hint">
-            Update your profile below, then save it again to resubmit for review.
-          </p>
-        </div>
+      <div class="contractor-doc-upload-row" id="docRow1">
+        <label id="docLabel1" class="contractor-doc-upload-label" for="coDoc1">1. Legal business / identity document</label>
+        <input id="coDoc1" type="file" accept=".pdf,image/*" />
+        <div id="coDoc1Status" class="contractor-doc-upload-status"></div>
       </div>
 
-      <div id="contractorNotificationsBox" class="contractor-notifications-box">
-        <div class="contractor-notifications-top">
-          <div class="contractor-notifications-title">Review notifications</div>
-          <span id="contractorNotificationsBadge" class="contractor-notifications-badge">0 unread</span>
-        </div>
-
-        <div class="contractor-notifications-actions">
-          <button
-            id="contractorNotificationsMarkAllBtn"
-            type="button"
-            class="contractor-notifications-markall-btn"
-          >
-            Mark all read
-          </button>
-        </div>
-
-        <div id="contractorNotificationsList" class="contractor-notifications-list">
-          <p class="contractor-notification-empty">No notifications yet.</p>
-        </div>
+      <div class="contractor-doc-upload-row" id="docRow2">
+        <label id="docLabel2" class="contractor-doc-upload-label" for="coDoc2">2. Insurance certificate</label>
+        <input id="coDoc2" type="file" accept=".pdf,image/*" />
+        <div id="coDoc2Status" class="contractor-doc-upload-status"></div>
       </div>
 
-      <div class="contractor-docs-box">
-        <div id="contractorDocsTitle" class="contractor-docs-title">Required documents for trucking approval</div>
-        <p id="contractorDocsNote" class="contractor-docs-note">
-          Upload these files so admin can review your contractor profile. Admin will still verify your contact info, service area, and checklist items separately.
-        </p>
-
-        <ul id="contractorDocsRequiredList" class="contractor-docs-required-list">
-          <li>Legal business / identity document — required</li>
-          <li>Insurance certificate — required</li>
-          <li>USDOT / MC proof — required</li>
-          <li>Equipment / truck proof — recommended</li>
-        </ul>
-
-        <div class="contractor-doc-upload-row" id="docRow1">
-          <label id="docLabel1" class="contractor-doc-upload-label" for="coDoc1">
-            1. Legal business / identity document
-          </label>
-          <input id="coDoc1" type="file" accept=".pdf,image/*" />
-          <div id="coDoc1Status" class="contractor-doc-upload-status"></div>
-        </div>
-
-        <div class="contractor-doc-upload-row" id="docRow2">
-          <label id="docLabel2" class="contractor-doc-upload-label" for="coDoc2">
-            2. Insurance certificate
-          </label>
-          <input id="coDoc2" type="file" accept=".pdf,image/*" />
-          <div id="coDoc2Status" class="contractor-doc-upload-status"></div>
-        </div>
-
-        <div class="contractor-doc-upload-row" id="docRow3">
-          <label id="docLabel3" class="contractor-doc-upload-label" for="coDoc3">
-            3. USDOT / MC proof
-          </label>
-          <input id="coDoc3" type="file" accept=".pdf,image/*" />
-          <div id="coDoc3Status" class="contractor-doc-upload-status"></div>
-        </div>
-
-        <div class="contractor-doc-upload-row" id="docRow4">
-          <label id="docLabel4" class="contractor-doc-upload-label" for="coDoc4">
-            4. Equipment / truck proof
-          </label>
-          <input id="coDoc4" type="file" accept=".pdf,image/*" />
-          <div id="coDoc4Status" class="contractor-doc-upload-status"></div>
-        </div>
+      <div class="contractor-doc-upload-row" id="docRow3">
+        <label id="docLabel3" class="contractor-doc-upload-label" for="coDoc3">3. USDOT / MC proof</label>
+        <input id="coDoc3" type="file" accept=".pdf,image/*" />
+        <div id="coDoc3Status" class="contractor-doc-upload-status"></div>
       </div>
 
-      <form id="contractorOnboardingForm" class="contractor-form">
-        <input id="coCategory" value="Trucking" readonly />
-        <input id="coCompanyName" placeholder="Company name" required />
-        <input id="coContactName" placeholder="Primary contact name" required />
-        <input id="coEmail" type="email" placeholder="Business email" required />
-        <input id="coPhone" type="tel" placeholder="Business phone" required />
-        <input id="coCity" placeholder="Primary city" required />
-        <input id="coState" placeholder="State" required />
-        <input id="coRadius" type="number" placeholder="Service radius (miles)" required />
-
-        <select id="coBusinessType" required>
-          <option value="">Select business type</option>
-        </select>
-
-        <div id="coLicenseWrap" hidden>
-          <input id="coLicenseNumber" placeholder="License number (if applicable)" />
-        </div>
-
-        <div id="coMcDotWrap">
-          <input id="coMcDot" placeholder="USDOT / MC number (optional)" />
-        </div>
-
-        <div id="coEquipmentWrap">
-          <div class="contractor-checkbox-group">
-            <label><input type="checkbox" name="equipment" value="Dry Van"> Dry Van</label>
-            <label><input type="checkbox" name="equipment" value="Reefer"> Reefer</label>
-            <label><input type="checkbox" name="equipment" value="Flatbed"> Flatbed</label>
-            <label><input type="checkbox" name="equipment" value="Power Only"> Power Only</label>
-            <label><input type="checkbox" name="equipment" value="Hotshot"> Hotshot</label>
-          </div>
-        </div>
-
-        <textarea id="coNotes" placeholder="Tell us about your business, specialties, service area, availability, or anything else useful."></textarea>
-
-        <button type="submit" class="contractor-cta">Save Contractor Profile</button>
-      </form>
-
-      <p id="contractorStatus" class="contractor-status" aria-live="polite"></p>
+      <div class="contractor-doc-upload-row" id="docRow4">
+        <label id="docLabel4" class="contractor-doc-upload-label" for="coDoc4">4. Equipment / truck proof</label>
+        <input id="coDoc4" type="file" accept=".pdf,image/*" />
+        <div id="coDoc4Status" class="contractor-doc-upload-status"></div>
+      </div>
     </div>
-  </main>
 
-  <script type="module" src="auth.js?v=16"></script>
+    <form id="contractorOnboardingForm" class="contractor-form">
+      <input id="coCategory"    value="Trucking" readonly />
+      <input id="coCompanyName" placeholder="Company name" required />
+      <input id="coContactName" placeholder="Primary contact name" required />
+      <input id="coEmail"       type="email" placeholder="Business email" required />
+      <input id="coPhone"       type="tel"   placeholder="Business phone" required />
+      <input id="coCity"        placeholder="Primary city" required />
+      <input id="coState"       placeholder="State" required />
+      <input id="coRadius"      type="number" placeholder="Service radius (miles)" required />
 
-  <script type="module">
-    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      where,
-      doc,
-      getDoc,
-      setDoc,
-      updateDoc,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    import {
-      getStorage,
-      ref as storageRef,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-    const app = getApp();
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    const params = new URLSearchParams(window.location.search);
-
-    const form = document.getElementById("contractorOnboardingForm");
-    const contractorBackLink = document.getElementById("contractorBackLink");
-    const contractorPageTitle = document.getElementById("contractorPageTitle");
-    const contractorPageSubtitle = document.getElementById("contractorPageSubtitle");
-    const contractorProfileHeading = document.getElementById("contractorProfileHeading");
-    const contractorIntroText = document.getElementById("contractorIntroText");
-    const contractorDocsTitle = document.getElementById("contractorDocsTitle");
-    const contractorDocsNote = document.getElementById("contractorDocsNote");
-    const contractorDocsRequiredList = document.getElementById("contractorDocsRequiredList");
-
-    const coCategory = document.getElementById("coCategory");
-    const coCompanyName = document.getElementById("coCompanyName");
-    const coContactName = document.getElementById("coContactName");
-    const coEmail = document.getElementById("coEmail");
-    const coPhone = document.getElementById("coPhone");
-    const coCity = document.getElementById("coCity");
-    const coState = document.getElementById("coState");
-    const coRadius = document.getElementById("coRadius");
-    const coBusinessType = document.getElementById("coBusinessType");
-    const coLicenseWrap = document.getElementById("coLicenseWrap");
-    const coLicenseNumber = document.getElementById("coLicenseNumber");
-    const coMcDotWrap = document.getElementById("coMcDotWrap");
-    const coMcDot = document.getElementById("coMcDot");
-    const coEquipmentWrap = document.getElementById("coEquipmentWrap");
-    const coNotes = document.getElementById("coNotes");
-    const contractorStatus = document.getElementById("contractorStatus");
-    const contractorSubmitBtn = form?.querySelector('button[type="submit"]');
-
-    const contractorReviewStatusPill = document.getElementById("contractorReviewStatusPill");
-    const contractorReviewStatusMessage = document.getElementById("contractorReviewStatusMessage");
-    const contractorReviewStatusMeta = document.getElementById("contractorReviewStatusMeta");
-    const contractorReviewFeedbackBox = document.getElementById("contractorReviewFeedbackBox");
-    const contractorReviewFeedbackText = document.getElementById("contractorReviewFeedbackText");
-    const contractorResubmissionBox = document.getElementById("contractorResubmissionBox");
-    const contractorResubmissionList = document.getElementById("contractorResubmissionList");
-    const contractorResubmissionHint = document.getElementById("contractorResubmissionHint");
-
-    const contractorNotificationsBox = document.getElementById("contractorNotificationsBox");
-    const contractorNotificationsBadge = document.getElementById("contractorNotificationsBadge");
-    const contractorNotificationsMarkAllBtn = document.getElementById("contractorNotificationsMarkAllBtn");
-    const contractorNotificationsList = document.getElementById("contractorNotificationsList");
-    const contractorTopNotificationJump = document.getElementById("contractorTopNotificationJump");
-
-    const documentSlots = [
-      {
-        rowEl: document.getElementById("docRow1"),
-        labelEl: document.getElementById("docLabel1"),
-        inputEl: document.getElementById("coDoc1"),
-        statusEl: document.getElementById("coDoc1Status")
-      },
-      {
-        rowEl: document.getElementById("docRow2"),
-        labelEl: document.getElementById("docLabel2"),
-        inputEl: document.getElementById("coDoc2"),
-        statusEl: document.getElementById("coDoc2Status")
-      },
-      {
-        rowEl: document.getElementById("docRow3"),
-        labelEl: document.getElementById("docLabel3"),
-        inputEl: document.getElementById("coDoc3"),
-        statusEl: document.getElementById("coDoc3Status")
-      },
-      {
-        rowEl: document.getElementById("docRow4"),
-        labelEl: document.getElementById("docLabel4"),
-        inputEl: document.getElementById("coDoc4"),
-        statusEl: document.getElementById("coDoc4Status")
-      }
-    ];
-
-    let contractorNotificationItems = [];
-    let unsubscribeContractorReviewListener = null;
-    let unsubscribeContractorNotificationsListener = null;
-    let activeCategory = "trucking";
-
-    const CATEGORY_CONFIG = {
-      trucking: {
-        key: "trucking",
-        label: "Trucking",
-        icon: "🚚",
-        page: "trucking.html",
-        backText: "Back to Trucking",
-        subtitle: "Set up your trucking contractor profile so you can start receiving leads.",
-        intro: "Complete your trucking contractor profile so admin can review it and match you for trucking leads.",
-        notesPlaceholder: "Tell us about your operation, lanes, availability, or anything else useful.",
-        businessTypes: ["Owner-Operator", "Carrier", "Dispatcher", "Hotshot", "Broker"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: true,
-        showEquipment: true,
-        docs: [
-          { key: "businessIdentity", label: "Legal business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "mcDotProof", label: "USDOT / MC proof", required: true },
-          { key: "equipmentProof", label: "Equipment / truck proof", required: false }
-        ]
-      },
-      plumbing: {
-        key: "plumbing",
-        label: "Plumbing",
-        icon: "🔧",
-        page: "plumbing.html",
-        backText: "Back to Plumbing",
-        subtitle: "Set up your plumbing contractor profile so you can start receiving leads.",
-        intro: "Complete your plumbing contractor profile so admin can review it and match you for plumbing leads.",
-        notesPlaceholder: "Tell us about your plumbing services, service area, availability, or specialties.",
-        businessTypes: ["Company", "Independent Contractor", "Service Company", "Residential Specialist", "Commercial Specialist"],
-        showLicense: true,
-        licensePlaceholder: "Plumbing license number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "plumbingLicense", label: "Plumbing contractor / plumber license (upload if applicable)", required: false },
-          { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
-        ]
-      },
-      electricians: {
-        key: "electricians",
-        label: "Electricians",
-        icon: "⚡",
-        page: "electricians.html",
-        backText: "Back to Electricians",
-        subtitle: "Set up your electrical contractor profile so you can start receiving leads.",
-        intro: "Complete your electrical contractor profile so admin can review it and match you for electrician leads.",
-        notesPlaceholder: "Tell us about your electrical services, service area, availability, or specialties.",
-        businessTypes: ["Company", "Independent Contractor", "Service Company", "Residential Specialist", "Commercial Specialist"],
-        showLicense: true,
-        licensePlaceholder: "Electrical license number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "electricalLicense", label: "Electrical contractor / electrician license (upload if applicable)", required: false },
-          { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
-        ]
-      },
-      carpentry: {
-        key: "carpentry",
-        label: "Carpentry",
-        icon: "🪚",
-        page: "carpentry.html",
-        backText: "Back to Carpentry",
-        subtitle: "Set up your carpentry contractor profile so you can start receiving leads.",
-        intro: "Complete your carpentry contractor profile so admin can review it and match you for carpentry leads.",
-        notesPlaceholder: "Tell us about your carpentry services, service area, availability, or specialties.",
-        businessTypes: ["Company", "Independent Contractor", "Finish Carpenter", "Framing Contractor", "Commercial Specialist"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "contractorLicense", label: "Contractor license (upload if applicable)", required: false },
-          { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
-        ]
-      },
-      auto: {
-        key: "auto",
-        label: "Auto Services",
-        icon: "🚗",
-        page: "auto.html",
-        backText: "Back to Auto Services",
-        subtitle: "Set up your auto contractor profile so you can start receiving leads.",
-        intro: "Complete your auto services contractor profile so admin can review it and match you for auto leads.",
-        notesPlaceholder: "Tell us about your auto services, service area, availability, or specialties.",
-        businessTypes: ["Shop", "Mobile Mechanic", "Independent Technician", "Fleet Service", "Service Company"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Garage / liability insurance certificate", required: true },
-          { key: "aseOrRepairCert", label: "ASE certification or repair license (upload if applicable)", required: false },
-          { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
-        ]
-      },
-      hvac: {
-        key: "hvac",
-        label: "HVAC",
-        icon: "❄️",
-        page: "hvac.html",
-        backText: "Back to HVAC",
-        subtitle: "Set up your HVAC contractor profile so you can start receiving leads.",
-        intro: "Complete your HVAC contractor profile so admin can review it and match you for HVAC leads.",
-        notesPlaceholder: "Tell us about your HVAC services, service area, availability, certifications, or specialties.",
-        businessTypes: ["Company", "Independent Contractor", "Service Company", "Install Crew", "Commercial Specialist"],
-        showLicense: true,
-        licensePlaceholder: "HVAC state license number",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "hvacLicense", label: "HVAC contractor license", required: false },
-          { key: "epa608Proof", label: "EPA 608 certification (recommended)", required: false }
-        ]
-      },
-      "financial-help": {
-        key: "financial-help",
-        label: "Financial Help",
-        icon: "💵",
-        page: "financial-help.html",
-        backText: "Back to Financial Help",
-        subtitle: "Set up your financial help provider profile so you can start receiving leads.",
-        intro: "Complete your financial help provider profile so admin can review it and match you for financial help leads.",
-        notesPlaceholder: "Tell us about your services, availability, credentials, or specialties.",
-        businessTypes: ["Consultant", "Bookkeeper", "Tax Preparer", "Credit Specialist", "Financial Educator", "Business Services"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Professional liability / E&O insurance (if available)", required: true },
-          { key: "financeCert", label: "Professional certification or license (upload if applicable)", required: false },
-          { key: "businessRegistration", label: "Business registration or tax prep credential (recommended)", required: false }
-        ]
-      },
-      "lawn-care": {
-        key: "lawn-care",
-        label: "Lawn Care",
-        icon: "🌿",
-        page: "lawn-care.html",
-        backText: "Back to Lawn Care",
-        subtitle: "Set up your lawn care contractor profile so you can start receiving leads.",
-        intro: "Complete your lawn care contractor profile so admin can review it and match you for lawn care leads.",
-        notesPlaceholder: "Tell us about your lawn care services, service area, availability, or specialties.",
-        businessTypes: ["Company", "Independent Contractor", "Landscaper", "Maintenance Crew", "Commercial Specialist"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "pesticideLicense", label: "Pesticide / applicator license (upload if applicable)", required: false },
-          { key: "workersCompProof", label: "Workers' comp certificate (recommended)", required: false }
-        ]
-      },
-      food: {
-        key: "food",
-        label: "Food Services",
-        icon: "🍽️",
-        page: "food2.html",
-        backText: "Back to Food Services",
-        subtitle: "Set up your food services provider profile so you can start receiving leads.",
-        intro: "Complete your food services provider profile so admin can review it and match you for food service leads.",
-        notesPlaceholder: "Tell us about your food services, availability, event types, or specialties.",
-        businessTypes: ["Caterer", "Food Truck", "Restaurant", "Chef Services", "Event Staffing"],
-        showLicense: false,
-        licensePlaceholder: "License number (if applicable)",
-        showMcDot: false,
-        showEquipment: false,
-        docs: [
-          { key: "businessIdentity", label: "Business / identity document", required: true },
-          { key: "insuranceProof", label: "Insurance certificate", required: true },
-          { key: "foodPermit", label: "Food permit / health permit (upload if applicable)", required: false },
-          { key: "servsafeProof", label: "ServSafe or food safety certificate (recommended)", required: false }
-        ]
-      }
-    };
-
-    const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
-
-    function normalizeCategory(value) {
-      const raw = String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/[_\s]+/g, "-");
-
-      if (!raw) return "";
-      if (raw === "trucking") return "trucking";
-      if (raw === "plumbing") return "plumbing";
-      if (raw === "electricians" || raw === "electrician" || raw === "electric" || raw === "electrical") return "electricians";
-      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
-      if (raw === "auto" || raw === "auto-services" || raw === "automotive") return "auto";
-      if (raw === "hvac") return "hvac";
-      if (raw === "financial-help" || raw === "financial" || raw === "finance") return "financial-help";
-      if (raw === "lawn-care" || raw === "lawn" || raw === "landscaping") return "lawn-care";
-      if (raw === "food" || raw === "food2" || raw === "food-services") return "food";
-      return "";
-    }
-
-    function getCategoryConfig(categoryKey) {
-      return CATEGORY_CONFIG[categoryKey] || CATEGORY_CONFIG.trucking;
-    }
-
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
-    function getContractorDocId(uid, categoryKey) {
-      return `${uid}__${categoryKey}`;
-    }
-
-    function getCategoryDocumentRef(currentUser, categoryKey = activeCategory) {
-      const docId = getContractorDocId(currentUser.uid, categoryKey);
-      return doc(db, "contractors", docId);
-    }
-
-    function formatDocDate(value) {
-      if (!value) return "";
-      try {
-        return new Date(value).toLocaleString();
-      } catch {
-        return "";
-      }
-    }
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
-    function getSelectedEquipment() {
-      return [...document.querySelectorAll('input[name="equipment"]:checked')].map((el) => el.value);
-    }
-
-    function getRenderedDocumentConfig(categoryKey = activeCategory) {
-      const categoryConfig = getCategoryConfig(categoryKey);
-      return categoryConfig.docs.slice(0, documentSlots.length).map((entry, index) => ({
-        ...entry,
-        ...documentSlots[index]
-      }));
-    }
-
-    function renderBusinessTypeOptions(categoryKey, selectedValue = "") {
-      const config = getCategoryConfig(categoryKey);
-      const options = config.businessTypes || [];
-
-      coBusinessType.innerHTML = `
+      <select id="coBusinessType" required>
         <option value="">Select business type</option>
-        ${options.map((option) => `
-          <option value="${escapeHtml(option)}" ${selectedValue === option ? "selected" : ""}>
-            ${escapeHtml(option)}
-          </option>
-        `).join("")}
-      `;
-    }
+      </select>
 
-    function renderCategoryDocuments(categoryKey) {
-      const config = getCategoryConfig(categoryKey);
-      const docs = getRenderedDocumentConfig(categoryKey);
+      <div id="coLicenseWrap" hidden>
+        <input id="coLicenseNumber" placeholder="License number (if applicable)" />
+      </div>
 
-      contractorDocsTitle.textContent = `Required documents for ${config.label.toLowerCase()} approval`;
-      contractorDocsNote.textContent =
-        `Upload these files so admin can review your ${config.label.toLowerCase()} contractor profile. Admin will still verify your contact info, service area, and checklist items separately.`;
+      <div id="coMcDotWrap">
+        <input id="coMcDot" placeholder="USDOT / MC number (optional)" />
+      </div>
 
-      contractorDocsRequiredList.innerHTML = docs.map((entry) => `
-        <li>${escapeHtml(entry.label)} — ${entry.required ? "required" : "recommended"}</li>
-      `).join("");
+      <div id="coEquipmentWrap">
+        <div class="contractor-checkbox-group">
+          <label><input type="checkbox" name="equipment" value="Dry Van"> Dry Van</label>
+          <label><input type="checkbox" name="equipment" value="Reefer"> Reefer</label>
+          <label><input type="checkbox" name="equipment" value="Flatbed"> Flatbed</label>
+          <label><input type="checkbox" name="equipment" value="Power Only"> Power Only</label>
+          <label><input type="checkbox" name="equipment" value="Hotshot"> Hotshot</label>
+        </div>
+      </div>
 
-      documentSlots.forEach((slot, index) => {
-        const docEntry = docs[index];
-        if (!docEntry) {
-          slot.rowEl.hidden = true;
-          slot.labelEl.textContent = "";
-          slot.statusEl.innerHTML = "";
-          if (slot.inputEl) slot.inputEl.value = "";
-          return;
-        }
+      <textarea id="coNotes" placeholder="Tell us about your business, specialties, service area, availability, or anything else useful."></textarea>
 
-        slot.rowEl.hidden = false;
-        slot.labelEl.textContent = `${index + 1}. ${docEntry.label}`;
-      });
-    }
+      <button type="submit" class="contractor-cta">Save Contractor Profile</button>
+    </form>
 
-    function applyCategoryUI(categoryKey, selectedBusinessType = "") {
-      activeCategory = normalizeCategory(categoryKey) || "trucking";
-      const config = getCategoryConfig(activeCategory);
+    <p id="contractorStatus" class="contractor-status" aria-live="polite"></p>
+  </div>
+</main>
 
-      document.title = `AssistKingOnline — ${config.label} Contractor Onboarding`;
+<script type="module" src="auth.js?v=16"></script>
 
-      contractorBackLink.href = config.page;
-      contractorBackLink.textContent = `← ${config.backText}`;
-      contractorPageTitle.textContent = `${config.icon} ${config.label} Contractor Onboarding`;
-      contractorPageSubtitle.textContent = config.subtitle;
-      contractorProfileHeading.textContent = `${config.label} Contractor Profile`;
-      contractorIntroText.textContent = config.intro;
-      coCategory.value = config.label;
-      coNotes.placeholder = config.notesPlaceholder;
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, query, where,
+    doc, getDoc, setDoc, updateDoc, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getStorage, ref as storageRef, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-      renderBusinessTypeOptions(activeCategory, selectedBusinessType);
-      renderCategoryDocuments(activeCategory);
+  const app     = getApp();
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
+  const params  = new URLSearchParams(window.location.search);
 
-      coLicenseWrap.hidden = !config.showLicense;
-      coMcDotWrap.hidden = !config.showMcDot;
-      coEquipmentWrap.hidden = !config.showEquipment;
+  const form                           = document.getElementById("contractorOnboardingForm");
+  const contractorBackLink             = document.getElementById("contractorBackLink");
+  const contractorPageTitle            = document.getElementById("contractorPageTitle");
+  const contractorPageSubtitle         = document.getElementById("contractorPageSubtitle");
+  const contractorProfileHeading       = document.getElementById("contractorProfileHeading");
+  const contractorIntroText            = document.getElementById("contractorIntroText");
+  const contractorDocsTitle            = document.getElementById("contractorDocsTitle");
+  const contractorDocsNote             = document.getElementById("contractorDocsNote");
+  const contractorDocsRequiredList     = document.getElementById("contractorDocsRequiredList");
+  const coCategory                     = document.getElementById("coCategory");
+  const coCompanyName                  = document.getElementById("coCompanyName");
+  const coContactName                  = document.getElementById("coContactName");
+  const coEmail                        = document.getElementById("coEmail");
+  const coPhone                        = document.getElementById("coPhone");
+  const coCity                         = document.getElementById("coCity");
+  const coState                        = document.getElementById("coState");
+  const coRadius                       = document.getElementById("coRadius");
+  const coBusinessType                 = document.getElementById("coBusinessType");
+  const coLicenseWrap                  = document.getElementById("coLicenseWrap");
+  const coLicenseNumber                = document.getElementById("coLicenseNumber");
+  const coMcDotWrap                    = document.getElementById("coMcDotWrap");
+  const coMcDot                        = document.getElementById("coMcDot");
+  const coEquipmentWrap                = document.getElementById("coEquipmentWrap");
+  const coNotes                        = document.getElementById("coNotes");
+  const contractorStatus               = document.getElementById("contractorStatus");
+  const contractorSubmitBtn            = form?.querySelector('button[type="submit"]');
+  const contractorReviewStatusPill     = document.getElementById("contractorReviewStatusPill");
+  const contractorReviewStatusMessage  = document.getElementById("contractorReviewStatusMessage");
+  const contractorReviewStatusMeta     = document.getElementById("contractorReviewStatusMeta");
+  const contractorReviewFeedbackBox    = document.getElementById("contractorReviewFeedbackBox");
+  const contractorReviewFeedbackText   = document.getElementById("contractorReviewFeedbackText");
+  const contractorResubmissionBox      = document.getElementById("contractorResubmissionBox");
+  const contractorResubmissionList     = document.getElementById("contractorResubmissionList");
+  const contractorResubmissionHint     = document.getElementById("contractorResubmissionHint");
+  const contractorNotificationsBox     = document.getElementById("contractorNotificationsBox");
+  const contractorNotificationsBadge   = document.getElementById("contractorNotificationsBadge");
+  const contractorNotificationsMarkAllBtn = document.getElementById("contractorNotificationsMarkAllBtn");
+  const contractorNotificationsList    = document.getElementById("contractorNotificationsList");
+  const contractorTopNotificationJump  = document.getElementById("contractorTopNotificationJump");
 
-      coLicenseNumber.placeholder = config.licensePlaceholder || "License number (if applicable)";
+  const documentSlots = [
+    { rowEl:document.getElementById("docRow1"), labelEl:document.getElementById("docLabel1"), inputEl:document.getElementById("coDoc1"), statusEl:document.getElementById("coDoc1Status") },
+    { rowEl:document.getElementById("docRow2"), labelEl:document.getElementById("docLabel2"), inputEl:document.getElementById("coDoc2"), statusEl:document.getElementById("coDoc2Status") },
+    { rowEl:document.getElementById("docRow3"), labelEl:document.getElementById("docLabel3"), inputEl:document.getElementById("coDoc3"), statusEl:document.getElementById("coDoc3Status") },
+    { rowEl:document.getElementById("docRow4"), labelEl:document.getElementById("docLabel4"), inputEl:document.getElementById("coDoc4"), statusEl:document.getElementById("coDoc4Status") }
+  ];
 
-      if (!config.showLicense) {
-        coLicenseNumber.value = "";
-      }
+  let contractorNotificationItems = [];
+  let unsubscribeContractorReviewListener = null;
+  let unsubscribeContractorNotificationsListener = null;
+  let activeCategory = "trucking";
 
-      if (!config.showMcDot) {
-        coMcDot.value = "";
-      }
+  const CATEGORY_CONFIG = {
+    trucking:         { key:"trucking",        label:"Trucking",       icon:"🚚", page:"trucking.html",        backText:"Back to Trucking",        subtitle:"Set up your trucking contractor profile so you can start receiving leads.",        intro:"Complete your trucking contractor profile so admin can review it and match you for trucking leads.",        notesPlaceholder:"Tell us about your operation, lanes, availability, or anything else useful.",               businessTypes:["Owner-Operator","Carrier","Dispatcher","Hotshot","Broker"],                                              showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:true,  showEquipment:true,  docs:[{key:"businessIdentity",label:"Legal business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"mcDotProof",label:"USDOT / MC proof",required:true},{key:"equipmentProof",label:"Equipment / truck proof",required:false}] },
+    plumbing:         { key:"plumbing",        label:"Plumbing",       icon:"🔧", page:"plumbing.html",        backText:"Back to Plumbing",        subtitle:"Set up your plumbing contractor profile so you can start receiving leads.",        intro:"Complete your plumbing contractor profile so admin can review it and match you for plumbing leads.",        notesPlaceholder:"Tell us about your plumbing services, service area, availability, or specialties.",           businessTypes:["Company","Independent Contractor","Service Company","Residential Specialist","Commercial Specialist"], showLicense:true,  licensePlaceholder:"Plumbing license number (if applicable)", showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"plumbingLicense",label:"Plumbing contractor / plumber license (upload if applicable)",required:false},{key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false}] },
+    electricians:     { key:"electricians",    label:"Electricians",   icon:"⚡", page:"electricians.html",    backText:"Back to Electricians",    subtitle:"Set up your electrical contractor profile so you can start receiving leads.",        intro:"Complete your electrical contractor profile so admin can review it and match you for electrician leads.",    notesPlaceholder:"Tell us about your electrical services, service area, availability, or specialties.",         businessTypes:["Company","Independent Contractor","Service Company","Residential Specialist","Commercial Specialist"], showLicense:true,  licensePlaceholder:"Electrical license number (if applicable)",showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"electricalLicense",label:"Electrical contractor / electrician license (upload if applicable)",required:false},{key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false}] },
+    carpentry:        { key:"carpentry",       label:"Carpentry",      icon:"🪚", page:"carpentry.html",       backText:"Back to Carpentry",       subtitle:"Set up your carpentry contractor profile so you can start receiving leads.",         intro:"Complete your carpentry contractor profile so admin can review it and match you for carpentry leads.",         notesPlaceholder:"Tell us about your carpentry services, service area, availability, or specialties.",           businessTypes:["Company","Independent Contractor","Finish Carpenter","Framing Contractor","Commercial Specialist"],      showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"contractorLicense",label:"Contractor license (upload if applicable)",required:false},{key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false}] },
+    auto:             { key:"auto",            label:"Auto Services",  icon:"🚗", page:"auto.html",            backText:"Back to Auto Services",   subtitle:"Set up your auto contractor profile so you can start receiving leads.",             intro:"Complete your auto services contractor profile so admin can review it and match you for auto leads.",          notesPlaceholder:"Tell us about your auto services, service area, availability, or specialties.",               businessTypes:["Shop","Mobile Mechanic","Independent Technician","Fleet Service","Service Company"],                     showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Garage / liability insurance certificate",required:true},{key:"aseOrRepairCert",label:"ASE certification or repair license (upload if applicable)",required:false},{key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false}] },
+    hvac:             { key:"hvac",            label:"HVAC",           icon:"❄️", page:"hvac.html",            backText:"Back to HVAC",            subtitle:"Set up your HVAC contractor profile so you can start receiving leads.",             intro:"Complete your HVAC contractor profile so admin can review it and match you for HVAC leads.",                 notesPlaceholder:"Tell us about your HVAC services, service area, availability, certifications, or specialties.",  businessTypes:["Company","Independent Contractor","Service Company","Install Crew","Commercial Specialist"],             showLicense:true,  licensePlaceholder:"HVAC state license number",              showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"hvacLicense",label:"HVAC contractor license",required:false},{key:"epa608Proof",label:"EPA 608 certification (recommended)",required:false}] },
+    "financial-help": { key:"financial-help",  label:"Financial Help", icon:"💵", page:"financial-help.html",  backText:"Back to Financial Help",  subtitle:"Set up your financial help provider profile so you can start receiving leads.",    intro:"Complete your financial help provider profile so admin can review it and match you for financial help leads.", notesPlaceholder:"Tell us about your services, availability, credentials, or specialties.",                    businessTypes:["Consultant","Bookkeeper","Tax Preparer","Credit Specialist","Financial Educator","Business Services"],   showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Professional liability / E&O insurance (if available)",required:true},{key:"financeCert",label:"Professional certification or license (upload if applicable)",required:false},{key:"businessRegistration",label:"Business registration or tax prep credential (recommended)",required:false}] },
+    "lawn-care":      { key:"lawn-care",       label:"Lawn Care",      icon:"🌿", page:"lawn-care.html",       backText:"Back to Lawn Care",       subtitle:"Set up your lawn care contractor profile so you can start receiving leads.",        intro:"Complete your lawn care contractor profile so admin can review it and match you for lawn care leads.",        notesPlaceholder:"Tell us about your lawn care services, service area, availability, or specialties.",           businessTypes:["Company","Independent Contractor","Landscaper","Maintenance Crew","Commercial Specialist"],             showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"pesticideLicense",label:"Pesticide / applicator license (upload if applicable)",required:false},{key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false}] },
+    food:             { key:"food",            label:"Food Services",  icon:"🍽️", page:"food2.html",           backText:"Back to Food Services",   subtitle:"Set up your food services provider profile so you can start receiving leads.",     intro:"Complete your food services provider profile so admin can review it and match you for food service leads.",   notesPlaceholder:"Tell us about your food services, availability, event types, or specialties.",                businessTypes:["Caterer","Food Truck","Restaurant","Chef Services","Event Staffing"],                                    showLicense:false, licensePlaceholder:"License number (if applicable)",     showMcDot:false, showEquipment:false, docs:[{key:"businessIdentity",label:"Business / identity document",required:true},{key:"insuranceProof",label:"Insurance certificate",required:true},{key:"foodPermit",label:"Food permit / health permit (upload if applicable)",required:false},{key:"servsafeProof",label:"ServSafe or food safety certificate (recommended)",required:false}] }
+  };
 
-      if (!config.showEquipment) {
-        document.querySelectorAll('input[name="equipment"]').forEach((el) => {
-          el.checked = false;
-        });
-      }
-    }
+  function normalizeCategory(value) {
+    const raw = String(value||"").trim().toLowerCase().replace(/[_\s]+/g,"-");
+    if (!raw) return "";
+    if (raw==="trucking") return "trucking";
+    if (raw==="plumbing") return "plumbing";
+    if (raw==="electricians"||raw==="electrician"||raw==="electric"||raw==="electrical") return "electricians";
+    if (raw==="carpentry"||raw==="carpenter") return "carpentry";
+    if (raw==="auto"||raw==="auto-services"||raw==="automotive") return "auto";
+    if (raw==="hvac") return "hvac";
+    if (raw==="financial-help"||raw==="financial"||raw==="finance") return "financial-help";
+    if (raw==="lawn-care"||raw==="lawn"||raw==="landscaping") return "lawn-care";
+    if (raw==="food"||raw==="food2"||raw==="food-services") return "food";
+    return "";
+  }
 
-    function renderDocumentUploadStatus(documents = {}, documentReview = {}) {
-      const visibleDocs = getRenderedDocumentConfig(activeCategory);
+  const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
 
-      documentSlots.forEach((slot) => {
-        if (!slot.rowEl || slot.rowEl.hidden) {
-          if (slot.statusEl) slot.statusEl.innerHTML = "";
-        }
-      });
+  function getCategoryConfig(key) { return CATEGORY_CONFIG[key] || CATEGORY_CONFIG.trucking; }
 
-      visibleDocs.forEach((entry) => {
-        const meta = documents?.[entry.key];
-        const review = documentReview?.[entry.key] || {};
-        const reviewStatus = String(review.status || "pending").toLowerCase();
-        const safeReviewStatusClass = reviewStatus.replace(/\s+/g, "-");
+  function waitForAKOAuth() {
+    return new Promise(resolve => {
+      if (window.AKOReady) { resolve(window.AKOUser); return; }
+      document.addEventListener("ako-auth-ready", e => resolve(e.detail.user), { once: true });
+    });
+  }
 
-        if (!entry.statusEl) return;
+  function getContractorDocId(uid, categoryKey) { return `${uid}__${categoryKey}`; }
 
-        if (meta?.url) {
-          entry.statusEl.innerHTML = `
-            <span class="contractor-doc-status-pill uploaded">Uploaded</span>
-            <a class="contractor-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View current file</a>
-            <span class="contractor-doc-meta">
-              ${escapeHtml(meta.name || "Uploaded file")}
-              ${meta.uploadedAt ? ` · ${escapeHtml(formatDocDate(meta.uploadedAt))}` : ""}
-            </span>
+  function getCategoryDocumentRef(currentUser, categoryKey = activeCategory) {
+    return doc(db, "contractors", getContractorDocId(currentUser.uid, categoryKey));
+  }
 
-            <div class="contractor-doc-review-summary">
-              <span class="contractor-doc-review-pill status-${safeReviewStatusClass}">
-                ${escapeHtml(reviewStatus)}
-              </span>
-              ${
-                review.note
-                  ? `<div class="contractor-doc-review-note">${escapeHtml(review.note)}</div>`
-                  : ""
-              }
-              ${
-                review.reviewedAt
-                  ? `<div class="contractor-doc-review-meta">Reviewed ${escapeHtml(formatDocDate(review.reviewedAt))}</div>`
-                  : ""
-              }
-            </div>
-          `;
-        } else {
-          entry.statusEl.innerHTML = `
-            <span class="contractor-doc-status-pill ${entry.required ? "required" : "optional"}">
-              ${entry.required ? "Required" : "Optional"}
-            </span>
-            <span class="contractor-doc-meta">No file uploaded yet.</span>
-          `;
-        }
-      });
-    }
+  function formatDocDate(value) {
+    if (!value) return "";
+    try { return new Date(value).toLocaleString(); } catch { return ""; }
+  }
 
-    function renderSelectedDocumentState() {
-      const visibleDocs = getRenderedDocumentConfig(activeCategory);
+  function escapeHtml(v) {
+    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
 
-      visibleDocs.forEach((entry) => {
-        const file = entry.inputEl?.files?.[0];
-        if (!file || !entry.statusEl) return;
+  function getSelectedEquipment() {
+    return [...document.querySelectorAll('input[name="equipment"]:checked')].map(el => el.value);
+  }
 
+  function getRenderedDocumentConfig(categoryKey = activeCategory) {
+    return getCategoryConfig(categoryKey).docs.slice(0, documentSlots.length).map((entry, i) => ({
+      ...entry, ...documentSlots[i]
+    }));
+  }
+
+  function renderBusinessTypeOptions(categoryKey, selectedValue = "") {
+    const options = getCategoryConfig(categoryKey).businessTypes || [];
+    coBusinessType.innerHTML = `<option value="">Select business type</option>${options.map(o => `<option value="${escapeHtml(o)}"${selectedValue===o?" selected":""}>${escapeHtml(o)}</option>`).join("")}`;
+  }
+
+  function renderCategoryDocuments(categoryKey) {
+    const config = getCategoryConfig(categoryKey);
+    const docs   = getRenderedDocumentConfig(categoryKey);
+    contractorDocsTitle.textContent = `Required documents for ${config.label.toLowerCase()} approval`;
+    contractorDocsNote.textContent  = `Upload these files so admin can review your ${config.label.toLowerCase()} contractor profile. Admin will still verify your contact info, service area, and checklist items separately.`;
+    contractorDocsRequiredList.innerHTML = docs.map(e => `<li>${escapeHtml(e.label)} — ${e.required?"required":"recommended"}</li>`).join("");
+    documentSlots.forEach((slot, i) => {
+      const docEntry = docs[i];
+      if (!docEntry) { slot.rowEl.hidden=true; slot.labelEl.textContent=""; slot.statusEl.innerHTML=""; if(slot.inputEl) slot.inputEl.value=""; return; }
+      slot.rowEl.hidden = false;
+      slot.labelEl.textContent = `${i+1}. ${docEntry.label}`;
+    });
+  }
+
+  function applyCategoryUI(categoryKey, selectedBusinessType = "") {
+    activeCategory = normalizeCategory(categoryKey) || "trucking";
+    const config   = getCategoryConfig(activeCategory);
+    document.title = `AssistKingOnline — ${config.label} Contractor Onboarding`;
+    contractorBackLink.href        = config.page;
+    contractorBackLink.textContent = `← ${config.backText}`;
+    contractorPageTitle.textContent    = `${config.icon} ${config.label} Contractor Onboarding`;
+    contractorPageSubtitle.textContent = config.subtitle;
+    contractorProfileHeading.textContent = `${config.label} Contractor Profile`;
+    contractorIntroText.textContent      = config.intro;
+    coCategory.value   = config.label;
+    coNotes.placeholder = config.notesPlaceholder;
+    renderBusinessTypeOptions(activeCategory, selectedBusinessType);
+    renderCategoryDocuments(activeCategory);
+    coLicenseWrap.hidden = !config.showLicense;
+    coMcDotWrap.hidden   = !config.showMcDot;
+    coEquipmentWrap.hidden = !config.showEquipment;
+    coLicenseNumber.placeholder = config.licensePlaceholder || "License number (if applicable)";
+    if (!config.showLicense) coLicenseNumber.value = "";
+    if (!config.showMcDot)   coMcDot.value = "";
+    if (!config.showEquipment) document.querySelectorAll('input[name="equipment"]').forEach(el => el.checked=false);
+  }
+
+  function renderDocumentUploadStatus(documents = {}, documentReview = {}) {
+    const visibleDocs = getRenderedDocumentConfig(activeCategory);
+    documentSlots.forEach(slot => { if (!slot.rowEl || slot.rowEl.hidden) { if (slot.statusEl) slot.statusEl.innerHTML=""; } });
+    visibleDocs.forEach(entry => {
+      const meta   = documents?.[entry.key];
+      const review = documentReview?.[entry.key] || {};
+      const reviewStatus = String(review.status||"pending").toLowerCase();
+      if (!entry.statusEl) return;
+      if (meta?.url) {
         entry.statusEl.innerHTML = `
-          <span class="contractor-doc-status-pill uploaded">Selected</span>
-          <span class="contractor-doc-meta">
-            ${escapeHtml(file.name)} · Ready to upload when you save your contractor profile.
+          <span class="contractor-doc-status-pill uploaded">Uploaded</span>
+          <a class="contractor-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View current file</a>
+          <span class="contractor-doc-meta">${escapeHtml(meta.name||"Uploaded file")}${meta.uploadedAt?` · ${escapeHtml(formatDocDate(meta.uploadedAt))}`:""}
           </span>
-        `;
-      });
+          <div class="contractor-doc-review-summary">
+            <span class="contractor-doc-review-pill status-${reviewStatus.replace(/\s+/g,"-")}">${escapeHtml(reviewStatus)}</span>
+            ${review.note?`<div class="contractor-doc-review-note">${escapeHtml(review.note)}</div>`:""}
+            ${review.reviewedAt?`<div class="contractor-doc-review-meta">Reviewed ${escapeHtml(formatDocDate(review.reviewedAt))}</div>`:""}
+          </div>`;
+      } else {
+        entry.statusEl.innerHTML = `
+          <span class="contractor-doc-status-pill ${entry.required?"required":"optional"}">${entry.required?"Required":"Optional"}</span>
+          <span class="contractor-doc-meta">No file uploaded yet.</span>`;
+      }
+    });
+  }
+
+  function renderSelectedDocumentState() {
+    getRenderedDocumentConfig(activeCategory).forEach(entry => {
+      const file = entry.inputEl?.files?.[0];
+      if (!file || !entry.statusEl) return;
+      entry.statusEl.innerHTML = `
+        <span class="contractor-doc-status-pill uploaded">Selected</span>
+        <span class="contractor-doc-meta">${escapeHtml(file.name)} · Ready to upload when you save your contractor profile.</span>`;
+    });
+  }
+
+  function getMissingRequiredDocumentLabels(existingDocuments = {}) {
+    return getRenderedDocumentConfig(activeCategory)
+      .filter(e => e.required && !existingDocuments?.[e.key]?.url && !(e.inputEl?.files?.[0]))
+      .map(e => e.label);
+  }
+
+  async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
+    const nextDocuments = { ...existingDocuments };
+    const replacedKeys  = [];
+    for (const entry of getRenderedDocumentConfig(activeCategory)) {
+      const file = entry.inputEl?.files?.[0];
+      if (!file) continue;
+      const safeName = String(file.name||"file").replace(/[^a-zA-Z0-9._-]/g,"_");
+      const path     = `contractor-documents/${currentUser.uid}/${entry.key}/${activeCategory}_${Date.now()}_${safeName}`;
+      const fileRef  = storageRef(storage, path);
+      await uploadBytes(fileRef, file);
+      const url = await getDownloadURL(fileRef);
+      nextDocuments[entry.key] = { name:file.name||"Uploaded file", url, path, uploadedAt:Date.now(), sizeBytes:Number(file.size||0), mimeType:file.type||"", category:activeCategory };
+      replacedKeys.push(entry.key);
+      if (entry.inputEl) entry.inputEl.value = "";
     }
+    return { nextDocuments, replacedKeys };
+  }
 
-    function getMissingRequiredDocumentLabels(existingDocuments = {}) {
-      return getRenderedDocumentConfig(activeCategory)
-        .filter((entry) => entry.required && !existingDocuments?.[entry.key]?.url && !(entry.inputEl?.files?.[0]))
-        .map((entry) => entry.label);
+  function getApprovalMessage(status) {
+    if (status==="approved") return "Your contractor profile is approved. You are eligible to appear in assignment recommendations.";
+    if (status==="rejected") return "Your contractor profile is not approved right now. Review your details and update your profile if needed.";
+    if (status==="pending")  return "Your contractor profile is under review. You may not receive new leads until approved.";
+    return "Complete your profile and save it for review.";
+  }
+
+  function getContractorChecklistConfig(profileData) {
+    const rawCategory = normalizeCategory(profileData?.category||profileData?.categoryLabel||activeCategory)||activeCategory;
+    if (rawCategory==="trucking") return [
+      {key:"legalIdentityVerified",contractorText:"Be ready to verify your legal company and primary contact details."},
+      {key:"mcDotVerified",contractorText:"Make sure your USDOT / MC information is correct and ready for review."},
+      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
+      {key:"equipmentVerified",contractorText:"Make sure your listed equipment matches what you actually operate."},
+      {key:"serviceAreaVerified",contractorText:"Confirm your service area or lanes."},
+      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
+    ];
+    if (rawCategory==="hvac") return [
+      {key:"licenseVerified",contractorText:"Provide your HVAC license information for review."},
+      {key:"epaVerified",contractorText:"Provide your EPA or certification details if applicable."},
+      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
+      {key:"serviceAreaVerified",contractorText:"Confirm your service area."},
+      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
+    ];
+    return [
+      {key:"identityVerified",contractorText:"Be ready to verify your business identity."},
+      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
+      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
+    ];
+  }
+
+  function getContractorActionItems(profileData) {
+    const checklistConfig  = getContractorChecklistConfig(profileData);
+    const reviewChecklist  = profileData?.reviewChecklist || {};
+    const checklistItems   = checklistConfig.filter(e => reviewChecklist[e.key]!==true).map(e => e.contractorText);
+    if (checklistItems.length) return checklistItems;
+    const categoryKey     = normalizeCategory(profileData?.category||profileData?.categoryLabel||activeCategory)||activeCategory;
+    const config          = getCategoryConfig(categoryKey);
+    const equipmentTypes  = Array.isArray(profileData?.equipmentTypes)?profileData.equipmentTypes:[];
+    const items = [];
+    if (!profileData?.companyName) items.push("Add your company name.");
+    if (!profileData?.contactName) items.push("Add your contact name.");
+    if (!profileData?.email)       items.push("Add your business email.");
+    if (!profileData?.phone)       items.push("Add your phone number.");
+    if (!profileData?.city)        items.push("Add your city.");
+    if (!profileData?.state)       items.push("Add your state.");
+    if (!profileData?.serviceRadiusMiles) items.push("Set your service radius.");
+    if (!profileData?.businessType)       items.push("Choose your business type.");
+    if (config.showLicense && !profileData?.licenseNumber && !profileData?.stateLicenseNumber) items.push("Add your license number if applicable.");
+    if (categoryKey==="trucking") {
+      if (!profileData?.mcDotNumber) items.push("Add your USDOT / MC number.");
+      if (!equipmentTypes.length)    items.push("Select at least one equipment type.");
     }
+    return items;
+  }
 
-    async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
-      const nextDocuments = { ...existingDocuments };
-      const replacedKeys = [];
+  function renderResubmissionCues(profileData) {
+    if (!contractorResubmissionBox||!contractorResubmissionList||!contractorResubmissionHint) return;
+    const safeStatus = String(profileData?.status||"not-submitted").toLowerCase();
+    const shouldShow = safeStatus==="pending"||safeStatus==="rejected";
+    if (!shouldShow) { contractorResubmissionBox.hidden=true; contractorResubmissionList.innerHTML=""; return; }
+    const items = getContractorActionItems(profileData);
+    contractorResubmissionBox.hidden = false;
+    contractorResubmissionList.innerHTML = items.length
+      ? items.map(i=>`<li>${escapeHtml(i)}</li>`).join("")
+      : `<li>Your profile looks complete. Review the admin feedback above and resave your profile for re-review.</li>`;
+    contractorResubmissionHint.textContent = safeStatus==="rejected"
+      ? "Update the items above, then save your profile again to resubmit for review."
+      : "Your profile is still under review. If you update important details, save again so the admin sees the latest version.";
+  }
 
-      for (const entry of getRenderedDocumentConfig(activeCategory)) {
-        const file = entry.inputEl?.files?.[0];
-        if (!file) continue;
+  function renderApprovalStatus(profileData) {
+    const safeStatus    = String(profileData?.status||"not-submitted").toLowerCase();
+    const reviewFeedback = String(profileData?.reviewFeedback||"").trim();
+    if (contractorReviewStatusPill) {
+      contractorReviewStatusPill.textContent = safeStatus;
+      contractorReviewStatusPill.className   = `contractor-review-status-pill status-${safeStatus.replace(/\s+/g,"-")}`;
+    }
+    if (contractorReviewStatusMessage) contractorReviewStatusMessage.textContent = getApprovalMessage(safeStatus);
+    if (contractorReviewStatusMeta) {
+      if (!profileData) { contractorReviewStatusMeta.textContent=""; }
+      else {
+        const submittedAt   = profileData.submittedForReviewAt   ? `Submitted: ${new Date(profileData.submittedForReviewAt).toLocaleString()}`   : "";
+        const resubmittedAt = profileData.resubmittedForReviewAt ? `Resubmitted: ${new Date(profileData.resubmittedForReviewAt).toLocaleString()}` : "";
+        contractorReviewStatusMeta.textContent = [submittedAt,resubmittedAt].filter(Boolean).join(" · ");
+      }
+    }
+    if (contractorReviewFeedbackBox && contractorReviewFeedbackText) {
+      const shouldShowFeedback = !!reviewFeedback && (safeStatus==="pending"||safeStatus==="rejected");
+      contractorReviewFeedbackBox.hidden = !shouldShowFeedback;
+      contractorReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
+    }
+    renderResubmissionCues(profileData);
+  }
 
-        const safeName = String(file.name || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
-        const fileName = `${activeCategory}_${Date.now()}_${safeName}`;
-        const path = `contractor-documents/${currentUser.uid}/${entry.key}/${fileName}`;
-        const fileRef = storageRef(storage, path);
+  function applyLiveProfileReviewState(profileData) {
+    const safeStatus = String(profileData?.status||"not-submitted").toLowerCase();
+    renderApprovalStatus(profileData);
+    renderDocumentUploadStatus(profileData?.documents||{}, profileData?.documentReview||{});
+    renderSelectedDocumentState();
+    window.currentContractorProfileStatus        = safeStatus;
+    window.currentContractorProfileDocuments     = profileData?.documents||{};
+    window.currentContractorProfileDocumentReview = profileData?.documentReview||{};
+    if (contractorSubmitBtn) {
+      if (safeStatus==="rejected")        contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
+      else if (safeStatus==="approved")   contractorSubmitBtn.textContent = "Save Profile Updates";
+      else                                contractorSubmitBtn.textContent = "Save Contractor Profile";
+    }
+  }
 
-        await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(fileRef);
+  function renderContractorNotifications(items = []) {
+    contractorNotificationItems = [...items].sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+    const unreadCount = contractorNotificationItems.filter(i=>i.isRead!==true).length;
+    if (contractorNotificationsBadge) contractorNotificationsBadge.textContent = unreadCount?`${unreadCount} unread`:"All caught up";
+    if (contractorNotificationsMarkAllBtn) contractorNotificationsMarkAllBtn.disabled = unreadCount===0;
+    if (contractorTopNotificationJump) {
+      contractorTopNotificationJump.textContent = `${unreadCount} unread`;
+      contractorTopNotificationJump.classList.toggle("is-hidden", unreadCount===0);
+    }
+    if (!contractorNotificationsList) return;
+    if (!contractorNotificationItems.length) { contractorNotificationsList.innerHTML=`<p class="contractor-notification-empty">No notifications yet.</p>`; return; }
+    contractorNotificationsList.innerHTML = contractorNotificationItems.slice(0,8).map(item=>`
+      <div class="contractor-notification-item ${item.isRead===true?"":"is-unread"}">
+        <div class="contractor-notification-row">
+          <div class="contractor-notification-title">${escapeHtml(item.title||"Review update")}</div>
+          <div class="contractor-notification-time">${escapeHtml(formatDocDate(item.createdAt)||"—")}</div>
+        </div>
+        <div class="contractor-notification-message">${escapeHtml(item.message||"")}</div>
+        <div class="contractor-notification-meta">${escapeHtml(item.actorName||"Admin")}</div>
+        ${item.isRead===true
+          ? `<span class="contractor-notification-read-state">Read</span>`
+          : `<button type="button" class="contractor-notification-read-btn" data-notificationid="${escapeHtml(item._docId||"")}">Mark read</button>`
+        }
+      </div>`).join("");
+  }
 
-        nextDocuments[entry.key] = {
-          name: file.name || "Uploaded file",
-          url,
-          path,
-          uploadedAt: Date.now(),
-          sizeBytes: Number(file.size || 0),
-          mimeType: file.type || "",
-          category: activeCategory
-        };
+  async function markContractorNotificationRead(notificationId) {
+    if (!notificationId) return;
+    await updateDoc(doc(db,"contractorNotifications",notificationId), { isRead:true, readAt:Date.now() });
+  }
 
-        replacedKeys.push(entry.key);
+  async function markAllContractorNotificationsRead() {
+    for (const item of contractorNotificationItems.filter(i=>i.isRead!==true)) {
+      await markContractorNotificationRead(item._docId);
+    }
+  }
 
-        if (entry.inputEl) {
-          entry.inputEl.value = "";
+  function startProfileReviewListener(currentUser, categoryKey = activeCategory) {
+    if (unsubscribeContractorReviewListener) unsubscribeContractorReviewListener();
+    unsubscribeContractorReviewListener = onSnapshot(
+      getCategoryDocumentRef(currentUser, categoryKey),
+      snap => {
+        const liveData = snap.exists() ? snap.data() : null;
+        if (liveData?.category) applyCategoryUI(normalizeCategory(liveData.category)||categoryKey, liveData.businessType||"");
+        applyLiveProfileReviewState(liveData);
+      },
+      err => console.error("Live contractor review listener failed:", err)
+    );
+  }
+
+  function startContractorNotificationsListener(currentUser, categoryKey = activeCategory) {
+    if (unsubscribeContractorNotificationsListener) unsubscribeContractorNotificationsListener();
+    const notificationsQuery = query(collection(db,"contractorNotifications"), where("contractorUid","==",currentUser.uid));
+    unsubscribeContractorNotificationsListener = onSnapshot(
+      notificationsQuery,
+      snapshot => {
+        const currentRecordId = getContractorDocId(currentUser.uid, categoryKey);
+        let items = snapshot.docs.map(d=>({ _docId:d.id, ...d.data() }));
+        items = items.filter(item => {
+          const itemCategory = normalizeCategory(item.category||item.categoryLabel||"");
+          const itemRecordId = String(item.contractorRecordId||"").trim();
+          return itemCategory===categoryKey && itemRecordId===currentRecordId;
+        });
+        renderContractorNotifications(items);
+      },
+      err => {
+        console.error("Live contractor notifications listener failed:", err);
+        if (contractorNotificationsList) contractorNotificationsList.innerHTML=`<p class="contractor-notification-empty">Could not load notifications.</p>`;
+      }
+    );
+  }
+
+  async function loadProfile() {
+    const currentUser = await waitForAKOAuth();
+    if (!currentUser) {
+      window.location.href=`index.html?auth=1&return=${encodeURIComponent(`contractor-onboarding.html?category=${encodeURIComponent(requestedCategory)}`)}`;
+      return null;
+    }
+    applyCategoryUI(requestedCategory, "");
+    const contractorRef   = getCategoryDocumentRef(currentUser, requestedCategory);
+    const snap            = await getDoc(contractorRef);
+    let data              = null;
+    const expectedRecordId = getContractorDocId(currentUser.uid, requestedCategory);
+
+    if (snap.exists()) {
+      data = snap.data();
+    } else {
+      const legacySnap = await getDoc(doc(db,"contractors",currentUser.uid));
+      if (legacySnap.exists()) {
+        const legacyData     = legacySnap.data();
+        const legacyCategory = normalizeCategory(legacyData.category||legacyData.categoryLabel)||"trucking";
+        if (legacyCategory===requestedCategory) {
+          data = legacyData;
+          try {
+            await setDoc(contractorRef, { ...legacyData, ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId, category:requestedCategory, categoryLabel:getCategoryConfig(requestedCategory).label, migratedFromLegacy:true, updatedAt:Date.now() }, { merge:true });
+          } catch(err) { console.warn("Legacy contractor migration skipped:", err); }
         }
       }
-
-      return { nextDocuments, replacedKeys };
     }
 
-    function getApprovalMessage(status) {
-      if (status === "approved") {
-        return "Your contractor profile is approved. You are eligible to appear in assignment recommendations.";
+    if (data) {
+      if (data.ownerUid!==currentUser.uid||data.contractorUid!==currentUser.uid||data.contractorRecordId!==expectedRecordId) {
+        try {
+          await setDoc(contractorRef, { ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId, category:requestedCategory, categoryLabel:getCategoryConfig(requestedCategory).label, updatedAt:Date.now() }, { merge:true });
+          data = { ...data, ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId };
+        } catch(err) { console.warn("Contractor identity field normalization skipped:", err); }
       }
 
-      if (status === "rejected") {
-        return "Your contractor profile is not approved right now. Review your details and update your profile if needed.";
-      }
-
-      if (status === "pending") {
-        return "Your contractor profile is under review. You may not receive new leads until approved.";
-      }
-
-      return "Complete your profile and save it for review.";
+      applyCategoryUI(requestedCategory, data.businessType||"");
+      coCategory.value      = getCategoryConfig(requestedCategory).label;
+      coCompanyName.value   = data.companyName||"";
+      coContactName.value   = data.contactName||currentUser.name||"";
+      coEmail.value         = data.email||currentUser.email||"";
+      coPhone.value         = data.phone||"";
+      coCity.value          = data.city||"";
+      coState.value         = data.state||"";
+      coRadius.value        = data.serviceRadiusMiles||"";
+      coLicenseNumber.value = data.licenseNumber||data.stateLicenseNumber||"";
+      coMcDot.value         = data.mcDotNumber||"";
+      coNotes.value         = data.notes||"";
+      const equipmentTypes  = Array.isArray(data.equipmentTypes)?data.equipmentTypes:[];
+      document.querySelectorAll('input[name="equipment"]').forEach(el=>{ el.checked=equipmentTypes.includes(el.value); });
+      applyLiveProfileReviewState(data);
+      contractorStatus.textContent = `Current status: ${data.status||"pending"}`;
+    } else {
+      coContactName.value = currentUser.name||"";
+      coEmail.value       = currentUser.email||"";
+      applyLiveProfileReviewState(null);
+      contractorStatus.textContent = "Complete your contractor profile to submit it for review.";
     }
 
-    function getContractorChecklistConfig(profileData) {
-      const rawCategory = normalizeCategory(profileData?.category || profileData?.categoryLabel || activeCategory) || activeCategory;
+    startProfileReviewListener(currentUser, requestedCategory);
+    startContractorNotificationsListener(currentUser, requestedCategory);
+    return currentUser;
+  }
 
-      if (rawCategory === "trucking") {
-        return [
-          { key: "legalIdentityVerified", contractorText: "Be ready to verify your legal company and primary contact details." },
-          { key: "mcDotVerified", contractorText: "Make sure your USDOT / MC information is correct and ready for review." },
-          { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
-          { key: "equipmentVerified", contractorText: "Make sure your listed equipment matches what you actually operate." },
-          { key: "serviceAreaVerified", contractorText: "Confirm your service area or lanes." },
-          { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
-        ];
-      }
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const currentUser = await waitForAKOAuth();
+    if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent(`contractor-onboarding.html?category=${encodeURIComponent(activeCategory)}`)}`;return; }
 
-      if (rawCategory === "hvac") {
-        return [
-          { key: "licenseVerified", contractorText: "Provide your HVAC license information for review." },
-          { key: "epaVerified", contractorText: "Provide your EPA or certification details if applicable." },
-          { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
-          { key: "serviceAreaVerified", contractorText: "Confirm your service area." },
-          { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
-        ];
-      }
+    const contractorRef  = getCategoryDocumentRef(currentUser, activeCategory);
+    const existingSnap   = await getDoc(contractorRef);
+    const existingData   = existingSnap.exists()?existingSnap.data():null;
+    const config         = getCategoryConfig(activeCategory);
 
-      return [
-        { key: "identityVerified", contractorText: "Be ready to verify your business identity." },
-        { key: "insuranceVerified", contractorText: "Provide current insurance proof for review." },
-        { key: "contactVerified", contractorText: "Make sure your phone and email are correct and reachable." }
-      ];
+    const companyName       = coCompanyName.value.trim();
+    const contactName       = coContactName.value.trim();
+    const email             = coEmail.value.trim();
+    const phone             = coPhone.value.trim();
+    const city              = coCity.value.trim();
+    const state             = coState.value.trim();
+    const serviceRadiusMiles = Number(coRadius.value||0);
+    const businessType      = coBusinessType.value.trim();
+    const licenseNumber     = coLicenseNumber.value.trim();
+    const mcDotNumber       = coMcDot.value.trim();
+    const equipmentTypes    = activeCategory==="trucking"?getSelectedEquipment():[];
+    const notes             = coNotes.value.trim();
+
+    if (!companyName||!contactName||!email||!phone||!city||!state||!serviceRadiusMiles||!businessType) {
+      contractorStatus.textContent="Please complete all required fields."; return;
     }
+    if (config.showMcDot && !equipmentTypes.length) { contractorStatus.textContent="Select at least one equipment type."; return; }
 
-    function getContractorActionItems(profileData) {
-      const checklistConfig = getContractorChecklistConfig(profileData);
-      const reviewChecklist = profileData?.reviewChecklist || {};
+    const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents||{});
+    if (missingRequiredDocuments.length) { contractorStatus.textContent=`Please upload required documents: ${missingRequiredDocuments.join(", ")}.`; return; }
 
-      const checklistItems = checklistConfig
-        .filter((entry) => reviewChecklist[entry.key] !== true)
-        .map((entry) => entry.contractorText);
+    try {
+      contractorStatus.textContent = "Uploading documents and saving contractor profile...";
+      const { nextDocuments:uploadedDocuments, replacedKeys } = await uploadSelectedDocuments(currentUser, existingData?.documents||{});
+      const nextDocumentReview = { ...(existingData?.documentReview||{}) };
+      replacedKeys.forEach(key => { nextDocumentReview[key]={ status:"pending", note:"", reviewedAt:null, reviewedBy:"", reviewedByName:"" }; });
 
-      if (checklistItems.length) return checklistItems;
+      const now               = Date.now();
+      const currentStatus     = String(window.currentContractorProfileStatus||existingData?.status||"not-submitted").toLowerCase();
+      const requiredDocumentKeys = getRenderedDocumentConfig(activeCategory).filter(e=>e.required).map(e=>e.key);
+      const replacedRequiredDocs = replacedKeys.filter(key=>requiredDocumentKeys.includes(key));
+      let nextStatus = "pending";
+      if (currentStatus==="approved" && replacedRequiredDocs.length===0) nextStatus="approved";
 
-      const categoryKey = normalizeCategory(profileData?.category || profileData?.categoryLabel || activeCategory) || activeCategory;
-      const config = getCategoryConfig(categoryKey);
-      const equipmentTypes = Array.isArray(profileData?.equipmentTypes) ? profileData.equipmentTypes : [];
-      const items = [];
+      const contractorRecordId = getContractorDocId(currentUser.uid, activeCategory);
 
-      if (!profileData?.companyName) items.push("Add your company name.");
-      if (!profileData?.contactName) items.push("Add your contact name.");
-      if (!profileData?.email) items.push("Add your business email.");
-      if (!profileData?.phone) items.push("Add your phone number.");
-      if (!profileData?.city) items.push("Add your city.");
-      if (!profileData?.state) items.push("Add your state.");
-      if (!profileData?.serviceRadiusMiles) items.push("Set your service radius.");
-      if (!profileData?.businessType) items.push("Choose your business type.");
+      const payload = {
+        ownerUid: currentUser.uid, contractorUid: currentUser.uid, contractorRecordId,
+        category: activeCategory, categoryLabel: config.label,
+        companyName, contactName, email, phone, city, state, serviceRadiusMiles, businessType,
+        licenseNumber: config.showLicense?licenseNumber:"",
+        stateLicenseNumber: activeCategory==="hvac"?licenseNumber:"",
+        mcDotNumber: config.showMcDot?mcDotNumber:"",
+        equipmentTypes, notes,
+        documents: uploadedDocuments, documentReview: nextDocumentReview,
+        status: nextStatus,
+        createdAt: existingData?.createdAt||now, updatedAt: now
+      };
 
-      if (config.showLicense && !profileData?.licenseNumber && !profileData?.stateLicenseNumber) {
-        items.push("Add your license number if applicable.");
-      }
+      const isFirstSubmit = !existingData?.submittedForReviewAt;
+      if (isFirstSubmit) payload.submittedForReviewAt = now;
+      else if (nextStatus==="pending") payload.resubmittedForReviewAt = now;
+      if (nextStatus==="pending") { payload.approvedAt=null; payload.rejectedAt=null; }
 
-      if (categoryKey === "trucking") {
-        if (!profileData?.mcDotNumber) items.push("Add your USDOT / MC number.");
-        if (!equipmentTypes.length) items.push("Select at least one equipment type.");
-      }
+      await setDoc(contractorRef, payload, { merge:true });
 
-      return items;
-    }
+      window.currentContractorProfileStatus         = payload.status;
+      window.currentContractorProfileDocuments      = uploadedDocuments;
+      window.currentContractorProfileDocumentReview = nextDocumentReview;
 
-    function renderResubmissionCues(profileData) {
-      if (!contractorResubmissionBox || !contractorResubmissionList || !contractorResubmissionHint) return;
-
-      const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
-      const shouldShow = safeStatus === "pending" || safeStatus === "rejected";
-
-      if (!shouldShow) {
-        contractorResubmissionBox.hidden = true;
-        contractorResubmissionList.innerHTML = "";
-        return;
-      }
-
-      const items = getContractorActionItems(profileData);
-
-      contractorResubmissionBox.hidden = false;
-      contractorResubmissionList.innerHTML = items.length
-        ? items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
-        : `<li>Your profile looks complete. Review the admin feedback above and resave your profile for re-review.</li>`;
-
-      contractorResubmissionHint.textContent =
-        safeStatus === "rejected"
-          ? "Update the items above, then save your profile again to resubmit for review."
-          : "Your profile is still under review. If you update important details, save again so the admin sees the latest version.";
-    }
-
-    function renderApprovalStatus(profileData) {
-      const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
-      const reviewFeedback = String(profileData?.reviewFeedback || "").trim();
-
-      if (contractorReviewStatusPill) {
-        contractorReviewStatusPill.textContent = safeStatus;
-        contractorReviewStatusPill.className = `contractor-review-status-pill status-${safeStatus.replace(/\s+/g, "-")}`;
-      }
-
-      if (contractorReviewStatusMessage) {
-        contractorReviewStatusMessage.textContent = getApprovalMessage(safeStatus);
-      }
-
-      if (contractorReviewStatusMeta) {
-        if (!profileData) {
-          contractorReviewStatusMeta.textContent = "";
-        } else {
-          const submittedAt = profileData.submittedForReviewAt
-            ? `Submitted: ${new Date(profileData.submittedForReviewAt).toLocaleString()}`
-            : "";
-
-          const resubmittedAt = profileData.resubmittedForReviewAt
-            ? `Resubmitted: ${new Date(profileData.resubmittedForReviewAt).toLocaleString()}`
-            : "";
-
-          contractorReviewStatusMeta.textContent = [submittedAt, resubmittedAt].filter(Boolean).join(" · ");
-        }
-      }
-
-      if (contractorReviewFeedbackBox && contractorReviewFeedbackText) {
-        const shouldShowFeedback = !!reviewFeedback && (safeStatus === "pending" || safeStatus === "rejected");
-        contractorReviewFeedbackBox.hidden = !shouldShowFeedback;
-        contractorReviewFeedbackText.textContent = shouldShowFeedback ? reviewFeedback : "";
-      }
-
-      renderResubmissionCues(profileData);
-    }
-
-    function applyLiveProfileReviewState(profileData) {
-      const safeStatus = String(profileData?.status || "not-submitted").toLowerCase();
-
-      renderApprovalStatus(profileData);
-      renderDocumentUploadStatus(profileData?.documents || {}, profileData?.documentReview || {});
+      applyCategoryUI(activeCategory, businessType);
+      renderApprovalStatus({ ...(existingData||{}), ...payload });
+      renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
       renderSelectedDocumentState();
 
-      window.currentContractorProfileStatus = safeStatus;
-      window.currentContractorProfileDocuments = profileData?.documents || {};
-      window.currentContractorProfileDocumentReview = profileData?.documentReview || {};
-
       if (contractorSubmitBtn) {
-        if (safeStatus === "rejected") {
-          contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
-        } else if (safeStatus === "approved") {
-          contractorSubmitBtn.textContent = "Save Profile Updates";
-        } else {
-          contractorSubmitBtn.textContent = "Save Contractor Profile";
-        }
+        if (payload.status==="approved")        contractorSubmitBtn.textContent="Save Profile Updates";
+        else if (currentStatus==="rejected")    contractorSubmitBtn.textContent="Update Profile and Resubmit for Review";
+        else                                    contractorSubmitBtn.textContent="Save Contractor Profile";
       }
+
+      if (payload.status==="approved")       contractorStatus.textContent=`${config.label} contractor profile saved. Your approved status is still active.`;
+      else if (isFirstSubmit)                contractorStatus.textContent=`${config.label} contractor profile saved and submitted for review.`;
+      else                                   contractorStatus.textContent=`${config.label} contractor profile updated and resubmitted for review.`;
+    } catch(err) {
+      console.error(err);
+      contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
     }
+  });
 
-    function renderContractorNotifications(items = []) {
-      contractorNotificationItems = [...items].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+  documentSlots.forEach(slot => {
+    if (!slot.inputEl) return;
+    slot.inputEl.addEventListener("change", () => {
+      renderDocumentUploadStatus(window.currentContractorProfileDocuments||{}, window.currentContractorProfileDocumentReview||{});
+      renderSelectedDocumentState();
+    });
+  });
 
-      const unreadCount = contractorNotificationItems.filter((item) => item.isRead !== true).length;
-
-      if (contractorNotificationsBadge) {
-        contractorNotificationsBadge.textContent = unreadCount ? `${unreadCount} unread` : "All caught up";
-      }
-
-      if (contractorNotificationsMarkAllBtn) {
-        contractorNotificationsMarkAllBtn.disabled = unreadCount === 0;
-      }
-
-      if (contractorTopNotificationJump) {
-        contractorTopNotificationJump.textContent = `${unreadCount} unread`;
-        contractorTopNotificationJump.classList.toggle("is-hidden", unreadCount === 0);
-      }
-
-      if (!contractorNotificationsList) return;
-
-      if (!contractorNotificationItems.length) {
-        contractorNotificationsList.innerHTML = `<p class="contractor-notification-empty">No notifications yet.</p>`;
-        return;
-      }
-
-      contractorNotificationsList.innerHTML = contractorNotificationItems.slice(0, 8).map((item) => `
-        <div class="contractor-notification-item ${item.isRead === true ? "" : "is-unread"}">
-          <div class="contractor-notification-row">
-            <div class="contractor-notification-title">${escapeHtml(item.title || "Review update")}</div>
-            <div class="contractor-notification-time">${escapeHtml(formatDocDate(item.createdAt) || "—")}</div>
-          </div>
-
-          <div class="contractor-notification-message">${escapeHtml(item.message || "")}</div>
-          <div class="contractor-notification-meta">${escapeHtml(item.actorName || "Admin")}</div>
-
-          ${
-            item.isRead === true
-              ? `<span class="contractor-notification-read-state">Read</span>`
-              : `<button type="button" class="contractor-notification-read-btn" data-notificationid="${escapeHtml(item._docId || "")}">Mark read</button>`
-          }
-        </div>
-      `).join("");
-    }
-
-    async function markContractorNotificationRead(notificationId) {
+  if (contractorNotificationsList) {
+    contractorNotificationsList.addEventListener("click", async e => {
+      const readBtn = e.target.closest(".contractor-notification-read-btn");
+      if (!readBtn) return;
+      const notificationId = readBtn.getAttribute("data-notificationid");
       if (!notificationId) return;
-
-      await updateDoc(doc(db, "contractorNotifications", notificationId), {
-        isRead: true,
-        readAt: Date.now()
-      });
-    }
-
-    async function markAllContractorNotificationsRead() {
-      const unreadItems = contractorNotificationItems.filter((item) => item.isRead !== true);
-      for (const item of unreadItems) {
-        await markContractorNotificationRead(item._docId);
-      }
-    }
-
-    function startProfileReviewListener(currentUser, categoryKey = activeCategory) {
-      if (unsubscribeContractorReviewListener) {
-        unsubscribeContractorReviewListener();
-      }
-
-      const contractorRef = getCategoryDocumentRef(currentUser, categoryKey);
-
-      unsubscribeContractorReviewListener = onSnapshot(
-        contractorRef,
-        (snap) => {
-          const liveData = snap.exists() ? snap.data() : null;
-
-          if (liveData?.category) {
-            const liveCategory = normalizeCategory(liveData.category) || categoryKey;
-            applyCategoryUI(liveCategory, liveData.businessType || "");
-          }
-
-          applyLiveProfileReviewState(liveData);
-        },
-        (err) => {
-          console.error("Live contractor review listener failed:", err);
-        }
-      );
-    }
-
-    function startContractorNotificationsListener(currentUser, categoryKey = activeCategory) {
-      if (unsubscribeContractorNotificationsListener) {
-        unsubscribeContractorNotificationsListener();
-      }
-
-      const notificationsQuery = query(
-        collection(db, "contractorNotifications"),
-        where("contractorUid", "==", currentUser.uid)
-      );
-
-      unsubscribeContractorNotificationsListener = onSnapshot(
-        notificationsQuery,
-        (snapshot) => {
-          const currentRecordId = getContractorDocId(currentUser.uid, categoryKey);
-
-          let items = snapshot.docs.map((docSnap) => ({
-            _docId: docSnap.id,
-            ...docSnap.data()
-          }));
-
-          items = items.filter((item) => {
-            const itemCategory = normalizeCategory(item.category || item.categoryLabel || "");
-            const itemRecordId = String(item.contractorRecordId || "").trim();
-
-            return itemCategory === categoryKey && itemRecordId === currentRecordId;
-          });
-
-          renderContractorNotifications(items);
-        },
-        (err) => {
-          console.error("Live contractor notifications listener failed:", err);
-
-          if (contractorNotificationsList) {
-            contractorNotificationsList.innerHTML = `<p class="contractor-notification-empty">Could not load notifications.</p>`;
-          }
-        }
-      );
-    }
-
-    async function loadProfile() {
-      const currentUser = await waitForAKOAuth();
-
-      if (!currentUser) {
-        const returnUrl = `contractor-onboarding.html?category=${encodeURIComponent(requestedCategory)}`;
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
-        return null;
-      }
-
-      applyCategoryUI(requestedCategory, "");
-
-      const contractorRef = getCategoryDocumentRef(currentUser, requestedCategory);
-      const snap = await getDoc(contractorRef);
-
-      let data = null;
-      const expectedRecordId = getContractorDocId(currentUser.uid, requestedCategory);
-
-      if (snap.exists()) {
-        data = snap.data();
-      } else {
-        const legacyRef = doc(db, "contractors", currentUser.uid);
-        const legacySnap = await getDoc(legacyRef);
-
-        if (legacySnap.exists()) {
-          const legacyData = legacySnap.data();
-          const legacyCategory = normalizeCategory(legacyData.category || legacyData.categoryLabel) || "trucking";
-
-          if (legacyCategory === requestedCategory) {
-            data = legacyData;
-
-            try {
-              await setDoc(contractorRef, {
-                ...legacyData,
-                ownerUid: currentUser.uid,
-                contractorUid: currentUser.uid,
-                contractorRecordId: expectedRecordId,
-                category: requestedCategory,
-                categoryLabel: getCategoryConfig(requestedCategory).label,
-                migratedFromLegacy: true,
-                updatedAt: Date.now()
-              }, { merge: true });
-            } catch (err) {
-              console.warn("Legacy contractor migration skipped:", err);
-            }
-          }
-        }
-      }
-
-      if (data) {
-        if (
-          data.ownerUid !== currentUser.uid ||
-          data.contractorUid !== currentUser.uid ||
-          data.contractorRecordId !== expectedRecordId
-        ) {
-          try {
-            await setDoc(contractorRef, {
-              ownerUid: currentUser.uid,
-              contractorUid: currentUser.uid,
-              contractorRecordId: expectedRecordId,
-              category: requestedCategory,
-              categoryLabel: getCategoryConfig(requestedCategory).label,
-              updatedAt: Date.now()
-            }, { merge: true });
-
-            data = {
-              ...data,
-              ownerUid: currentUser.uid,
-              contractorUid: currentUser.uid,
-              contractorRecordId: expectedRecordId,
-              category: requestedCategory,
-              categoryLabel: getCategoryConfig(requestedCategory).label
-            };
-          } catch (err) {
-            console.warn("Contractor identity field normalization skipped:", err);
-          }
-        }
-
-        applyCategoryUI(requestedCategory, data.businessType || "");
-
-        coCategory.value = getCategoryConfig(requestedCategory).label;
-        coCompanyName.value = data.companyName || "";
-        coContactName.value = data.contactName || currentUser.name || "";
-        coEmail.value = data.email || currentUser.email || "";
-        coPhone.value = data.phone || "";
-        coCity.value = data.city || "";
-        coState.value = data.state || "";
-        coRadius.value = data.serviceRadiusMiles || "";
-        coLicenseNumber.value = data.licenseNumber || data.stateLicenseNumber || "";
-        coMcDot.value = data.mcDotNumber || "";
-        coNotes.value = data.notes || "";
-
-        const equipmentTypes = Array.isArray(data.equipmentTypes) ? data.equipmentTypes : [];
-        document.querySelectorAll('input[name="equipment"]').forEach((el) => {
-          el.checked = equipmentTypes.includes(el.value);
-        });
-
-        applyLiveProfileReviewState(data);
-        contractorStatus.textContent = `Current status: ${data.status || "pending"}`;
-      } else {
-        coContactName.value = currentUser.name || "";
-        coEmail.value = currentUser.email || "";
-        applyLiveProfileReviewState(null);
-        contractorStatus.textContent = "Complete your contractor profile to submit it for review.";
-      }
-
-      startProfileReviewListener(currentUser, requestedCategory);
-      startContractorNotificationsListener(currentUser, requestedCategory);
-      return currentUser;
-    }
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const currentUser = await waitForAKOAuth();
-
-      if (!currentUser) {
-        const returnUrl = `contractor-onboarding.html?category=${encodeURIComponent(activeCategory)}`;
-        window.location.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
-        return;
-      }
-
-      const contractorRef = getCategoryDocumentRef(currentUser, activeCategory);
-      const existingSnap = await getDoc(contractorRef);
-      const existingData = existingSnap.exists() ? existingSnap.data() : null;
-      const config = getCategoryConfig(activeCategory);
-
-      const companyName = coCompanyName.value.trim();
-      const contactName = coContactName.value.trim();
-      const email = coEmail.value.trim();
-      const phone = coPhone.value.trim();
-      const city = coCity.value.trim();
-      const state = coState.value.trim();
-      const serviceRadiusMiles = Number(coRadius.value || 0);
-      const businessType = coBusinessType.value.trim();
-      const licenseNumber = coLicenseNumber.value.trim();
-      const mcDotNumber = coMcDot.value.trim();
-      const equipmentTypes = activeCategory === "trucking" ? getSelectedEquipment() : [];
-      const notes = coNotes.value.trim();
-
-      if (
-        !companyName ||
-        !contactName ||
-        !email ||
-        !phone ||
-        !city ||
-        !state ||
-        !serviceRadiusMiles ||
-        !businessType
-      ) {
-        contractorStatus.textContent = "Please complete all required fields.";
-        return;
-      }
-
-      if (config.showMcDot && !equipmentTypes.length) {
-        contractorStatus.textContent = "Select at least one equipment type.";
-        return;
-      }
-
-      const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents || {});
-      if (missingRequiredDocuments.length) {
-        contractorStatus.textContent = `Please upload required documents: ${missingRequiredDocuments.join(", ")}.`;
-        return;
-      }
-
-      try {
-        contractorStatus.textContent = "Uploading documents and saving contractor profile...";
-
-        const { nextDocuments: uploadedDocuments, replacedKeys } = await uploadSelectedDocuments(
-          currentUser,
-          existingData?.documents || {}
-        );
-
-        const nextDocumentReview = {
-          ...(existingData?.documentReview || {})
-        };
-
-        replacedKeys.forEach((key) => {
-          nextDocumentReview[key] = {
-            status: "pending",
-            note: "",
-            reviewedAt: null,
-            reviewedBy: "",
-            reviewedByName: ""
-          };
-        });
-
-        const now = Date.now();
-        const currentStatus = String(
-          window.currentContractorProfileStatus || existingData?.status || "not-submitted"
-        ).toLowerCase();
-
-        const requiredDocumentKeys = getRenderedDocumentConfig(activeCategory)
-          .filter((entry) => entry.required)
-          .map((entry) => entry.key);
-
-        const replacedRequiredDocs = replacedKeys.filter((key) => requiredDocumentKeys.includes(key));
-
-        let nextStatus = "pending";
-        if (currentStatus === "approved" && replacedRequiredDocs.length === 0) {
-          nextStatus = "approved";
-        }
-
-        const contractorRecordId = getContractorDocId(currentUser.uid, activeCategory);
-
-        const payload = {
-          ownerUid: currentUser.uid,
-          contractorUid: currentUser.uid,
-          contractorRecordId: contractorRecordId,
-          category: activeCategory,
-          categoryLabel: config.label,
-          companyName,
-          contactName,
-          email,
-          phone,
-          city,
-          state,
-          serviceRadiusMiles,
-          businessType,
-          licenseNumber: config.showLicense ? licenseNumber : "",
-          stateLicenseNumber: activeCategory === "hvac" ? licenseNumber : "",
-          mcDotNumber: config.showMcDot ? mcDotNumber : "",
-          equipmentTypes,
-          notes,
-          documents: uploadedDocuments,
-          documentReview: nextDocumentReview,
-          status: nextStatus,
-          createdAt: existingData?.createdAt || now,
-          updatedAt: now
-        };
-
-        const isFirstSubmit = !existingData?.submittedForReviewAt;
-
-        if (isFirstSubmit) {
-          payload.submittedForReviewAt = now;
-        } else if (nextStatus === "pending") {
-          payload.resubmittedForReviewAt = now;
-        }
-
-        if (nextStatus === "pending") {
-          payload.approvedAt = null;
-          payload.rejectedAt = null;
-        }
-
-        await setDoc(contractorRef, payload, { merge: true });
-
-        const displayProfile = {
-          ...(existingData || {}),
-          ...payload
-        };
-
-        window.currentContractorProfileStatus = payload.status;
-        window.currentContractorProfileDocuments = uploadedDocuments;
-        window.currentContractorProfileDocumentReview = nextDocumentReview;
-
-        applyCategoryUI(activeCategory, businessType);
-        renderApprovalStatus(displayProfile);
-        renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
-        renderSelectedDocumentState();
-
-        if (contractorSubmitBtn) {
-          if (payload.status === "approved") {
-            contractorSubmitBtn.textContent = "Save Profile Updates";
-          } else if (currentStatus === "rejected") {
-            contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
-          } else {
-            contractorSubmitBtn.textContent = "Save Contractor Profile";
-          }
-        }
-
-        if (payload.status === "approved") {
-          contractorStatus.textContent = `${config.label} contractor profile saved. Your approved status is still active.`;
-        } else if (isFirstSubmit) {
-          contractorStatus.textContent = `${config.label} contractor profile saved and submitted for review.`;
-        } else {
-          contractorStatus.textContent = `${config.label} contractor profile updated and resubmitted for review.`;
-        }
-      } catch (err) {
-        console.error(err);
-        contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
-      }
+      try { await markContractorNotificationRead(notificationId); }
+      catch(err) { console.error(err); contractorStatus.textContent=`Could not mark notification read: ${err.message}`; }
     });
+  }
 
-    documentSlots.forEach((slot) => {
-      if (!slot.inputEl) return;
-
-      slot.inputEl.addEventListener("change", () => {
-        renderDocumentUploadStatus(
-          window.currentContractorProfileDocuments || {},
-          window.currentContractorProfileDocumentReview || {}
-        );
-        renderSelectedDocumentState();
-      });
+  if (contractorNotificationsMarkAllBtn) {
+    contractorNotificationsMarkAllBtn.addEventListener("click", async () => {
+      try { await markAllContractorNotificationsRead(); }
+      catch(err) { console.error(err); contractorStatus.textContent=`Could not mark all notifications read: ${err.message}`; }
     });
+  }
 
-    if (contractorNotificationsList) {
-      contractorNotificationsList.addEventListener("click", async (e) => {
-        const readBtn = e.target.closest(".contractor-notification-read-btn");
-        if (!readBtn) return;
+  if (contractorTopNotificationJump && contractorNotificationsBox) {
+    contractorTopNotificationJump.addEventListener("click", () => {
+      contractorNotificationsBox.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+  }
 
-        const notificationId = readBtn.getAttribute("data-notificationid");
-        if (!notificationId) return;
+  applyCategoryUI(requestedCategory, "");
+  loadProfile();
+</script>
 
-        try {
-          await markContractorNotificationRead(notificationId);
-        } catch (err) {
-          console.error(err);
-          contractorStatus.textContent = `Could not mark notification read: ${err.message}`;
-        }
-      });
-    }
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <span class="theme-toggle-icon">☀️</span>
+  <span id="toggleLabel">Light Mode</span>
+</button>
 
-    if (contractorNotificationsMarkAllBtn) {
-      contractorNotificationsMarkAllBtn.addEventListener("click", async () => {
-        try {
-          await markAllContractorNotificationsRead();
-        } catch (err) {
-          console.error(err);
-          contractorStatus.textContent = `Could not mark all notifications read: ${err.message}`;
-        }
-      });
-    }
+<script>
+  (function(){
+    const html=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    const label=document.getElementById('toggleLabel');
+    const icon=btn.querySelector('.theme-toggle-icon');
+    const saved=localStorage.getItem('ako-theme')||'dark';
+    html.setAttribute('data-theme',saved);
+    label.textContent=saved==='dark'?'Light Mode':'Dark Mode';
+    icon.textContent=saved==='dark'?'☀️':'🌙';
+    btn.addEventListener('click',function(){
+      const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+      html.setAttribute('data-theme',next);
+      localStorage.setItem('ako-theme',next);
+      label.textContent=next==='dark'?'Light Mode':'Dark Mode';
+      icon.textContent=next==='dark'?'☀️':'🌙';
+    });
+  })();
+</script>
 
-    if (contractorTopNotificationJump && contractorNotificationsBox) {
-      contractorTopNotificationJump.addEventListener("click", () => {
-        contractorNotificationsBox.scrollIntoView({
-          behavior: "smooth",
-          block: "start"
-        });
-      });
-    }
-
-    applyCategoryUI(requestedCategory, "");
-    loadProfile();
-  </script>
 </body>
-</html>
+  </html>
