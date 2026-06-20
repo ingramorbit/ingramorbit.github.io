@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Request Service</title>
-  <link rel="stylesheet" href="styles.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=38">
 </head>
 <body>
   <section class="request-hero">
@@ -22,7 +22,7 @@
       <div class="request-hero-content">
         <div class="request-brand">AssistKingOnline</div>
         <h1 class="request-title">📋 Request Service</h1>
-        <p>Tell us what you need and we’ll help match you with the right provider.</p>
+        <p>Tell us what you need and we'll help match you with the right provider.</p>
       </div>
     </div>
   </section>
@@ -88,6 +88,38 @@
     const params = new URLSearchParams(window.location.search);
     const categoryParam = (params.get("category") || "").trim();
 
+    // ─── Category normalization ─────────────────────────────────────────────
+
+    function normalizeCategory(value) {
+      const raw = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
+      if (!raw) return "";
+      if (raw === "trucking") return "trucking";
+      if (raw === "plumbing") return "plumbing";
+      if (
+        raw === "electricians" || raw === "electrician" ||
+        raw === "electric" || raw === "electrical"
+      ) return "electricians";
+      if (raw === "carpentry" || raw === "carpenter") return "carpentry";
+      if (
+        raw === "auto" || raw === "auto-services" || raw === "automotive"
+      ) return "auto";
+      if (raw === "hvac") return "hvac";
+      if (
+        raw === "financial-help" || raw === "financial" || raw === "finance"
+      ) return "financial-help";
+      if (
+        raw === "lawn-care" || raw === "lawn" || raw === "landscaping"
+      ) return "lawn-care";
+      if (
+        raw === "food" || raw === "food2" || raw === "food-services"
+      ) return "food";
+      if (raw === "residential") return "residential";
+      if (raw === "commercial") return "commercial";
+      return raw;
+    }
+
+    // ─── Category config ────────────────────────────────────────────────────
+
     const CATEGORY_CONFIG = {
       residential: {
         label: "Residential",
@@ -139,7 +171,7 @@
         descriptionPlaceholder: "Describe the load or trucking need, pickup/dropoff area, and urgency."
       },
       auto: {
-        label: "Auto",
+        label: "Auto Services",
         backHref: "auto.html",
         backText: "← Back to Auto",
         servicePlaceholder: "Service type (example: brake repair, oil leak, battery issue)",
@@ -168,6 +200,8 @@
       }
     };
 
+    // ─── Elements ───────────────────────────────────────────────────────────
+
     const form = document.getElementById("serviceRequestForm");
     const reqCategory = document.getElementById("reqCategory");
     const reqServiceType = document.getElementById("reqServiceType");
@@ -181,32 +215,31 @@
     const requestSubmitBtn = document.getElementById("requestSubmitBtn");
     const requestBackLink = document.getElementById("requestBackLink");
 
-    function normalizeCategoryKey(value) {
-      return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/[_\s]+/g, "-");
-    }
+    // ─── Helpers ────────────────────────────────────────────────────────────
 
     function getCategoryConfig(key) {
-      return CATEGORY_CONFIG[key] || null;
+      return CATEGORY_CONFIG[normalizeCategory(key)] || null;
+    }
+
+    function getCategoryLabel(key) {
+      const config = getCategoryConfig(key);
+      if (config) return config.label;
+      return String(key || "").trim() || "";
     }
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-
+        if (window.AKOReady) { resolve(window.AKOUser); return; }
         document.addEventListener("ako-auth-ready", (e) => {
           resolve(e.detail.user);
         }, { once: true });
       });
     }
 
+    // ─── UI updates ─────────────────────────────────────────────────────────
+
     function applyCategoryUI() {
-      const key = normalizeCategoryKey(reqCategory.value);
+      const key = normalizeCategory(reqCategory.value);
       const config = getCategoryConfig(key);
 
       if (config) {
@@ -226,17 +259,17 @@
     async function prefillLoggedInUser() {
       const currentUser = await waitForAKOAuth();
       if (!currentUser) return;
-
       if (!reqName.value.trim()) {
         reqName.value = currentUser.name || currentUser.displayName || "";
       }
-
       if (!reqEmail.value.trim()) {
         reqEmail.value = currentUser.email || "";
       }
     }
 
-    const initialCategoryKey = normalizeCategoryKey(categoryParam);
+    // ─── Init ───────────────────────────────────────────────────────────────
+
+    const initialCategoryKey = normalizeCategory(categoryParam);
     if (initialCategoryKey && getCategoryConfig(initialCategoryKey)) {
       reqCategory.value = initialCategoryKey;
     }
@@ -249,12 +282,14 @@
       requestStatus.textContent = "";
     });
 
+    // ─── Submit ─────────────────────────────────────────────────────────────
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const currentUser = await waitForAKOAuth();
-      const categoryKey = normalizeCategoryKey(reqCategory.value);
-      const categoryConfig = getCategoryConfig(categoryKey);
+      const categoryKey = normalizeCategory(reqCategory.value);
+      const categoryLabel = getCategoryLabel(categoryKey);
 
       if (!currentUser) {
         const returnUrl = `request-service.html?category=${encodeURIComponent(categoryKey || initialCategoryKey || "")}`;
@@ -262,9 +297,14 @@
         return;
       }
 
+      const now = Date.now();
+
+      // Every field is explicit and normalized from creation.
+      // Assigned contractor fields are pre-seeded as empty strings
+      // so the document structure is consistent before any assignment occurs.
       const payload = {
         category: categoryKey,
-        categoryLabel: categoryConfig?.label || "",
+        categoryLabel: categoryLabel,
         serviceType: reqServiceType.value.trim(),
         name: reqName.value.trim(),
         email: reqEmail.value.trim(),
@@ -274,9 +314,17 @@
         description: reqDescription.value.trim(),
         ownerUid: currentUser.uid,
         ownerEmail: currentUser.email || "",
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        status: "new"
+        status: "new",
+        assignedContractorUid: "",
+        assignedContractorRecordId: "",
+        assignedContractorCategory: "",
+        assignedContractorCategoryLabel: "",
+        assignedContractorCompanyName: "",
+        assignedContractorContactName: "",
+        assignedContractorEmail: "",
+        assignedContractorPhone: "",
+        createdAt: now,
+        updatedAt: now
       };
 
       if (
