@@ -1,311 +1,289 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Financial Help</title>
-  <link rel="stylesheet" href="styles.css?v=38">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
-  <section class="financial-hero">
 
-    <div class="login-button">
-      <div id="authArea">
-        <span id="welcomeUser" class="welcome-user"></span>
-        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
-      </div>
+<section class="financial-hero">
+  <div class="login-button">
+    <div id="authArea">
+      <span id="welcomeUser" class="welcome-user"></span>
+      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
+  </div>
 
-    <a class="financial-back financial-back-floating" href="index.html">← Back to Home</a>
+  <a class="financial-back financial-back-floating" href="index.html">← Back to Home</a>
 
-    <div class="container">
-      <div class="financial-hero-content">
-        <div class="financial-brand">AssistKingOnline</div>
-        <h1 class="financial-title">💵 Financial Help</h1>
-        <p>
-          Get connected with professionals for budgeting, credit guidance, bookkeeping,
-          tax prep support, and financial education.
-        </p>
+  <div class="container">
+    <div class="financial-hero-content">
+      <div class="financial-brand">AssistKingOnline</div>
+      <h1 class="financial-title">💵 Financial Help</h1>
+      <p>Get connected with professionals for budgeting, credit guidance, bookkeeping, tax prep support, and financial education.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container financial-wrap">
+
+  <div class="financial-card">
+    <strong>Popular financial help</strong>
+    <div style="margin-top:10px;">
+      <span class="financial-pill">Budget Planning</span>
+      <span class="financial-pill">Credit Help</span>
+      <span class="financial-pill">Tax Prep Support</span>
+      <span class="financial-pill">Bookkeeping</span>
+      <span class="financial-pill">Debt Strategy</span>
+      <span class="financial-pill">Business Setup Help</span>
+    </div>
+  </div>
+
+  <div class="financial-card">
+    <strong>Get matched</strong>
+    <p style="margin:8px 0 0;color:var(--text-body);">Tell us what kind of financial help you need and we'll connect you with the right provider.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <a class="financial-cta" href="request-service.html?category=financial-help">Start Financial Help Request</a>
+      <a class="financial-cta" href="my-requests.html">My Requests</a>
+    </div>
+  </div>
+
+  <div class="financial-card">
+    <strong>Own a financial services business?</strong>
+    <p style="margin:8px 0 0;color:var(--text-body);">Request customer leads, promote your services, and post openings for your team.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <a class="financial-cta" href="contractor-onboarding.html?category=financial-help">Join as Financial Help Provider</a>
+      <a class="financial-cta" href="lead.html?category=financial-help">Get Leads</a>
+      <a class="financial-cta" href="#postFinancialJob">Post a Job</a>
+      <a class="financial-cta" href="my-leads.html?category=financial-help">My Leads</a>
+    </div>
+  </div>
+
+  <div class="financial-card" id="postFinancialJob">
+    <strong>Post a Job</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Add a financial help job or opportunity to the board.</p>
+
+    <form id="postJobForm" class="post-load-form">
+      <input id="pjTitle"    placeholder="Job Title" required />
+      <input id="pjCompany"  placeholder="Company Name" required />
+      <input id="pjLocation" placeholder="Location" required />
+      <input id="pjPay"      placeholder="Pay / Budget (example: $500 project)" required />
+
+      <select id="pjType" required>
+        <option value="">Select job type</option>
+        <option>Full-Time</option>
+        <option>Part-Time</option>
+        <option>Contract</option>
+        <option>Remote</option>
+        <option>Consulting</option>
+      </select>
+
+      <input id="pjCategory" value="financial-help" readonly />
+      <input id="pjDescription" placeholder="Short job description" required />
+
+      <button type="submit" class="financial-cta">Post Job</button>
+    </form>
+  </div>
+
+  <section style="margin-top:24px;">
+    <h2 style="margin:0 0 10px;font-family:'DM Serif Display',serif;font-weight:700;color:var(--text-heading);">Financial Help Job Board</h2>
+    <p style="margin:0 0 14px;color:var(--text-body);">Find bookkeeping, consulting, tax support, credit, and business finance opportunities.</p>
+
+    <div class="financial-card">
+      <strong>Featured Opportunities</strong>
+      <div id="jobBoardList" class="job-board-list">
+        <div class="job-card">
+          <p style="margin:0;font-weight:800;">Loading jobs...</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <main class="container financial-wrap">
-    <div class="financial-card">
-      <strong>Popular financial help</strong>
-      <div>
-        <span class="financial-pill">Budget Planning</span>
-        <span class="financial-pill">Credit Help</span>
-        <span class="financial-pill">Tax Prep Support</span>
-        <span class="financial-pill">Bookkeeping</span>
-        <span class="financial-pill">Debt Strategy</span>
-        <span class="financial-pill">Business Setup Help</span>
-      </div>
-    </div>
+</main>
 
-    <div class="financial-card">
-      <strong>Get matched</strong>
-      <p style="margin:8px 0 0">
-        Tell us what kind of financial help you need and we'll connect you with the right provider.
-      </p>
+<script type="module" src="auth.js?v=16"></script>
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="financial-cta" href="request-service.html?category=financial-help">Start Financial Help Request</a>
-        <a class="financial-cta" href="my-requests.html">My Requests</a>
-      </div>
-    </div>
+  const app = getApp();
+  const db  = getFirestore(app);
 
-    <div class="financial-card">
-      <strong>Own a financial services business?</strong>
-      <p style="margin:8px 0 0">
-        Request customer leads, promote your services, and post openings for your team.
-      </p>
+  const jobBoardList  = document.getElementById("jobBoardList");
+  const postJobForm   = document.getElementById("postJobForm");
+  const pjTitle       = document.getElementById("pjTitle");
+  const pjCompany     = document.getElementById("pjCompany");
+  const pjLocation    = document.getElementById("pjLocation");
+  const pjPay         = document.getElementById("pjPay");
+  const pjType        = document.getElementById("pjType");
+  const pjCategory    = document.getElementById("pjCategory");
+  const pjDescription = document.getElementById("pjDescription");
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
-        <a class="financial-cta" href="contractor-onboarding.html?category=financial-help">Join as Financial Help Provider</a>
-        <a class="financial-cta" href="lead.html?category=financial-help">Get Leads</a>
-        <a class="financial-cta" href="#postFinancialJob">Post a Job</a>
-        <a class="financial-cta" href="my-leads.html?category=financial-help">My Leads</a>
-      </div>
-    </div>
+  let unsubscribeJobsListener = null;
 
-    <div class="financial-card" id="postFinancialJob">
-      <strong>Post a Job</strong>
-      <p style="margin:8px 0 14px">Add a financial help job or opportunity to the board.</p>
+  function escapeHtml(v) {
+    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
 
-      <form id="postJobForm" class="post-load-form">
-        <input id="pjTitle" placeholder="Job Title" required />
-        <input id="pjCompany" placeholder="Company Name" required />
-        <input id="pjLocation" placeholder="Location" required />
-        <input id="pjPay" placeholder="Pay / Budget (example: $500 project)" required />
+  function getCurrentUser() { return window.AKOUser || null; }
+  function isAdminUser()    { return !!window.AKOUser && window.AKOUser.tier === "admin"; }
 
-        <select id="pjType" required>
-          <option value="">Select job type</option>
-          <option>Full-Time</option>
-          <option>Part-Time</option>
-          <option>Contract</option>
-          <option>Remote</option>
-          <option>Consulting</option>
-        </select>
+  function waitForAKOAuth() {
+    return new Promise(resolve => {
+      if (window.AKOReady) { resolve(window.AKOUser); return; }
+      document.addEventListener("ako-auth-ready", e => resolve(e.detail.user), { once: true });
+    });
+  }
 
-        <input id="pjCategory" value="financial-help" readonly />
-        <input id="pjDescription" placeholder="Short job description" required />
+  function renderJobs(list) {
+    if (!jobBoardList) return;
+    if (!list.length) {
+      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No financial help jobs posted right now.</p></div>`;
+      return;
+    }
+    jobBoardList.innerHTML = list.map(job => {
+      const title       = escapeHtml(job.title || "");
+      const company     = escapeHtml(job.company || "");
+      const location    = escapeHtml(job.location || "");
+      const pay         = escapeHtml(job.pay || "");
+      const type        = escapeHtml(job.type || "Job");
+      const category    = escapeHtml(job.category || "financial-help");
+      const description = escapeHtml(job.description || "Apply for this financial help opportunity.");
+      const ownerEmail  = String(job.ownerEmail || "").trim();
+      const applyHref   = ownerEmail ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title||"Financial Help Job"}`)}` : "";
+      const canDelete   = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
 
-        <button type="submit" class="financial-cta">Post Job</button>
-      </form>
-    </div>
-
-    <section style="margin-top:24px">
-      <h2 style="margin:0 0 10px;font-weight:900">Financial Help Job Board</h2>
-      <p style="margin:0 0 14px">
-        Find bookkeeping, consulting, tax support, credit, and business finance opportunities.
-      </p>
-
-      <div class="financial-card">
-        <strong>Featured Opportunities</strong>
-
-        <div id="jobBoardList" class="job-board-list">
-          <div class="job-card">
-            <p style="margin:0;font-weight:800;">Loading jobs...</p>
+      return `
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <h3 class="job-title">${title}</h3>
+              <p class="job-company">${company}</p>
+            </div>
+            <span class="job-badge">${type}</span>
           </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script type="module" src="auth.js?v=16"></script>
-  <script type="module">
-    import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      deleteDoc,
-      doc,
-      onSnapshot
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    const app = getApp();
-    const db = getFirestore(app);
-
-    let unsubscribeJobsListener = null;
-
-    const jobBoardList = document.getElementById("jobBoardList");
-
-    const postJobForm = document.getElementById("postJobForm");
-    const pjTitle = document.getElementById("pjTitle");
-    const pjCompany = document.getElementById("pjCompany");
-    const pjLocation = document.getElementById("pjLocation");
-    const pjPay = document.getElementById("pjPay");
-    const pjType = document.getElementById("pjType");
-    const pjCategory = document.getElementById("pjCategory");
-    const pjDescription = document.getElementById("pjDescription");
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
-    }
-
-    function getCurrentUser() {
-      return window.AKOUser || null;
-    }
-
-    function isAdminUser() {
-      return !!window.AKOUser && window.AKOUser.tier === "admin";
-    }
-
-    function waitForAKOAuth() {
-      return new Promise((resolve) => {
-        if (window.AKOReady) { resolve(window.AKOUser); return; }
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
-      });
-    }
-
-    function renderJobs(list) {
-      if (!jobBoardList) return;
-      if (!list.length) {
-        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">No financial help jobs posted right now.</p></div>`;
-        return;
-      }
-      jobBoardList.innerHTML = list.map(job => {
-        const title = escapeHtml(job.title || "");
-        const company = escapeHtml(job.company || "");
-        const location = escapeHtml(job.location || "");
-        const pay = escapeHtml(job.pay || "");
-        const type = escapeHtml(job.type || "Job");
-        const category = escapeHtml(job.category || "financial-help");
-        const description = escapeHtml(job.description || "Apply for this financial help opportunity.");
-        const ownerEmail = String(job.ownerEmail || "").trim();
-        const applyHref = ownerEmail
-          ? `mailto:${encodeURIComponent(ownerEmail)}?subject=${encodeURIComponent(`Application: ${job.title || "Financial Help Job"}`)}`
-          : "";
-        const canDelete = job.ownerUid === getCurrentUser()?.uid || isAdminUser();
-
-        return `
-          <div class="job-card">
-            <div class="job-card-top">
-              <div>
-                <h3 class="job-title">${title}</h3>
-                <p class="job-company">${company}</p>
-              </div>
-              <span class="job-badge">${type}</span>
-            </div>
-            <div class="job-meta">
-              <span>📍 ${location || "—"}</span>
-              <span>💵 ${pay || "—"}</span>
-              <span>📊 ${category}</span>
-            </div>
-            <p class="job-desc">${description}</p>
-            <div class="lb-actions">
-              ${ownerEmail
-                ? `<a href="${applyHref}" class="financial-cta">Apply Now</a>`
-                : `<span class="assignment-note assignment-note-muted">No contact email available.</span>`
-              }
-              ${canDelete
-                ? `<button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId || "")}" data-jobtitle="${title || "this job"}">Delete</button>`
-                : ""
-              }
-            </div>
+          <div class="job-meta">
+            <span>📍 ${location||"—"}</span>
+            <span>💵 ${pay||"—"}</span>
+            <span>📊 ${category}</span>
           </div>
-        `;
-      }).join("");
-    }
+          <p class="job-desc">${description}</p>
+          <div class="lb-actions">
+            ${ownerEmail
+              ? `<a href="${applyHref}" class="financial-cta">Apply Now</a>`
+              : `<span class="assignment-note assignment-note-muted">No contact email available.</span>`
+            }
+            ${canDelete
+              ? `<button type="button" class="lb-delete-job-btn" data-jobid="${escapeHtml(job._docId||"")}" data-jobtitle="${title||"this job"}">Delete</button>`
+              : ""
+            }
+          </div>
+        </div>`;
+    }).join("");
+  }
 
-    function startFinancialHelpJobsListener() {
-      if (!jobBoardList) return;
-      if (unsubscribeJobsListener) unsubscribeJobsListener();
-      jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
-      unsubscribeJobsListener = onSnapshot(
-        collection(db, "jobs"),
-        (snapshot) => {
-          const jobs = snapshot.docs
-            .map(docSnap => ({ _docId: docSnap.id, ...docSnap.data() }))
-            .filter(job => String(job.category || "").toLowerCase() === "financial-help")
-            .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
-          renderJobs(jobs);
-        },
-        (err) => {
-          console.error(err);
-          jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
-        }
-      );
-    }
-
-    if (jobBoardList) {
-      jobBoardList.addEventListener("click", async (e) => {
-        const deleteBtn = e.target.closest(".lb-delete-job-btn");
-        if (!deleteBtn) return;
-        const currentUser = await waitForAKOAuth();
-        if (!currentUser) {
-          window.location.href = `index.html?auth=1&return=${encodeURIComponent("financial-help.html")}`;
-          return;
-        }
-        const jobId = deleteBtn.getAttribute("data-jobid");
-        const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
-        if (!jobId) { alert("Could not delete this job."); return; }
-        const confirmed = confirm(`Delete "${jobTitle}"?`);
-        if (!confirmed) return;
-        try {
-          await deleteDoc(doc(db, "jobs", jobId));
-          alert("Job deleted.");
-        } catch (err) {
-          console.error(err);
-          alert("Could not delete job:\ncode: " + err.code + "\nmessage: " + err.message);
-        }
-      });
-    }
-
-    if (postJobForm) {
-      postJobForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const currentUser = await waitForAKOAuth();
-        if (!currentUser) {
-          window.location.href = `index.html?auth=1&return=${encodeURIComponent("financial-help.html")}`;
-          return;
-        }
-        const newJob = {
-          title: (pjTitle.value || "").trim(),
-          company: (pjCompany.value || "").trim(),
-          location: (pjLocation.value || "").trim(),
-          pay: (pjPay.value || "").trim(),
-          type: (pjType.value || "").trim(),
-          category: (pjCategory.value || "").trim(),
-          description: (pjDescription.value || "").trim(),
-          ownerUid: currentUser.uid,
-          ownerEmail: currentUser.email || "",
-          createdAt: Date.now()
-        };
-        if (!newJob.title || !newJob.company || !newJob.location || !newJob.pay || !newJob.type || !newJob.category || !newJob.description) {
-          alert("Please complete all job fields.");
-          return;
-        }
-        try {
-          await addDoc(collection(db, "jobs"), newJob);
-          postJobForm.reset();
-          if (pjCategory) pjCategory.value = "financial-help";
-          alert("Job posted successfully.");
-        } catch (err) {
-          console.error(err);
-          alert("Could not save job:\ncode: " + err.code + "\nmessage: " + err.message);
-        }
-      });
-    }
-
-    try {
-      await waitForAKOAuth();
-      startFinancialHelpJobsListener();
-    } catch (err) {
-      console.error(err);
-      if (jobBoardList) {
-        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p></div>`;
+  function startFinancialHelpJobsListener() {
+    if (!jobBoardList) return;
+    if (unsubscribeJobsListener) unsubscribeJobsListener();
+    jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Loading jobs...</p></div>`;
+    unsubscribeJobsListener = onSnapshot(
+      collection(db, "jobs"),
+      snapshot => {
+        const jobs = snapshot.docs
+          .map(d => ({ _docId: d.id, ...d.data() }))
+          .filter(j => String(j.category||"").toLowerCase() === "financial-help")
+          .sort((a, b) => Number(b.createdAt||0) - Number(a.createdAt||0));
+        renderJobs(jobs);
+      },
+      err => {
+        console.error(err);
+        jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load jobs: ${escapeHtml(err.message)}</p></div>`;
       }
-    }
-  </script>
+    );
+  }
+
+  if (jobBoardList) {
+    jobBoardList.addEventListener("click", async e => {
+      const deleteBtn = e.target.closest(".lb-delete-job-btn");
+      if (!deleteBtn) return;
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent("financial-help.html")}`; return; }
+      const jobId    = deleteBtn.getAttribute("data-jobid");
+      const jobTitle = deleteBtn.getAttribute("data-jobtitle") || "this job";
+      if (!jobId) { alert("Could not delete this job."); return; }
+      if (!confirm(`Delete "${jobTitle}"?`)) return;
+      try { await deleteDoc(doc(db,"jobs",jobId)); alert("Job deleted."); }
+      catch(err) { console.error(err); alert("Could not delete job:\n"+err.message); }
+    });
+  }
+
+  if (postJobForm) {
+    postJobForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const currentUser = await waitForAKOAuth();
+      if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent("financial-help.html")}`; return; }
+      const newJob = {
+        title:       (pjTitle.value||"").trim(),
+        company:     (pjCompany.value||"").trim(),
+        location:    (pjLocation.value||"").trim(),
+        pay:         (pjPay.value||"").trim(),
+        type:        (pjType.value||"").trim(),
+        category:    (pjCategory.value||"").trim(),
+        description: (pjDescription.value||"").trim(),
+        ownerUid:    currentUser.uid,
+        ownerEmail:  currentUser.email||"",
+        createdAt:   Date.now()
+      };
+      if (!newJob.title||!newJob.company||!newJob.location||!newJob.pay||!newJob.type||!newJob.category||!newJob.description) {
+        alert("Please complete all job fields."); return;
+      }
+      try {
+        await addDoc(collection(db,"jobs"), newJob);
+        postJobForm.reset();
+        if (pjCategory) pjCategory.value = "financial-help";
+        alert("Job posted successfully.");
+      } catch(err) { console.error(err); alert("Could not save job:\n"+err.message); }
+    });
+  }
+
+  try {
+    await waitForAKOAuth();
+    startFinancialHelpJobsListener();
+  } catch(err) {
+    console.error(err);
+    if (jobBoardList) jobBoardList.innerHTML = `<div class="job-card"><p style="margin:0;font-weight:800;">Could not load page data: ${escapeHtml(err.message)}</p></div>`;
+  }
+</script>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <span class="theme-toggle-icon">☀️</span>
+  <span id="toggleLabel">Light Mode</span>
+</button>
+
+<script>
+  (function(){
+    const html=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    const label=document.getElementById('toggleLabel');
+    const icon=btn.querySelector('.theme-toggle-icon');
+    const saved=localStorage.getItem('ako-theme')||'dark';
+    html.setAttribute('data-theme',saved);
+    label.textContent=saved==='dark'?'Light Mode':'Dark Mode';
+    icon.textContent=saved==='dark'?'☀️':'🌙';
+    btn.addEventListener('click',function(){
+      const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+      html.setAttribute('data-theme',next);
+      localStorage.setItem('ako-theme',next);
+      label.textContent=next==='dark'?'Light Mode':'Dark Mode';
+      icon.textContent=next==='dark'?'☀️':'🌙';
+    });
+  })();
+</script>
+
 </body>
 </html>
