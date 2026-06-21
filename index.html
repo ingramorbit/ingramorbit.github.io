@@ -314,23 +314,13 @@
       display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
 
-    /* ── Admin button ── */
     .admin-btn {
       display: inline-flex; align-items: center;
-      padding: 8px 14px;
-      background: var(--gold);
-      color: #07111F;
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: 12px;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      border-radius: 8px;
-      text-decoration: none;
-      border: 0;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: opacity .2s;
+      padding: 8px 14px; background: var(--gold); color: #07111F;
+      font-family: 'Inter', sans-serif; font-weight: 900; font-size: 12px;
+      letter-spacing: .05em; text-transform: uppercase; border-radius: 8px;
+      text-decoration: none; border: 0; cursor: pointer;
+      white-space: nowrap; transition: opacity .2s;
     }
 
     .admin-btn:hover { opacity: .85; }
@@ -442,7 +432,6 @@
     <div class="hero-topbar">
       <div class="hero-brand-name">Assist<span>King</span>Online</div>
       <div class="hero-auth">
-        <!-- ── Admin button — shown only for admin tier ── -->
         <a href="contractors-admin.html" class="admin-btn" id="adminBtn" style="display:none;">⚙️ Admin</a>
         <div id="authArea">
           <span id="welcomeUser" class="welcome-user"></span>
@@ -813,21 +802,7 @@
 })();
 </script>
 
-<script type="module" src="auth.js?v=17"></script>
-
-<!-- ── Admin button reveal on auth ready ── -->
-<script>
-  document.addEventListener("ako-auth-ready", function(e) {
-    const user = e.detail.user;
-    const adminBtn = document.getElementById("adminBtn");
-    if (!adminBtn) return;
-    if (user && user.tier === "admin") {
-      adminBtn.style.display = "inline-flex";
-    } else {
-      adminBtn.style.display = "none";
-    }
-  });
-</script>
+<script type="module" src="auth.js?v=18"></script>
 
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
@@ -843,4 +818,4 @@
 </script>
 
 </body>
-</html>                                              </html>
+            </html>
