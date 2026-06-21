@@ -96,18 +96,12 @@ function getCurrentRelativePage() {
 function normalizeReturnPath(value) {
   const raw = String(value || "").trim();
   if (!raw) return null;
-
   try {
     const parsed = new URL(raw, window.location.origin);
-
-    if (parsed.origin !== window.location.origin) {
-      return null;
-    }
-
+    if (parsed.origin !== window.location.origin) return null;
     const normalizedPath = parsed.pathname.startsWith("/")
       ? parsed.pathname.slice(1)
       : parsed.pathname;
-
     return `${normalizedPath}${parsed.search}${parsed.hash}`;
   } catch {
     return null;
@@ -116,7 +110,21 @@ function normalizeReturnPath(value) {
 
 const safeReturnToPage = normalizeReturnPath(returnToPage);
 
+// ===== Admin Button Helper =====
+function applyAdminBtn(user) {
+  const adminBtn = document.getElementById("adminBtn");
+  if (!adminBtn) return;
+  if (user && user.tier === "admin") {
+    adminBtn.style.display = "inline-flex";
+  } else {
+    adminBtn.style.display = "none";
+  }
+}
+
 function applyTierUI(user) {
+  // Always update admin button directly
+  applyAdminBtn(user);
+
   if (!plansBtn) return;
 
   if (!user) {
@@ -156,7 +164,6 @@ async function loadUserDoc(firebaseUser) {
 
     if (userSnap.exists()) {
       const data = userSnap.data();
-
       return {
         uid: firebaseUser.uid,
         email: firebaseUser.email || "",
@@ -177,7 +184,6 @@ async function loadUserDoc(firebaseUser) {
     };
   } catch (err) {
     console.error("Could not load user document:", err);
-
     return {
       uid: firebaseUser.uid,
       email: firebaseUser.email || "",
@@ -190,21 +196,10 @@ async function loadUserDoc(firebaseUser) {
 }
 
 // ===== Public Helpers =====
-window.AKOIsLoggedIn = function () {
-  return !!window.AKOUser;
-};
-
-window.AKOIsFree = function () {
-  return !!window.AKOUser && window.AKOUser.tier === "free";
-};
-
-window.AKOIsGold = function () {
-  return !!window.AKOUser && window.AKOUser.tier === "gold";
-};
-
-window.AKOIsAdmin = function () {
-  return !!window.AKOUser && window.AKOUser.tier === "admin";
-};
+window.AKOIsLoggedIn = function () { return !!window.AKOUser; };
+window.AKOIsFree    = function () { return !!window.AKOUser && window.AKOUser.tier === "free"; };
+window.AKOIsGold    = function () { return !!window.AKOUser && window.AKOUser.tier === "gold"; };
+window.AKOIsAdmin   = function () { return !!window.AKOUser && window.AKOUser.tier === "admin"; };
 
 // ===== Show Password =====
 if (showPasswordToggle && loginPassword) {
@@ -217,24 +212,14 @@ if (showPasswordToggle && loginPassword) {
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const email = (loginEmail?.value || "").trim();
     const password = loginPassword?.value || "";
-
-    if (!email || !password) {
-      alert("Enter your email and password.");
-      return;
-    }
-
+    if (!email || !password) { alert("Enter your email and password."); return; }
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
       console.error(err);
-      alert(
-        "Login failed:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
+      alert("Login failed:\ncode: " + err.code + "\nmessage: " + err.message);
     }
   });
 }
@@ -243,22 +228,13 @@ if (loginForm) {
 if (forgotPasswordBtn) {
   forgotPasswordBtn.addEventListener("click", async () => {
     const email = (loginEmail?.value || "").trim();
-
-    if (!email) {
-      alert("Enter your email address first, then tap Forgot password.");
-      return;
-    }
-
+    if (!email) { alert("Enter your email address first, then tap Forgot password."); return; }
     try {
       await sendPasswordResetEmail(auth, email);
       alert("Password reset email sent. Check your inbox.");
     } catch (err) {
       console.error(err);
-      alert(
-        "Could not send password reset:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
+      alert("Could not send password reset:\ncode: " + err.code + "\nmessage: " + err.message);
     }
   });
 }
@@ -267,75 +243,43 @@ if (forgotPasswordBtn) {
 if (signupForm) {
   signupForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    const name = (signupName?.value || "").trim();
-    const email = (signupEmail?.value || "").trim();
-    const password = signupPassword?.value || "";
-
-    if (!name || !email || !password) {
-      alert("Enter your name, email, and password.");
-      return;
-    }
-
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters.");
-      return;
-    }
-
+    const name     = (signupName?.value     || "").trim();
+    const email    = (signupEmail?.value    || "").trim();
+    const password =  signupPassword?.value || "";
+    if (!name || !email || !password) { alert("Enter your name, email, and password."); return; }
+    if (password.length < 6) { alert("Password must be at least 6 characters."); return; }
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
       if (userCredential.user) {
-        await updateProfile(userCredential.user, {
-          displayName: name
-        });
-
+        await updateProfile(userCredential.user, { displayName: name });
         await setDoc(doc(db, "users", userCredential.user.uid), {
-          name: name,
-          email: email,
-          tier: "free",
-          createdAt: Date.now()
+          name, email, tier: "free", createdAt: Date.now()
         });
       }
-
       signupForm.reset();
       alert("Account created successfully.");
     } catch (err) {
       console.error(err);
-      alert(
-        "Could not create account:\n" +
-        "code: " + err.code + "\n" +
-        "message: " + err.message
-      );
+      alert("Could not create account:\ncode: " + err.code + "\nmessage: " + err.message);
     }
   });
 }
 
-// ===== Top Left Login / Logout Button =====
+// ===== Login / Logout Button =====
 if (openAuthBtn) {
   openAuthBtn.addEventListener("click", async (e) => {
     e.preventDefault();
-
     if (auth.currentUser) {
       try {
         await signOut(auth);
         alert("You have been logged out.");
       } catch (err) {
         console.error(err);
-        alert(
-          "Logout failed:\n" +
-          "code: " + err.code + "\n" +
-          "message: " + err.message
-        );
+        alert("Logout failed:\ncode: " + err.code + "\nmessage: " + err.message);
       }
       return;
     }
-
-    if (authModal) {
-      openAuthModal();
-      return;
-    }
-
+    if (authModal) { openAuthModal(); return; }
     const currentPage = getCurrentRelativePage();
     window.location.assign(`index.html?auth=1&return=${encodeURIComponent(currentPage)}`);
   });
@@ -352,26 +296,13 @@ onAuthStateChanged(auth, async (firebaseUser) => {
     window.AKOReady = true;
     resetLoginPasswordVisibility();
     applyTierUI(null);
-
-    if (welcomeUser) {
-      welcomeUser.textContent = "";
-    }
-
-    if (shouldOpenAuthFromUrl && isHomePage()) {
-      openAuthModal();
-    }
-
-    document.dispatchEvent(
-      new CustomEvent("ako-auth-ready", {
-        detail: { user: null }
-      })
-    );
-
+    if (welcomeUser) welcomeUser.textContent = "";
+    if (shouldOpenAuthFromUrl && isHomePage()) openAuthModal();
+    document.dispatchEvent(new CustomEvent("ako-auth-ready", { detail: { user: null } }));
     return;
   }
 
   const userData = await loadUserDoc(firebaseUser);
-
   window.AKOUser = userData;
   window.AKOReady = true;
 
@@ -386,18 +317,10 @@ onAuthStateChanged(auth, async (firebaseUser) => {
   closeAuthModal();
   applyTierUI(userData);
 
-  if (
-    isHomePage() &&
-    safeReturnToPage &&
-    !safeReturnToPage.startsWith("index.html")
-  ) {
+  if (isHomePage() && safeReturnToPage && !safeReturnToPage.startsWith("index.html")) {
     window.location.href = safeReturnToPage;
     return;
   }
 
-  document.dispatchEvent(
-    new CustomEvent("ako-auth-ready", {
-      detail: { user: userData }
-    })
-  );
+  document.dispatchEvent(new CustomEvent("ako-auth-ready", { detail: { user: userData } }));
 });
