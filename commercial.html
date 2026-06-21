@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Commercial Services</title>
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
   <section class="commercial-hero">
@@ -56,11 +56,25 @@
 
     <div class="commercial-card">
       <strong>Get matched</strong>
-      <p style="margin:8px 0 0">Tell us what your company needs and we’ll help connect you with the right providers.</p>
+      <p style="margin:8px 0 0">Tell us what your company needs and we'll help connect you with the right providers.</p>
       <a class="commercial-cta" href="request-service.html?category=commercial">Find commercial pros</a>
     </div>
   </main>
 
-  <script type="module" src="auth.js?v=16"></script>
+  <script type="module" src="auth.js?v=18"></script>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+    <span class="theme-toggle-icon">☀️</span>
+    <span id="toggleLabel">Light Mode</span>
+  </button>
+
+  <script>
+    (function(){
+      const html=document.documentElement, btn=document.getElementById('themeToggle'), label=document.getElementById('toggleLabel'), icon=btn.querySelector('.theme-toggle-icon'), saved=localStorage.getItem('ako-theme')||'dark';
+      html.setAttribute('data-theme',saved); label.textContent=saved==='dark'?'Light Mode':'Dark Mode'; icon.textContent=saved==='dark'?'☀️':'🌙';
+      btn.addEventListener('click',function(){ const next=html.getAttribute('data-theme')==='dark'?'light':'dark'; html.setAttribute('data-theme',next); localStorage.setItem('ako-theme',next); label.textContent=next==='dark'?'Light Mode':'Dark Mode'; icon.textContent=next==='dark'?'☀️':'🌙'; });
+    })();
+  </script>
+
 </body>
 </html>
