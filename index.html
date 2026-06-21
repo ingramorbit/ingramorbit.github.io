@@ -39,7 +39,6 @@
       opacity: 0.5;
     }
 
-    /* ── Top nav row: brand + auth ── */
     .hero-topbar {
       display: flex;
       align-items: center;
@@ -60,7 +59,6 @@
 
     .hero-brand-name span { color: var(--gold); }
 
-    /* ── Eyebrow ── */
     .hero-eyebrow {
       display: flex;
       align-items: center;
@@ -92,7 +90,6 @@
       white-space: nowrap;
     }
 
-    /* ── Headline + crown lockup ── */
     .hero-lockup {
       display: flex;
       align-items: center;
@@ -127,7 +124,6 @@
       line-height: 1.6;
     }
 
-    /* ── Crown logo ── */
     .king-img {
       width: 150px;
       height: 150px;
@@ -142,7 +138,6 @@
       to   { filter: drop-shadow(0 0 32px rgba(201,168,76,0.85)) drop-shadow(0 0 65px rgba(201,168,76,0.4)); }
     }
 
-    /* ── CTA buttons ── */
     .hero-ctas {
       display: flex;
       gap: 12px;
@@ -151,21 +146,11 @@
     }
 
     .hero-cta-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px 28px;
-      background: var(--gold);
-      color: #07111F;
-      font-family: 'Inter', sans-serif;
-      font-weight: 900;
-      font-size: 13px;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border-radius: 10px;
-      text-decoration: none;
-      border: 0;
-      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 15px 28px; background: var(--gold); color: #07111F;
+      font-family: 'Inter', sans-serif; font-weight: 900; font-size: 13px;
+      letter-spacing: .08em; text-transform: uppercase; border-radius: 10px;
+      text-decoration: none; border: 0; cursor: pointer;
       box-shadow: 0 4px 20px rgba(201,168,76,0.4);
       transition: opacity .2s, transform .15s;
     }
@@ -174,22 +159,12 @@
     .hero-cta-primary:active { transform: translateY(0); }
 
     .hero-cta-secondary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px 28px;
-      background: transparent;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      border-radius: 10px;
-      text-decoration: none;
-      border: 1.5px solid rgba(201,168,76,0.45);
-      cursor: pointer;
-      transition: border-color .2s, background .2s, transform .15s;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 15px 28px; background: transparent; color: #fff;
+      font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13px;
+      letter-spacing: .06em; text-transform: uppercase; border-radius: 10px;
+      text-decoration: none; border: 1.5px solid rgba(201,168,76,0.45);
+      cursor: pointer; transition: border-color .2s, background .2s, transform .15s;
     }
 
     .hero-cta-secondary:hover {
@@ -198,28 +173,18 @@
       transform: translateY(-2px);
     }
 
-    /* Search */
     .search {
-      margin: 0 auto 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: 18px;
-      padding: 10px 14px;
-      box-shadow: var(--shadow);
-      max-width: 820px;
-      position: relative;
+      margin: 0 auto 14px; display: flex; align-items: center; gap: 10px;
+      background: var(--bg-card); border: 1px solid var(--border-card);
+      border-radius: 18px; padding: 10px 14px; box-shadow: var(--shadow);
+      max-width: 820px; position: relative;
       transition: background 0.35s ease, border-color 0.35s ease;
     }
 
     .search input {
-      flex: 1; border: 0; outline: 0;
-      padding: 12px 10px; border-radius: 12px;
-      font-size: 16px; background: transparent;
-      color: var(--text-heading); min-width: 0;
-      transition: color 0.35s ease;
+      flex: 1; border: 0; outline: 0; padding: 12px 10px;
+      border-radius: 12px; font-size: 16px; background: transparent;
+      color: var(--text-heading); min-width: 0; transition: color 0.35s ease;
     }
 
     .search input::placeholder { color: var(--text-muted); }
@@ -345,12 +310,31 @@
     .foot a { color: var(--text-muted); text-decoration: none; }
     .foot a:hover { color: var(--gold); }
 
-    /* Auth area — right side of topbar */
     .hero-auth {
       display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
 
-    /* Menu */
+    /* ── Admin button ── */
+    .admin-btn {
+      display: inline-flex; align-items: center;
+      padding: 8px 14px;
+      background: var(--gold);
+      color: #07111F;
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 0;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s;
+    }
+
+    .admin-btn:hover { opacity: .85; }
+
     .menu-button {
       display: flex; flex-direction: column; justify-content: space-between;
       align-items: center; width: 36px; height: 30px; cursor: pointer;
@@ -388,7 +372,6 @@
     .menu-dropdown a:hover { background: rgba(201,168,76,0.1); color: var(--gold); }
     .menu-dropdown a:last-child { border-bottom: none; }
 
-    /* Auth modal */
     .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1000; }
     .modal.show { display: flex; }
     .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.65); backdrop-filter: blur(4px); }
@@ -456,10 +439,11 @@
 
   <div class="container">
 
-    <!-- ── Top row: brand + auth + menu ── -->
     <div class="hero-topbar">
       <div class="hero-brand-name">Assist<span>King</span>Online</div>
       <div class="hero-auth">
+        <!-- ── Admin button — shown only for admin tier ── -->
+        <a href="contractors-admin.html" class="admin-btn" id="adminBtn" style="display:none;">⚙️ Admin</a>
         <div id="authArea">
           <span id="welcomeUser" class="welcome-user"></span>
           <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
@@ -472,14 +456,12 @@
       </div>
     </div>
 
-    <!-- ── Eyebrow ── -->
     <div class="hero-eyebrow">
       <div class="hero-eyebrow-line"></div>
       <div class="hero-eyebrow-text">National Service Marketplace</div>
       <div class="hero-eyebrow-line right"></div>
     </div>
 
-    <!-- ── Headline + Crown side by side ── -->
     <div class="hero-lockup">
       <div class="hero-headline">
         <h1>Skilled pros.<em>Matched fast.</em></h1>
@@ -621,13 +603,11 @@
       </div>
     </div>
 
-    <!-- ── CTAs ── -->
     <div class="hero-ctas">
       <a href="request-service.html" class="hero-cta-primary">Request a Service</a>
       <a href="lead.html" class="hero-cta-secondary">Join as Contractor</a>
     </div>
 
-    <!-- ── Search ── -->
     <form class="search" id="searchForm">
       <label class="sr-only" for="q">Ask the King</label>
       <input id="q" name="q" placeholder="Ask the King…" autocomplete="off" />
@@ -835,6 +815,20 @@
 
 <script type="module" src="auth.js?v=16"></script>
 
+<!-- ── Admin button reveal on auth ready ── -->
+<script>
+  document.addEventListener("ako-auth-ready", function(e) {
+    const user = e.detail.user;
+    const adminBtn = document.getElementById("adminBtn");
+    if (!adminBtn) return;
+    if (user && user.tier === "admin") {
+      adminBtn.style.display = "inline-flex";
+    } else {
+      adminBtn.style.display = "none";
+    }
+  });
+</script>
+
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
   <span id="toggleLabel">Light Mode</span>
@@ -849,4 +843,4 @@
 </script>
 
 </body>
-  </html>
+</html>                                              </html>
