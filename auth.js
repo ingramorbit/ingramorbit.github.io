@@ -57,7 +57,6 @@ const authUrlParams = new URLSearchParams(window.location.search);
 const shouldOpenAuthFromUrl = authUrlParams.get("auth") === "1";
 const returnToPage = authUrlParams.get("return");
 
-// ===== ADMIN EMAILS =====
 const ADMIN_EMAILS = ["johnkeif@gmail.com"];
 
 function closeAuthModal() {
@@ -262,7 +261,7 @@ onAuthStateChanged(auth, async (firebaseUser) => {
 
   if (welcomeUser) {
     const name = userData.name || firebaseUser.displayName || "";
-    const firstName = name.trim().split(" ")[0] || "User";
+    const firstName = name.trim().split(" ")[0] || "John";
     welcomeUser.textContent = "Hi, " + firstName;
   }
 
