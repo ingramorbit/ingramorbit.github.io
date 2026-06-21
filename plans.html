@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Plans & Pricing</title>
-  <link rel="stylesheet" href="styles.css?v=33">
+  <link rel="stylesheet" href="styles.css?v=39">
 </head>
 <body>
   <section class="plans-hero">
@@ -39,43 +39,32 @@
       <div class="plan-card bronze">
         <h2>Bronze</h2>
         <p class="plan-price">$0 / Free</p>
-
         <ul>
           <li>Browse service listings</li>
           <li>Basic search access</li>
           <li>Limited board visibility</li>
           <li>Explore the platform</li>
         </ul>
-
-        <p class="plan-note">
-          Best for users getting started and exploring services.
-        </p>
-
+        <p class="plan-note">Best for users getting started and exploring services.</p>
         <a class="trucking-cta" href="index.html">Start Free</a>
       </div>
 
       <div class="plan-card silver">
         <h2>Silver</h2>
         <p class="plan-price">$19/mo</p>
-
         <ul>
           <li>Full load board access</li>
           <li>Post loads and jobs</li>
           <li>Priority search visibility</li>
           <li>Manage more activity</li>
         </ul>
-
-        <p class="plan-note">
-          Best for active users and growing small businesses.
-        </p>
-
+        <p class="plan-note">Best for active users and growing small businesses.</p>
         <a class="trucking-cta" href="contact.html">Ask About Silver</a>
       </div>
 
       <div class="plan-card gold">
         <h2>Gold</h2>
         <p class="plan-price">$49/mo</p>
-
         <ul>
           <li>Everything in Silver</li>
           <li>Premium placement</li>
@@ -83,11 +72,7 @@
           <li>Priority support</li>
           <li>Better lead exposure</li>
         </ul>
-
-        <p class="plan-note">
-          Best for professionals who want stronger visibility and lead-focused growth.
-        </p>
-
+        <p class="plan-note">Best for professionals who want stronger visibility and lead-focused growth.</p>
         <a class="trucking-cta" href="lead.html">Get Leads Now</a>
       </div>
     </section>
@@ -98,7 +83,6 @@
         Start with Bronze if you are exploring. Choose Silver if you want more tools and posting power.
         Choose Gold if you want stronger visibility and more serious lead growth.
       </p>
-
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <a class="trucking-cta" href="financial-help.html">Financial Help</a>
         <a class="trucking-cta" href="contact.html">Contact Us</a>
@@ -106,6 +90,20 @@
     </div>
   </main>
 
-  <script type="module" src="auth.js?v=16"></script>
+  <script type="module" src="auth.js?v=18"></script>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+    <span class="theme-toggle-icon">☀️</span>
+    <span id="toggleLabel">Light Mode</span>
+  </button>
+
+  <script>
+    (function(){
+      const html=document.documentElement, btn=document.getElementById('themeToggle'), label=document.getElementById('toggleLabel'), icon=btn.querySelector('.theme-toggle-icon'), saved=localStorage.getItem('ako-theme')||'dark';
+      html.setAttribute('data-theme',saved); label.textContent=saved==='dark'?'Light Mode':'Dark Mode'; icon.textContent=saved==='dark'?'☀️':'🌙';
+      btn.addEventListener('click',function(){ const next=html.getAttribute('data-theme')==='dark'?'light':'dark'; html.setAttribute('data-theme',next); localStorage.setItem('ako-theme',next); label.textContent=next==='dark'?'Light Mode':'Dark Mode'; icon.textContent=next==='dark'?'☀️':'🌙'; });
+    })();
+  </script>
+
 </body>
 </html>
