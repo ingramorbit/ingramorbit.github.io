@@ -155,7 +155,7 @@
   </div>
 </main>
 
-<script type="module" src="auth.js?v=16"></script>
+<script type="module" src="auth.js?v=18"></script>
 
 <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -662,13 +662,15 @@
     if (!companyName||!contactName||!email||!phone||!city||!state||!serviceRadiusMiles||!businessType) {
       contractorStatus.textContent="Please complete all required fields."; return;
     }
-    if (config.showMcDot && !equipmentTypes.length) { contractorStatus.textContent="Select at least one equipment type."; return; }
+    if (config.showEquipment && !equipmentTypes.length) { contractorStatus.textContent="Select at least one equipment type."; return; }
 
     const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents||{});
     if (missingRequiredDocuments.length) { contractorStatus.textContent=`Please upload required documents: ${missingRequiredDocuments.join(", ")}.`; return; }
 
     try {
       contractorStatus.textContent = "Uploading documents and saving contractor profile...";
+      if (contractorSubmitBtn) contractorSubmitBtn.disabled = true;
+
       const { nextDocuments:uploadedDocuments, replacedKeys } = await uploadSelectedDocuments(currentUser, existingData?.documents||{});
       const nextDocumentReview = { ...(existingData?.documentReview||{}) };
       replacedKeys.forEach(key => { nextDocumentReview[key]={ status:"pending", note:"", reviewedAt:null, reviewedBy:"", reviewedByName:"" }; });
@@ -712,6 +714,7 @@
       renderSelectedDocumentState();
 
       if (contractorSubmitBtn) {
+        contractorSubmitBtn.disabled = false;
         if (payload.status==="approved")        contractorSubmitBtn.textContent="Save Profile Updates";
         else if (currentStatus==="rejected")    contractorSubmitBtn.textContent="Update Profile and Resubmit for Review";
         else                                    contractorSubmitBtn.textContent="Save Contractor Profile";
@@ -720,9 +723,11 @@
       if (payload.status==="approved")       contractorStatus.textContent=`${config.label} contractor profile saved. Your approved status is still active.`;
       else if (isFirstSubmit)                contractorStatus.textContent=`${config.label} contractor profile saved and submitted for review.`;
       else                                   contractorStatus.textContent=`${config.label} contractor profile updated and resubmitted for review.`;
+
     } catch(err) {
-      console.error(err);
-      contractorStatus.textContent = `Could not save contractor profile: ${err.message}`;
+      console.error("SAVE ERROR:", err);
+      if (contractorSubmitBtn) contractorSubmitBtn.disabled = false;
+      contractorStatus.textContent = `Error ${err.code||""}: ${err.message||"Unknown error — check your connection and try again."}`;
     }
   });
 
@@ -762,7 +767,6 @@
   loadProfile();
 </script>
 
-<!-- Theme toggle -->
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
   <span id="toggleLabel">Light Mode</span>
@@ -789,4 +793,4 @@
 </script>
 
 </body>
-  </html>
+</html>
