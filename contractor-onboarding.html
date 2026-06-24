@@ -372,20 +372,44 @@
       .map(e => e.label);
   }
 
+  function uploadWithTimeout(fileRef, file, timeoutMs = 30000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`Upload timed out after ${timeoutMs/1000}s for "${file.name}". Check Firebase Storage rules and CORS.`)), timeoutMs);
+      uploadBytes(fileRef, file)
+        .then(snap => { clearTimeout(timer); resolve(snap); })
+        .catch(err  => { clearTimeout(timer); reject(err); });
+    });
+  }
+
   async function uploadSelectedDocuments(currentUser, existingDocuments = {}) {
     const nextDocuments = { ...existingDocuments };
     const replacedKeys  = [];
-    for (const entry of getRenderedDocumentConfig(activeCategory)) {
-      const file = entry.inputEl?.files?.[0];
+    const entries = getRenderedDocumentConfig(activeCategory);
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      const file  = entry.inputEl?.files?.[0];
       if (!file) continue;
+
+      contractorStatus.textContent = `Uploading file ${i+1}: ${file.name}…`;
+      console.log(`[AKO] Uploading slot ${i+1}:`, entry.key, file.name, file.size, file.type);
+
       const safeName = String(file.name||"file").replace(/[^a-zA-Z0-9._-]/g,"_");
       const path     = `contractor-documents/${currentUser.uid}/${entry.key}/${activeCategory}_${Date.now()}_${safeName}`;
       const fileRef  = storageRef(storage, path);
-      await uploadBytes(fileRef, file);
-      const url = await getDownloadURL(fileRef);
-      nextDocuments[entry.key] = { name:file.name||"Uploaded file", url, path, uploadedAt:Date.now(), sizeBytes:Number(file.size||0), mimeType:file.type||"", category:activeCategory };
-      replacedKeys.push(entry.key);
-      if (entry.inputEl) entry.inputEl.value = "";
+
+      try {
+        await uploadWithTimeout(fileRef, file, 30000);
+        contractorStatus.textContent = `Getting download URL for file ${i+1}…`;
+        console.log(`[AKO] Getting download URL for slot ${i+1}:`, path);
+        const url = await getDownloadURL(fileRef);
+        console.log(`[AKO] Got URL for slot ${i+1}:`, url.substring(0, 60) + "…");
+        nextDocuments[entry.key] = { name:file.name||"Uploaded file", url, path, uploadedAt:Date.now(), sizeBytes:Number(file.size||0), mimeType:file.type||"", category:activeCategory };
+        replacedKeys.push(entry.key);
+        if (entry.inputEl) entry.inputEl.value = "";
+      } catch (uploadErr) {
+        console.error(`[AKO] Upload failed for slot ${i+1}:`, uploadErr);
+        throw uploadErr;
+      }
     }
     return { nextDocuments, replacedKeys };
   }
@@ -638,97 +662,142 @@
 
   form.addEventListener("submit", async e => {
     e.preventDefault();
+
+    contractorStatus.textContent = "Checking authentication…";
+    console.log("[AKO Save] Step 1: waiting for auth");
     const currentUser = await waitForAKOAuth();
-    if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent(`contractor-onboarding.html?category=${encodeURIComponent(activeCategory)}`)}`;return; }
+    if (!currentUser) {
+      window.location.href=`index.html?auth=1&return=${encodeURIComponent(`contractor-onboarding.html?category=${encodeURIComponent(activeCategory)}`)}`;
+      return;
+    }
+    console.log("[AKO Save] Step 1 OK — uid:", currentUser.uid);
 
-    const contractorRef  = getCategoryDocumentRef(currentUser, activeCategory);
-    const existingSnap   = await getDoc(contractorRef);
-    const existingData   = existingSnap.exists()?existingSnap.data():null;
-    const config         = getCategoryConfig(activeCategory);
+    contractorStatus.textContent = "Loading existing profile…";
+    console.log("[AKO Save] Step 2: loading existing contractor doc");
+    const contractorRef = getCategoryDocumentRef(currentUser, activeCategory);
+    let existingData = null;
+    try {
+      const existingSnap = await getDoc(contractorRef);
+      existingData = existingSnap.exists() ? existingSnap.data() : null;
+      console.log("[AKO Save] Step 2 OK — existing doc:", existingData ? "found" : "none");
+    } catch (readErr) {
+      console.error("[AKO Save] Step 2 FAILED:", readErr);
+      contractorStatus.textContent = `Error reading existing profile: ${readErr.code||""} ${readErr.message}`;
+      return;
+    }
 
-    const companyName       = coCompanyName.value.trim();
-    const contactName       = coContactName.value.trim();
-    const email             = coEmail.value.trim();
-    const phone             = coPhone.value.trim();
-    const city              = coCity.value.trim();
-    const state             = coState.value.trim();
+    const config = getCategoryConfig(activeCategory);
+
+    contractorStatus.textContent = "Validating fields…";
+    console.log("[AKO Save] Step 3: validating");
+    const companyName        = coCompanyName.value.trim();
+    const contactName        = coContactName.value.trim();
+    const email              = coEmail.value.trim();
+    const phone              = coPhone.value.trim();
+    const city               = coCity.value.trim();
+    const state              = coState.value.trim();
     const serviceRadiusMiles = Number(coRadius.value||0);
-    const businessType      = coBusinessType.value.trim();
-    const licenseNumber     = coLicenseNumber.value.trim();
-    const mcDotNumber       = coMcDot.value.trim();
-    const equipmentTypes    = activeCategory==="trucking"?getSelectedEquipment():[];
-    const notes             = coNotes.value.trim();
+    const businessType       = coBusinessType.value.trim();
+    const licenseNumber      = coLicenseNumber.value.trim();
+    const mcDotNumber        = coMcDot.value.trim();
+    const equipmentTypes     = activeCategory==="trucking" ? getSelectedEquipment() : [];
+    const notes              = coNotes.value.trim();
 
     if (!companyName||!contactName||!email||!phone||!city||!state||!serviceRadiusMiles||!businessType) {
-      contractorStatus.textContent="Please complete all required fields."; return;
+      contractorStatus.textContent = "Please complete all required fields.";
+      return;
     }
-    if (config.showEquipment && !equipmentTypes.length) { contractorStatus.textContent="Select at least one equipment type."; return; }
+    if (config.showEquipment && !equipmentTypes.length) {
+      contractorStatus.textContent = "Select at least one equipment type.";
+      return;
+    }
 
     const missingRequiredDocuments = getMissingRequiredDocumentLabels(existingData?.documents||{});
-    if (missingRequiredDocuments.length) { contractorStatus.textContent=`Please upload required documents: ${missingRequiredDocuments.join(", ")}.`; return; }
-
-    try {
-      contractorStatus.textContent = "Uploading documents and saving contractor profile...";
-      if (contractorSubmitBtn) contractorSubmitBtn.disabled = true;
-
-      const { nextDocuments:uploadedDocuments, replacedKeys } = await uploadSelectedDocuments(currentUser, existingData?.documents||{});
-      const nextDocumentReview = { ...(existingData?.documentReview||{}) };
-      replacedKeys.forEach(key => { nextDocumentReview[key]={ status:"pending", note:"", reviewedAt:null, reviewedBy:"", reviewedByName:"" }; });
-
-      const now               = Date.now();
-      const currentStatus     = String(window.currentContractorProfileStatus||existingData?.status||"not-submitted").toLowerCase();
-      const requiredDocumentKeys = getRenderedDocumentConfig(activeCategory).filter(e=>e.required).map(e=>e.key);
-      const replacedRequiredDocs = replacedKeys.filter(key=>requiredDocumentKeys.includes(key));
-      let nextStatus = "pending";
-      if (currentStatus==="approved" && replacedRequiredDocs.length===0) nextStatus="approved";
-
-      const contractorRecordId = getContractorDocId(currentUser.uid, activeCategory);
-
-      const payload = {
-        ownerUid: currentUser.uid, contractorUid: currentUser.uid, contractorRecordId,
-        category: activeCategory, categoryLabel: config.label,
-        companyName, contactName, email, phone, city, state, serviceRadiusMiles, businessType,
-        licenseNumber: config.showLicense?licenseNumber:"",
-        stateLicenseNumber: activeCategory==="hvac"?licenseNumber:"",
-        mcDotNumber: config.showMcDot?mcDotNumber:"",
-        equipmentTypes, notes,
-        documents: uploadedDocuments, documentReview: nextDocumentReview,
-        status: nextStatus,
-        createdAt: existingData?.createdAt||now, updatedAt: now
-      };
-
-      const isFirstSubmit = !existingData?.submittedForReviewAt;
-      if (isFirstSubmit) payload.submittedForReviewAt = now;
-      else if (nextStatus==="pending") payload.resubmittedForReviewAt = now;
-      if (nextStatus==="pending") { payload.approvedAt=null; payload.rejectedAt=null; }
-
-      await setDoc(contractorRef, payload, { merge:true });
-
-      window.currentContractorProfileStatus         = payload.status;
-      window.currentContractorProfileDocuments      = uploadedDocuments;
-      window.currentContractorProfileDocumentReview = nextDocumentReview;
-
-      applyCategoryUI(activeCategory, businessType);
-      renderApprovalStatus({ ...(existingData||{}), ...payload });
-      renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
-      renderSelectedDocumentState();
-
-      if (contractorSubmitBtn) {
-        contractorSubmitBtn.disabled = false;
-        if (payload.status==="approved")        contractorSubmitBtn.textContent="Save Profile Updates";
-        else if (currentStatus==="rejected")    contractorSubmitBtn.textContent="Update Profile and Resubmit for Review";
-        else                                    contractorSubmitBtn.textContent="Save Contractor Profile";
-      }
-
-      if (payload.status==="approved")       contractorStatus.textContent=`${config.label} contractor profile saved. Your approved status is still active.`;
-      else if (isFirstSubmit)                contractorStatus.textContent=`${config.label} contractor profile saved and submitted for review.`;
-      else                                   contractorStatus.textContent=`${config.label} contractor profile updated and resubmitted for review.`;
-
-    } catch(err) {
-      console.error("SAVE ERROR:", err);
-      if (contractorSubmitBtn) contractorSubmitBtn.disabled = false;
-      contractorStatus.textContent = `Error ${err.code||""}: ${err.message||"Unknown error — check your connection and try again."}`;
+    console.log("[AKO Save] Step 4: missing required docs:", missingRequiredDocuments);
+    if (missingRequiredDocuments.length) {
+      contractorStatus.textContent = `Please upload required documents: ${missingRequiredDocuments.join(", ")}.`;
+      return;
     }
+
+    if (contractorSubmitBtn) contractorSubmitBtn.disabled = true;
+    let uploadedDocuments, replacedKeys;
+    try {
+      console.log("[AKO Save] Step 5: uploading files");
+      const result = await uploadSelectedDocuments(currentUser, existingData?.documents||{});
+      uploadedDocuments = result.nextDocuments;
+      replacedKeys      = result.replacedKeys;
+      console.log("[AKO Save] Step 5 OK — replaced keys:", replacedKeys);
+    } catch (uploadErr) {
+      console.error("[AKO Save] Step 5 FAILED:", uploadErr);
+      if (contractorSubmitBtn) contractorSubmitBtn.disabled = false;
+      contractorStatus.textContent = `Upload error: ${uploadErr.code||""} ${uploadErr.message||"Unknown upload error"}`;
+      return;
+    }
+
+    contractorStatus.textContent = "Saving contractor profile to Firestore…";
+    console.log("[AKO Save] Step 6: building payload");
+    const nextDocumentReview = { ...(existingData?.documentReview||{}) };
+    replacedKeys.forEach(key => { nextDocumentReview[key]={ status:"pending", note:"", reviewedAt:null, reviewedBy:"", reviewedByName:"" }; });
+
+    const now            = Date.now();
+    const currentStatus  = String(window.currentContractorProfileStatus||existingData?.status||"not-submitted").toLowerCase();
+    const requiredDocumentKeys = getRenderedDocumentConfig(activeCategory).filter(e=>e.required).map(e=>e.key);
+    const replacedRequiredDocs = replacedKeys.filter(key=>requiredDocumentKeys.includes(key));
+    let nextStatus = "pending";
+    if (currentStatus==="approved" && replacedRequiredDocs.length===0) nextStatus = "approved";
+
+    const contractorRecordId = getContractorDocId(currentUser.uid, activeCategory);
+
+    const payload = {
+      ownerUid: currentUser.uid, contractorUid: currentUser.uid, contractorRecordId,
+      category: activeCategory, categoryLabel: config.label,
+      companyName, contactName, email, phone, city, state, serviceRadiusMiles, businessType,
+      licenseNumber: config.showLicense ? licenseNumber : "",
+      stateLicenseNumber: activeCategory==="hvac" ? licenseNumber : "",
+      mcDotNumber: config.showMcDot ? mcDotNumber : "",
+      equipmentTypes, notes,
+      documents: uploadedDocuments, documentReview: nextDocumentReview,
+      status: nextStatus,
+      createdAt: existingData?.createdAt||now, updatedAt: now
+    };
+
+    const isFirstSubmit = !existingData?.submittedForReviewAt;
+    if (isFirstSubmit) payload.submittedForReviewAt = now;
+    else if (nextStatus==="pending") payload.resubmittedForReviewAt = now;
+    if (nextStatus==="pending") { payload.approvedAt=null; payload.rejectedAt=null; }
+
+    console.log("[AKO Save] Step 7: writing to Firestore — doc:", contractorRecordId);
+    try {
+      await setDoc(contractorRef, payload, { merge: true });
+      console.log("[AKO Save] Step 7 OK — saved!");
+    } catch (writeErr) {
+      console.error("[AKO Save] Step 7 FAILED:", writeErr);
+      if (contractorSubmitBtn) contractorSubmitBtn.disabled = false;
+      contractorStatus.textContent = `Firestore write error: ${writeErr.code||""} ${writeErr.message||"Unknown error"}`;
+      return;
+    }
+
+    window.currentContractorProfileStatus         = payload.status;
+    window.currentContractorProfileDocuments      = uploadedDocuments;
+    window.currentContractorProfileDocumentReview = nextDocumentReview;
+
+    applyCategoryUI(activeCategory, businessType);
+    renderApprovalStatus({ ...(existingData||{}), ...payload });
+    renderDocumentUploadStatus(uploadedDocuments, nextDocumentReview);
+    renderSelectedDocumentState();
+
+    if (contractorSubmitBtn) {
+      contractorSubmitBtn.disabled = false;
+      if (payload.status==="approved")     contractorSubmitBtn.textContent = "Save Profile Updates";
+      else if (currentStatus==="rejected") contractorSubmitBtn.textContent = "Update Profile and Resubmit for Review";
+      else                                 contractorSubmitBtn.textContent = "Save Contractor Profile";
+    }
+
+    if (payload.status==="approved")  contractorStatus.textContent = `${config.label} contractor profile saved. Your approved status is still active.`;
+    else if (isFirstSubmit)           contractorStatus.textContent = `${config.label} contractor profile saved and submitted for review.`;
+    else                              contractorStatus.textContent = `${config.label} contractor profile updated and resubmitted for review.`;
+
+    console.log("[AKO Save] Done.");
   });
 
   documentSlots.forEach(slot => {
