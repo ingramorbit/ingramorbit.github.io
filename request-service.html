@@ -72,7 +72,7 @@
   </div>
 </main>
 
-<script type="module" src="auth.js?v=16"></script>
+<script type="module" src="auth.js?v=18"></script>
 
 <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -83,8 +83,8 @@
   const app = getApp();
   const db  = getFirestore(app);
 
-  const params          = new URLSearchParams(window.location.search);
-  const categoryParam   = (params.get("category") || "").trim();
+  const params        = new URLSearchParams(window.location.search);
+  const categoryParam = (params.get("category") || "").trim();
 
   function normalizeCategory(value) {
     const raw = String(value||"").trim().toLowerCase().replace(/[_\s]+/g,"-");
@@ -144,8 +144,8 @@
     const key    = normalizeCategory(reqCategory.value);
     const config = getCategoryConfig(key);
     if (config) {
-      reqServiceType.placeholder = config.servicePlaceholder;
-      reqDescription.placeholder = config.descriptionPlaceholder;
+      reqServiceType.placeholder  = config.servicePlaceholder;
+      reqDescription.placeholder  = config.descriptionPlaceholder;
       requestBackLink.href        = config.backHref;
       requestBackLink.textContent = config.backText;
       return;
@@ -179,56 +179,73 @@
   form.addEventListener("submit", async e => {
     e.preventDefault();
 
-    const currentUser   = await waitForAKOAuth();
-    const categoryKey   = normalizeCategory(reqCategory.value);
-    const categoryLabel = getCategoryLabel(categoryKey);
-
+    // ── Step 1: auth ──
+    requestStatus.textContent = "Checking login...";
+    console.log("[AKO Request] Step 1: waiting for auth");
+    const currentUser = await waitForAKOAuth();
     if (!currentUser) {
-      const returnUrl = `request-service.html?category=${encodeURIComponent(categoryKey||initialCategoryKey||"")}`;
+      const returnUrl = `request-service.html?category=${encodeURIComponent(normalizeCategory(reqCategory.value)||initialCategoryKey||"")}`;
       window.location.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
       return;
     }
+    console.log("[AKO Request] Step 1 OK — uid:", currentUser.uid, "email:", currentUser.email);
 
-    const now = Date.now();
+    // ── Step 2: build payload ──
+    requestStatus.textContent = "Validating fields...";
+    const categoryKey   = normalizeCategory(reqCategory.value);
+    const categoryLabel = getCategoryLabel(categoryKey);
+    const now           = Date.now();
 
     const payload = {
-      category:                    categoryKey,
-      categoryLabel:               categoryLabel,
-      serviceType:                 reqServiceType.value.trim(),
-      name:                        reqName.value.trim(),
-      email:                       reqEmail.value.trim(),
-      phone:                       reqPhone.value.trim(),
-      city:                        reqCity.value.trim(),
-      urgency:                     reqUrgency.value.trim(),
-      description:                 reqDescription.value.trim(),
-      ownerUid:                    currentUser.uid,
-      ownerEmail:                  currentUser.email || "",
-      status:                      "new",
-      assignedContractorUid:       "",
-      assignedContractorRecordId:  "",
-      assignedContractorCategory:  "",
+      category:                        categoryKey,
+      categoryLabel:                   categoryLabel,
+      serviceType:                     reqServiceType.value.trim(),
+      name:                            reqName.value.trim(),
+      email:                           reqEmail.value.trim(),
+      phone:                           reqPhone.value.trim(),
+      city:                            reqCity.value.trim(),
+      urgency:                         reqUrgency.value.trim(),
+      description:                     reqDescription.value.trim(),
+      ownerUid:                        currentUser.uid,
+      ownerEmail:                      currentUser.email || "",
+      status:                          "new",
+      assignedContractorUid:           "",
+      assignedContractorRecordId:      "",
+      assignedContractorCategory:      "",
       assignedContractorCategoryLabel: "",
       assignedContractorCompanyName:   "",
       assignedContractorContactName:   "",
-      assignedContractorEmail:     "",
-      assignedContractorPhone:     "",
-      createdAt:                   now,
-      updatedAt:                   now
+      assignedContractorEmail:         "",
+      assignedContractorPhone:         "",
+      createdAt:                       now,
+      updatedAt:                       now
     };
+
+    console.log("[AKO Request] Step 2: payload —", JSON.stringify({
+      category: payload.category,
+      categoryLabel: payload.categoryLabel,
+      serviceType: payload.serviceType,
+      ownerUid: payload.ownerUid,
+      ownerEmail: payload.ownerEmail
+    }));
 
     if (!payload.category||!payload.categoryLabel||!payload.serviceType||!payload.name||!payload.email||!payload.phone||!payload.city||!payload.urgency||!payload.description) {
       requestStatus.textContent = "Please complete all fields.";
+      console.warn("[AKO Request] Step 2 FAILED — missing fields");
       return;
     }
 
+    // ── Step 3: write to Firestore ──
+    requestStatus.textContent    = "Submitting request...";
+    requestSubmitBtn.disabled    = true;
+    requestSubmitBtn.textContent = "Submitting...";
+
+    console.log("[AKO Request] Step 3: writing to serviceRequests...");
     try {
-      requestStatus.textContent      = "Submitting request...";
-      requestSubmitBtn.disabled      = true;
-      requestSubmitBtn.textContent   = "Submitting...";
+      const docRef = await addDoc(collection(db, "serviceRequests"), payload);
+      console.log("[AKO Request] Step 3 OK — Doc ID:", docRef.id);
 
-      await addDoc(collection(db, "serviceRequests"), payload);
-
-      requestStatus.textContent = "Request submitted successfully. Redirecting to My Requests...";
+      requestStatus.textContent = "Request submitted! Redirecting to My Requests...";
       form.reset();
       reqCategory.value = payload.category;
       applyCategoryUI();
@@ -236,8 +253,8 @@
 
       setTimeout(() => { window.location.href = "my-requests.html"; }, 900);
     } catch(err) {
-      console.error(err);
-      requestStatus.textContent = `Could not submit request: ${err.message}`;
+      console.error("[AKO Request] Step 3 FAILED:", err.code, err.message, err);
+      requestStatus.textContent = `Error ${err.code||""}: ${err.message||"Could not submit request. Check your connection and try again."}`;
     } finally {
       requestSubmitBtn.disabled    = false;
       requestSubmitBtn.textContent = "Submit Request";
@@ -245,7 +262,6 @@
   });
 </script>
 
-<!-- Theme toggle -->
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
   <span id="toggleLabel">Light Mode</span>
