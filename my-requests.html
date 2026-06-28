@@ -67,13 +67,8 @@
 
     function waitForAKOAuth() {
       return new Promise((resolve) => {
-        if (window.AKOReady) {
-          resolve(window.AKOUser);
-          return;
-        }
-        document.addEventListener("ako-auth-ready", (e) => {
-          resolve(e.detail.user);
-        }, { once: true });
+        if (window.AKOReady) { resolve(window.AKOUser); return; }
+        document.addEventListener("ako-auth-ready", (e) => { resolve(e.detail.user); }, { once: true });
       });
     }
 
@@ -131,12 +126,12 @@
     function getActivityText(activity) {
       const contractorName = activity.contractorCompanyName || activity.contractorContactName || "contractor";
       switch (String(activity.actionType || "").toLowerCase()) {
-        case "assigned": return `Lead assigned to ${contractorName}`;
-        case "reassigned": return `Lead reassigned to ${contractorName}`;
-        case "accepted": return "Contractor accepted lead";
-        case "declined": return "Contractor declined lead";
+        case "assigned":       return `Lead assigned to ${contractorName}`;
+        case "reassigned":     return `Lead reassigned to ${contractorName}`;
+        case "accepted":       return "Contractor accepted lead";
+        case "declined":       return "Contractor declined lead";
         case "status-updated": return `Status changed from ${activity.previousStatus || "—"} to ${activity.nextStatus || "—"}`;
-        default: return activity.message || "Activity recorded";
+        default:               return activity.message || "Activity recorded";
       }
     }
 
@@ -147,7 +142,7 @@
 
     function getAssignedContractorLabel(item) {
       const companyOrName = item.assignedContractorCompanyName || item.assignedContractorContactName || "";
-      const categoryLabel = String(item.assignedContractorCategory || "").trim();
+      const categoryLabel = String(item.assignedContractorCategoryLabel || item.assignedContractorCategory || "").trim();
       if (!companyOrName) return "";
       if (!categoryLabel) return companyOrName;
       return `${companyOrName} (${categoryLabel})`;
@@ -157,11 +152,14 @@
       if (!items.length) { renderEmpty("You have not submitted any requests yet."); return; }
 
       requestsList.innerHTML = items.map(item => {
-        const rawStatus = String(item.status || "new").toLowerCase();
-        const statusClass = rawStatus.replace(/\s+/g, "-");
-        const canCancel = rawStatus !== "cancelled" && rawStatus !== "closed";
-        const latestActivity = getLatestActivityForRequest(item);
-        const assignedContractor = getAssignedContractorLabel(item);
+        const rawStatus        = String(item.status || "new").toLowerCase();
+        const statusClass      = rawStatus.replace(/\s+/g, "-");
+        const canCancel        = rawStatus !== "cancelled" && rawStatus !== "closed";
+        const latestActivity   = getLatestActivityForRequest(item);
+        const assignedLabel    = getAssignedContractorLabel(item);
+        const assignedEmail    = String(item.assignedContractorEmail || "").trim();
+        const assignedPhone    = String(item.assignedContractorPhone || "").trim();
+        const isAssigned       = rawStatus === "assigned" && assignedLabel;
 
         return `
           <div class="request-item">
@@ -187,8 +185,15 @@
               <span>✉️ ${escapeHtml(item.email || "—")}</span>
               <span>📞 ${escapeHtml(item.phone || "—")}</span>
             </div>
-            ${assignedContractor ? `<p class="assignment-note">Assigned contractor: <strong>${escapeHtml(assignedContractor)}</strong></p>` : ""}
-            <div class="request-actions">
+            ${isAssigned ? `
+              <div class="assignment-note" style="margin-top:10px;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);">
+                <strong>✅ Assigned Contractor</strong><br>
+                <span>${escapeHtml(assignedLabel)}</span><br>
+                ${assignedEmail ? `<a href="mailto:${escapeHtml(assignedEmail)}" style="color:var(--accent);">✉️ ${escapeHtml(assignedEmail)}</a><br>` : ""}
+                ${assignedPhone ? `<a href="tel:${escapeHtml(assignedPhone)}" style="color:var(--accent);">📞 ${escapeHtml(assignedPhone)}</a>` : ""}
+              </div>` : ""
+            }
+            <div class="request-actions" style="margin-top:12px;">
               ${canCancel ? `<button type="button" class="request-cancel-btn" data-requestid="${escapeHtml(item._docId || "")}" data-servicetype="${escapeHtml(item.serviceType || "this request")}">Cancel Request</button>` : ""}
             </div>
           </div>
@@ -228,20 +233,19 @@
     requestsList.addEventListener("click", async (e) => {
       const cancelBtn = e.target.closest(".request-cancel-btn");
       if (!cancelBtn) return;
-      const currentUser = await waitForAKOAuth();
-      const requestId = cancelBtn.getAttribute("data-requestid");
-      const serviceType = cancelBtn.getAttribute("data-servicetype") || "this request";
+      const currentUser   = await waitForAKOAuth();
+      const requestId     = cancelBtn.getAttribute("data-requestid");
+      const serviceType   = cancelBtn.getAttribute("data-servicetype") || "this request";
       if (!requestId) { alert("Could not cancel this request."); return; }
       const requestItem = myRequests.find(item => item._docId === requestId);
       if (!requestItem) { alert("Could not find this request."); return; }
       const currentStatus = String(requestItem.status || "new").toLowerCase();
       if (currentStatus === "cancelled" || currentStatus === "closed") { alert("This request can no longer be cancelled."); return; }
-      const confirmed = confirm(`Cancel "${serviceType}"?`);
-      if (!confirmed) return;
+      if (!confirm(`Cancel "${serviceType}"?`)) return;
       const now = Date.now();
       try {
         await updateDoc(doc(db, "serviceRequests", requestId), { status: "cancelled", cancelledAt: now, updatedAt: now });
-        const leadRef = doc(db, "contractorLeads", requestId);
+        const leadRef  = doc(db, "contractorLeads", requestId);
         const leadSnap = await getDoc(leadRef);
         const leadData = leadSnap.exists() ? leadSnap.data() : null;
         if (leadSnap.exists()) {
@@ -249,35 +253,42 @@
         }
         try {
           await addDoc(collection(db, "requestActivity"), {
-            requestId, ownerUid: requestItem.ownerUid || "",
-            contractorUid: requestItem.assignedContractorUid || leadData?.contractorUid || "",
-            contractorRecordId: requestItem.assignedContractorRecordId || leadData?.contractorRecordId || "",
-            contractorCategory: requestItem.assignedContractorCategory || leadData?.contractorCategory || "",
-            actorUid: currentUser?.uid || "", actorName: currentUser?.name || currentUser?.email || "Customer",
-            actorRole: "customer", actionType: "status-updated",
-            previousStatus: requestItem.status || "new", nextStatus: "cancelled",
-            serviceType: requestItem.serviceType || "", category: requestItem.category || "",
+            requestId,
+            ownerUid:             requestItem.ownerUid || "",
+            contractorUid:        requestItem.assignedContractorUid || leadData?.contractorUid || "",
+            contractorRecordId:   requestItem.assignedContractorRecordId || leadData?.contractorRecordId || "",
+            contractorCategory:   requestItem.assignedContractorCategory || leadData?.contractorCategory || "",
+            actorUid:             currentUser?.uid || "",
+            actorName:            currentUser?.name || currentUser?.email || "Customer",
+            actorRole:            "customer",
+            actionType:           "status-updated",
+            previousStatus:       requestItem.status || "new",
+            nextStatus:           "cancelled",
+            serviceType:          requestItem.serviceType || "",
+            category:             requestItem.category || "",
             contractorCompanyName: requestItem.assignedContractorCompanyName || leadData?.contractorCompanyName || "",
             contractorContactName: requestItem.assignedContractorContactName || leadData?.contractorContactName || "",
-            createdAt: now
+            createdAt:            now
           });
         } catch (activityErr) { console.warn("Request activity log write failed:", activityErr); }
+
         const contractorUid = String(requestItem.assignedContractorUid || leadData?.contractorUid || "").trim();
         if (contractorUid) {
           await createContractorNotification({
             contractorUid,
             contractorRecordId: requestItem.assignedContractorRecordId || leadData?.contractorRecordId || "",
-            category: requestItem.assignedContractorCategory || leadData?.contractorCategory || normalizeCategory(requestItem.category || requestItem.categoryLabel || ""),
-            title: "Customer cancelled request",
+            category: requestItem.assignedContractorCategory || leadData?.contractorCategory || normalizeCategory(requestItem.category || ""),
+            title:   "Customer cancelled request",
             message: `${requestItem.serviceType || "A request"} in ${requestItem.city || "your area"} was cancelled by the customer.`,
-            type: "request-cancelled", actorUid: currentUser?.uid || "",
+            type:    "request-cancelled",
+            actorUid:  currentUser?.uid || "",
             actorName: currentUser?.name || currentUser?.email || "Customer"
           });
         }
         alert("Request cancelled.");
       } catch (err) {
         console.error(err);
-        alert("Could not cancel request:\nmessage: " + err.message);
+        alert("Could not cancel request:\n" + err.message);
       }
     });
 
