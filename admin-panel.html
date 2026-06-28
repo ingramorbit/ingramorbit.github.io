@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Admin Panel</title>
+  <link rel="stylesheet" href="styles.css?v=39">
+</head>
+<body>
+
+<section class="contractor-hero">
+  <div class="login-button">
+    <div id="authArea">
+      <span id="welcomeUser" class="welcome-user"></span>
+      <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+    </div>
+  </div>
+  <a class="contractor-back contractor-back-floating" href="index.html">← Back to Home</a>
+  <div class="container">
+    <div class="contractor-hero-content">
+      <div class="contractor-brand">AssistKingOnline</div>
+      <h1 class="contractor-title">🛠️ Admin Panel</h1>
+      <p>Manage contractors, service requests, and assignments.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container contractor-wrap">
+
+  <div id="adminDenied" class="contractor-card" hidden>
+    <strong>Access Denied</strong>
+    <p style="margin:8px 0 0;color:var(--text-body);">You must be logged in as admin to view this page.</p>
+  </div>
+
+  <div id="adminWrap" hidden>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+      <button class="contractor-cta admin-tab-btn" data-tab="contractors">Contractors</button>
+      <button class="contractor-cta admin-tab-btn" data-tab="requests">Service Requests</button>
+    </div>
+
+    <div id="tabContractors">
+
+      <div class="contractor-card" style="margin-bottom:16px;">
+        <strong>Filter Contractors</strong>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+          <select id="adminContractorStatusFilter">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="not-submitted">Not Submitted</option>
+          </select>
+          <select id="adminContractorCategoryFilter">
+            <option value="">All categories</option>
+            <option value="trucking">Trucking</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="electricians">Electricians</option>
+            <option value="carpentry">Carpentry</option>
+            <option value="auto">Auto</option>
+            <option value="hvac">HVAC</option>
+            <option value="financial-help">Financial Help</option>
+            <option value="lawn-care">Lawn Care</option>
+            <option value="food">Food Services</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="adminContractorList" class="contractor-card">
+        <p class="contractor-notification-empty">Loading contractors...</p>
+      </div>
+
+      <div id="adminContractorDetail" class="contractor-card" hidden>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <strong id="adminDetailName">Contractor Detail</strong>
+          <button type="button" id="adminDetailCloseBtn" class="lb-delete-job-btn">✕ Close</button>
+        </div>
+        <div id="adminDetailMeta" style="margin:12px 0;font-size:0.9rem;color:var(--text-body);line-height:1.7;"></div>
+        <div id="adminDetailDocs" style="margin-bottom:14px;"></div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Checklist</label>
+          <div id="adminDetailChecklist" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Review Feedback (shown to contractor)</label>
+          <textarea id="adminReviewFeedback" rows="3" style="width:100%;box-sizing:border-box;" placeholder="Optional feedback message for the contractor..."></textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" id="adminApproveBtn" class="contractor-cta" style="background:var(--accent);">✅ Approve</button>
+          <button type="button" id="adminRejectBtn"  class="contractor-cta" style="background:#c0392b;">❌ Reject</button>
+        </div>
+        <p id="adminDetailStatus" class="contractor-status" aria-live="polite" style="margin-top:10px;"></p>
+      </div>
+
+    </div>
+
+    <div id="tabRequests" hidden>
+
+      <div class="contractor-card" style="margin-bottom:16px;">
+        <strong>Filter Requests</strong>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;">
+          <select id="adminRequestStatusFilter">
+            <option value="">All statuses</option>
+            <option value="new">New</option>
+            <option value="open">Open</option>
+            <option value="assigned">Assigned</option>
+            <option value="closed">Closed</option>
+          </select>
+          <select id="adminRequestCategoryFilter">
+            <option value="">All categories</option>
+            <option value="trucking">Trucking</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="electricians">Electricians</option>
+            <option value="carpentry">Carpentry</option>
+            <option value="auto">Auto</option>
+            <option value="hvac">HVAC</option>
+            <option value="financial-help">Financial Help</option>
+            <option value="lawn-care">Lawn Care</option>
+            <option value="food">Food Services</option>
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="adminRequestList" class="contractor-card">
+        <p class="contractor-notification-empty">Loading requests...</p>
+      </div>
+
+      <div id="adminRequestDetail" class="contractor-card" hidden>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <strong id="adminReqDetailTitle">Request Detail</strong>
+          <button type="button" id="adminReqDetailCloseBtn" class="lb-delete-job-btn">✕ Close</button>
+        </div>
+        <div id="adminReqDetailMeta" style="margin:12px 0;font-size:0.9rem;color:var(--text-body);line-height:1.7;"></div>
+        <div id="adminReqInterestedWrap" style="margin-bottom:14px;" hidden>
+          <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:6px;">Contractors who expressed interest</label>
+          <div id="adminReqInterestedList"></div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:4px;">Assign Contractor (by Contractor Record ID)</label>
+          <input id="adminAssignRecordId" placeholder="e.g. uid__trucking" style="width:100%;box-sizing:border-box;" />
+          <p style="font-size:0.8rem;color:var(--text-muted);margin:4px 0 0;">
+            Tip: click "Assign" next to an interested contractor above to auto-fill this field.
+          </p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="button" id="adminAssignBtn" class="contractor-cta">Assign Contractor</button>
+          <button type="button" id="adminCloseRequestBtn" class="contractor-cta" style="background:#555;">Mark Closed</button>
+        </div>
+        <p id="adminReqDetailStatus" class="contractor-status" aria-live="polite" style="margin-top:10px;"></p>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+<script type="module" src="auth.js?v=18"></script>
+
+<script type="module">
+  import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, doc, getDoc,
+    updateDoc, onSnapshot, addDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const app = getApp();
+  const db  = getFirestore(app);
+
+  const adminDenied    = document.getElementById("adminDenied");
+  const adminWrap      = document.getElementById("adminWrap");
+  const tabContractors = document.getElementById("tabContractors");
+  const tabRequests    = document.getElementById("tabRequests");
+  const tabBtns        = document.querySelectorAll(".admin-tab-btn");
+
+  const adminContractorList           = document.getElementById("adminContractorList");
+  const adminContractorStatusFilter   = document.getElementById("adminContractorStatusFilter");
+  const adminContractorCategoryFilter = document.getElementById("adminContractorCategoryFilter");
+  const adminContractorDetail         = document.getElementById("adminContractorDetail");
+  const adminDetailName               = document.getElementById("adminDetailName");
+  const adminDetailMeta               = document.getElementById("adminDetailMeta");
+  const adminDetailDocs               = document.getElementById("adminDetailDocs");
+  const adminDetailChecklist          = document.getElementById("adminDetailChecklist");
+  const adminReviewFeedback           = document.getElementById("adminReviewFeedback");
+  const adminApproveBtn               = document.getElementById("adminApproveBtn");
+  const adminRejectBtn                = document.getElementById("adminRejectBtn");
+  const adminDetailCloseBtn           = document.getElementById("adminDetailCloseBtn");
+  const adminDetailStatus             = document.getElementById("adminDetailStatus");
+
+  const adminRequestList              = document.getElementById("adminRequestList");
+  const adminRequestStatusFilter      = document.getElementById("adminRequestStatusFilter");
+  const adminRequestCategoryFilter    = document.getElementById("adminRequestCategoryFilter");
+  const adminRequestDetail            = document.getElementById("adminRequestDetail");
+  const adminReqDetailTitle           = document.getElementById("adminReqDetailTitle");
+  const adminReqDetailMeta            = document.getElementById("adminReqDetailMeta");
+  const adminReqInterestedWrap        = document.getElementById("adminReqInterestedWrap");
+  const adminReqInterestedList        = document.getElementById("adminReqInterestedList");
+  const adminAssignRecordId           = document.getElementById("adminAssignRecordId");
+  const adminAssignBtn                = document.getElementById("adminAssignBtn");
+  const adminCloseRequestBtn          = document.getElementById("adminCloseRequestBtn");
+  const adminReqDetailCloseBtn        = document.getElementById("adminReqDetailCloseBtn");
+  const adminReqDetailStatus          = document.getElementById("adminReqDetailStatus");
+
+  let allContractors       = [];
+  let allRequests          = [];
+  let activeContractorDocId = null;
+  let activeRequestDocId    = null;
+  let unsubContractors      = null;
+  let unsubRequests         = null;
+
+  function escapeHtml(v) {
+    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
+
+  function formatDate(ts) {
+    if (!ts) return "—";
+    try { return new Date(ts).toLocaleString(); } catch { return "—"; }
+  }
+
+  function waitForAKOAuth() {
+    return new Promise(resolve => {
+      if (window.AKOReady) { resolve(window.AKOUser); return; }
+      document.addEventListener("ako-auth-ready", e => resolve(e.detail.user), { once: true });
+    });
+  }
+
+  function showTab(name) {
+    tabContractors.hidden = name !== "contractors";
+    tabRequests.hidden    = name !== "requests";
+    tabBtns.forEach(btn => { btn.style.opacity = btn.dataset.tab === name ? "1" : "0.5"; });
+    adminContractorDetail.hidden = true;
+    adminRequestDetail.hidden    = true;
+  }
+
+  tabBtns.forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+
+  function getFilteredContractors() {
+    const statusF   = adminContractorStatusFilter.value;
+    const categoryF = adminContractorCategoryFilter.value;
+    return allContractors.filter(c => {
+      const statusMatch   = !statusF   || String(c.status||"not-submitted").toLowerCase() === statusF;
+      const categoryMatch = !categoryF || String(c.category||"").toLowerCase() === categoryF;
+      return statusMatch && categoryMatch;
+    });
+  }
+
+  function renderContractorList() {
+    const list = getFilteredContractors();
+    if (!list.length) { adminContractorList.innerHTML = `<p class="contractor-notification-empty">No contractors match this filter.</p>`; return; }
+    adminContractorList.innerHTML = list.map(c => {
+      const status = String(c.status||"not-submitted").toLowerCase();
+      return `
+        <div style="border-bottom:1px solid var(--border);padding:12px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-weight:700;">${escapeHtml(c.companyName||"Unnamed")}</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">${escapeHtml(c.categoryLabel||c.category||"")} · ${escapeHtml(c.contactName||"")} · ${escapeHtml(c.email||"")}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Submitted: ${formatDate(c.submittedForReviewAt||c.createdAt)}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="contractor-review-status-pill status-${escapeHtml(status.replace(/\s+/g,"-"))}">${escapeHtml(status)}</span>
+            <button type="button" class="contractor-cta admin-contractor-review-btn" style="font-size:0.82rem;padding:6px 14px;" data-docid="${escapeHtml(c._docId||"")}">Review</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function startContractorsListener() {
+    if (unsubContractors) unsubContractors();
+    unsubContractors = onSnapshot(collection(db,"contractors"),
+      snapshot => {
+        allContractors = snapshot.docs.map(d=>({_docId:d.id,...d.data()}))
+          .sort((a,b)=>Number(b.submittedForReviewAt||b.createdAt||0)-Number(a.submittedForReviewAt||a.createdAt||0));
+        renderContractorList();
+      },
+      err => { console.error(err); adminContractorList.innerHTML=`<p class="contractor-notification-empty">Error: ${escapeHtml(err.message)}</p>`; }
+    );
+  }
+
+  adminContractorStatusFilter.addEventListener("change", renderContractorList);
+  adminContractorCategoryFilter.addEventListener("change", renderContractorList);
+  adminContractorList.addEventListener("click", e => {
+    const btn = e.target.closest(".admin-contractor-review-btn");
+    if (btn) openContractorDetail(btn.dataset.docid);
+  });
+
+  function openContractorDetail(docId) {
+    const c = allContractors.find(x=>x._docId===docId);
+    if (!c) return;
+    activeContractorDocId = docId;
+    adminDetailStatus.textContent = "";
+    adminReviewFeedback.value = c.reviewFeedback || "";
+    adminDetailName.textContent = `${escapeHtml(c.companyName||"Unnamed")} — ${escapeHtml(c.categoryLabel||c.category||"")}`;
+    adminDetailMeta.innerHTML = `
+      <b>Contact:</b> ${escapeHtml(c.contactName||"—")}<br>
+      <b>Email:</b> ${escapeHtml(c.email||"—")}<br>
+      <b>Phone:</b> ${escapeHtml(c.phone||"—")}<br>
+      <b>City / State:</b> ${escapeHtml(c.city||"—")}, ${escapeHtml(c.state||"—")}<br>
+      <b>Radius:</b> ${escapeHtml(String(c.serviceRadiusMiles||"—"))} miles<br>
+      <b>Business type:</b> ${escapeHtml(c.businessType||"—")}<br>
+      ${c.mcDotNumber?`<b>USDOT/MC:</b> ${escapeHtml(c.mcDotNumber)}<br>`:""}
+      ${c.licenseNumber?`<b>License:</b> ${escapeHtml(c.licenseNumber)}<br>`:""}
+      ${Array.isArray(c.equipmentTypes)&&c.equipmentTypes.length?`<b>Equipment:</b> ${escapeHtml(c.equipmentTypes.join(", "))}<br>`:""}
+      ${c.notes?`<b>Notes:</b> ${escapeHtml(c.notes)}<br>`:""}
+      <b>Status:</b> ${escapeHtml(c.status||"not-submitted")}<br>
+      <b>Submitted:</b> ${formatDate(c.submittedForReviewAt||c.createdAt)}<br>
+      <b>Record ID:</b> <code>${escapeHtml(c._docId||"")}</code>`;
+    const docs = c.documents||{};
+    const docKeys = Object.keys(docs);
+    adminDetailDocs.innerHTML = docKeys.length
+      ? `<label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:6px;">Uploaded Documents</label>`+docKeys.map(key=>{
+          const d=docs[key]; const reviewStatus=c.documentReview?.[key]?.status||"pending";
+          return `<div style="margin-bottom:8px;padding:8px;background:var(--card-bg);border-radius:6px;border:1px solid var(--border);">
+            <div style="font-weight:600;font-size:0.85rem;">${escapeHtml(key)}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">${escapeHtml(d.name||"")}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap;">
+              <a href="${escapeHtml(d.url||"#")}" target="_blank" rel="noopener" class="contractor-cta" style="font-size:0.78rem;padding:4px 10px;">View File</a>
+              <span class="contractor-review-status-pill status-${escapeHtml(reviewStatus)}">${escapeHtml(reviewStatus)}</span>
+              <button type="button" class="lb-delete-job-btn admin-doc-approve-btn" style="font-size:0.78rem;" data-dockey="${escapeHtml(key)}" data-contractordocid="${escapeHtml(c._docId||"")}">✅ Approve Doc</button>
+              <button type="button" class="lb-delete-job-btn admin-doc-reject-btn" style="font-size:0.78rem;" data-dockey="${escapeHtml(key)}" data-contractordocid="${escapeHtml(c._docId||"")}">❌ Reject Doc</button>
+            </div>
+          </div>`;
+        }).join("")
+      : `<p style="color:var(--text-muted);font-size:0.85rem;">No documents uploaded.</p>`;
+    const CHECKLIST_KEYS = {
+      trucking:["legalIdentityVerified","mcDotVerified","insuranceVerified","equipmentVerified","serviceAreaVerified","contactVerified"],
+      hvac:["licenseVerified","epaVerified","insuranceVerified","serviceAreaVerified","contactVerified"],
+      default:["identityVerified","insuranceVerified","contactVerified"]
+    };
+    const category = String(c.category||"").toLowerCase();
+    const checklistKeys = CHECKLIST_KEYS[category]||CHECKLIST_KEYS.default;
+    const reviewChecklist = c.reviewChecklist||{};
+    adminDetailChecklist.innerHTML = checklistKeys.map(key=>`
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;">
+        <input type="checkbox" class="admin-checklist-cb" data-key="${escapeHtml(key)}" ${reviewChecklist[key]===true?"checked":""}>
+        ${escapeHtml(key.replace(/([A-Z])/g," $1").replace(/^./,s=>s.toUpperCase()))}
+      </label>`).join("");
+    adminContractorDetail.hidden = false;
+    adminContractorDetail.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  adminDetailCloseBtn.addEventListener("click", () => { adminContractorDetail.hidden=true; activeContractorDocId=null; });
+
+  async function saveContractorReview(newStatus) {
+    if (!activeContractorDocId) return;
+    adminDetailStatus.textContent = "Saving...";
+    const checklistInputs = adminDetailChecklist.querySelectorAll(".admin-checklist-cb");
+    const reviewChecklist = {};
+    checklistInputs.forEach(cb => { reviewChecklist[cb.dataset.key]=cb.checked; });
+    const feedback = adminReviewFeedback.value.trim();
+    const now = Date.now();
+    try {
+      const updatePayload = { status:newStatus, reviewFeedback:feedback, reviewChecklist, reviewedAt:now, reviewedBy:"admin", reviewedByName:"Admin", updatedAt:now };
+      if (newStatus==="approved") updatePayload.approvedAt=now;
+      if (newStatus==="rejected") updatePayload.rejectedAt=now;
+      await updateDoc(doc(db,"contractors",activeContractorDocId), updatePayload);
+      const contractor = allContractors.find(x=>x._docId===activeContractorDocId);
+      if (contractor?.contractorUid) {
+        await addDoc(collection(db,"contractorNotifications"), {
+          contractorUid:      contractor.contractorUid,
+          contractorRecordId: activeContractorDocId,
+          category:           contractor.category||"",
+          categoryLabel:      contractor.categoryLabel||"",
+          title:   newStatus==="approved"?"Profile Approved":"Profile Not Approved",
+          message: newStatus==="approved"
+            ? `Your ${contractor.categoryLabel||contractor.category||""} contractor profile has been approved. You can now view and express interest in leads.`
+            : `Your ${contractor.categoryLabel||contractor.category||""} contractor profile was not approved. ${feedback?"Feedback: "+feedback:"Please review your profile and resubmit."}`,
+          isRead:false, actorName:"Admin", createdAt:now
+        });
+      }
+      adminDetailStatus.textContent = `Contractor ${newStatus} and notified.`;
+      setTimeout(()=>{adminDetailStatus.textContent="";},3000);
+    } catch(err) {
+      console.error(err);
+      adminDetailStatus.textContent = `Error: ${err.code||""} ${err.message}`;
+    }
+  }
+
+  adminApproveBtn.addEventListener("click", () => saveContractorReview("approved"));
+  adminRejectBtn.addEventListener("click",  () => saveContractorReview("rejected"));
+
+  adminDetailDocs.addEventListener("click", async e => {
+    const approveBtn = e.target.closest(".admin-doc-approve-btn");
+    const rejectBtn  = e.target.closest(".admin-doc-reject-btn");
+    const btn = approveBtn||rejectBtn;
+    if (!btn) return;
+    const docKey=btn.dataset.dockey, contractorDocId=btn.dataset.contractordocid;
+    if (!docKey||!contractorDocId) return;
+    const newDocStatus = approveBtn?"approved":"rejected";
+    try {
+      await updateDoc(doc(db,"contractors",contractorDocId), {
+        [`documentReview.${docKey}.status`]:     newDocStatus,
+        [`documentReview.${docKey}.reviewedAt`]: Date.now(),
+        [`documentReview.${docKey}.reviewedBy`]: "admin",
+        updatedAt: Date.now()
+      });
+      adminDetailStatus.textContent = `Document "${docKey}" marked ${newDocStatus}.`;
+      setTimeout(()=>{adminDetailStatus.textContent="";},2500);
+      openContractorDetail(contractorDocId);
+    } catch(err) { adminDetailStatus.textContent=`Error: ${err.message}`; }
+  });
+
+  function getFilteredRequests() {
+    const statusF   = adminRequestStatusFilter.value;
+    const categoryF = adminRequestCategoryFilter.value;
+    return allRequests.filter(r => {
+      const statusMatch   = !statusF   || String(r.status||"new").toLowerCase()===statusF;
+      const categoryMatch = !categoryF || String(r.category||"").toLowerCase()===categoryF;
+      return statusMatch && categoryMatch;
+    });
+  }
+
+  function renderRequestList() {
+    const list = getFilteredRequests();
+    if (!list.length) { adminRequestList.innerHTML=`<p class="contractor-notification-empty">No requests match this filter.</p>`; return; }
+    adminRequestList.innerHTML = list.map(r => {
+      const status = String(r.status||"new").toLowerCase();
+      return `
+        <div style="border-bottom:1px solid var(--border);padding:12px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-weight:700;">${escapeHtml(r.serviceType||"Request")}</div>
+            <div style="font-size:0.85rem;color:var(--text-muted);">${escapeHtml(r.categoryLabel||r.category||"")} · ${escapeHtml(r.name||"")} · ${escapeHtml(r.city||"")}</div>
+            <div style="font-size:0.8rem;color:var(--text-muted);">Submitted: ${formatDate(r.createdAt)}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="contractor-review-status-pill status-${escapeHtml(status)}">${escapeHtml(status)}</span>
+            <button type="button" class="contractor-cta admin-request-detail-btn" style="font-size:0.82rem;padding:6px 14px;" data-docid="${escapeHtml(r._docId||"")}">View</button>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function startRequestsListener() {
+    if (unsubRequests) unsubRequests();
+    unsubRequests = onSnapshot(collection(db,"serviceRequests"),
+      snapshot => {
+        allRequests = snapshot.docs.map(d=>({_docId:d.id,...d.data()}))
+          .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+        renderRequestList();
+      },
+      err => { console.error(err); adminRequestList.innerHTML=`<p class="contractor-notification-empty">Error: ${escapeHtml(err.message)}</p>`; }
+    );
+  }
+
+  adminRequestStatusFilter.addEventListener("change", renderRequestList);
+  adminRequestCategoryFilter.addEventListener("change", renderRequestList);
+  adminRequestList.addEventListener("click", e => {
+    const btn = e.target.closest(".admin-request-detail-btn");
+    if (btn) openRequestDetail(btn.dataset.docid);
+  });
+
+  function openRequestDetail(docId) {
+    const r = allRequests.find(x=>x._docId===docId);
+    if (!r) return;
+    activeRequestDocId = docId;
+    adminReqDetailStatus.textContent = "";
+    adminAssignRecordId.value = r.assignedContractorRecordId||"";
+    adminReqDetailTitle.textContent = escapeHtml(r.serviceType||"Request Detail");
+    adminReqDetailMeta.innerHTML = `
+      <b>Category:</b> ${escapeHtml(r.categoryLabel||r.category||"—")}<br>
+      <b>Customer:</b> ${escapeHtml(r.name||"—")}<br>
+      <b>Email:</b> ${escapeHtml(r.email||"—")}<br>
+      <b>Phone:</b> ${escapeHtml(r.phone||"—")}<br>
+      <b>City:</b> ${escapeHtml(r.city||"—")}<br>
+      <b>Urgency:</b> ${escapeHtml(r.urgency||"—")}<br>
+      <b>Description:</b> ${escapeHtml(r.description||"—")}<br>
+      <b>Status:</b> ${escapeHtml(r.status||"new")}<br>
+      <b>Submitted:</b> ${formatDate(r.createdAt)}<br>
+      ${r.assignedContractorCompanyName?`<b>Assigned to:</b> ${escapeHtml(r.assignedContractorCompanyName)} (${escapeHtml(r.assignedContractorRecordId||"")})<br>`:""}
+      <b>Doc ID:</b> <code>${escapeHtml(r._docId||"")}</code>`;
+    const interested = Array.isArray(r.interestedContractors)?r.interestedContractors:[];
+    if (interested.length) {
+      adminReqInterestedWrap.hidden = false;
+      adminReqInterestedList.innerHTML = interested.map(ic=>`
+        <div style="padding:8px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+          <div>
+            <div style="font-weight:600;">${escapeHtml(ic.companyName||"—")}</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">${escapeHtml(ic.contactName||"")} · ${escapeHtml(ic.contractorRecordId||"")}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);">Expressed: ${formatDate(ic.expressedAt)}</div>
+          </div>
+          <button type="button" class="contractor-cta admin-autofill-assign-btn" style="font-size:0.8rem;padding:5px 12px;"
+            data-recordid="${escapeHtml(ic.contractorRecordId||"")}"
+            data-companyname="${escapeHtml(ic.companyName||"")}"
+            data-contactname="${escapeHtml(ic.contactName||"")}"
+            data-uid="${escapeHtml(ic.uid||"")}"
+            data-category="${escapeHtml(ic.category||"")}">Assign</button>
+        </div>`).join("");
+    } else {
+      adminReqInterestedWrap.hidden = true;
+      adminReqInterestedList.innerHTML = "";
+    }
+    adminRequestDetail.hidden = false;
+    adminRequestDetail.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  adminReqInterestedList.addEventListener("click", e => {
+    const btn = e.target.closest(".admin-autofill-assign-btn");
+    if (btn) adminAssignRecordId.value = btn.dataset.recordid||"";
+  });
+
+  adminReqDetailCloseBtn.addEventListener("click", () => { adminRequestDetail.hidden=true; activeRequestDocId=null; });
+
+  adminAssignBtn.addEventListener("click", async () => {
+    if (!activeRequestDocId) return;
+    const recordId = adminAssignRecordId.value.trim();
+    if (!recordId) { adminReqDetailStatus.textContent="Enter a contractor record ID to assign."; return; }
+    adminReqDetailStatus.textContent = "Looking up contractor...";
+    try {
+      const cSnap = await getDoc(doc(db,"contractors",recordId));
+      if (!cSnap.exists()) { adminReqDetailStatus.textContent=`No contractor found: ${recordId}`; return; }
+      const c = cSnap.data();
+      const now = Date.now();
+      await updateDoc(doc(db,"serviceRequests",activeRequestDocId), {
+        status:"assigned",
+        assignedContractorUid:           c.contractorUid||c.ownerUid||"",
+        assignedContractorRecordId:      recordId,
+        assignedContractorCategory:      c.category||"",
+        assignedContractorCategoryLabel: c.categoryLabel||"",
+        assignedContractorCompanyName:   c.companyName||"",
+        assignedContractorContactName:   c.contactName||"",
+        assignedContractorEmail:         c.email||"",
+        assignedContractorPhone:         c.phone||"",
+        updatedAt: now
+      });
+      if (c.contractorUid||c.ownerUid) {
+        const req = allRequests.find(x=>x._docId===activeRequestDocId);
+        await addDoc(collection(db,"contractorNotifications"), {
+          contractorUid:      c.contractorUid||c.ownerUid,
+          contractorRecordId: recordId,
+          category:           c.category||"",
+          categoryLabel:      c.categoryLabel||"",
+          title:   "New Lead Assigned",
+          message: `You have been assigned to a ${c.categoryLabel||c.category||""} service request: "${req?.serviceType||"Service Request"}" in ${req?.city||"your area"}. The customer will be in touch.`,
+          isRead:false, actorName:"Admin", createdAt:now
+        });
+      }
+      adminReqDetailStatus.textContent = `Assigned to ${c.companyName||recordId} and contractor notified.`;
+      openRequestDetail(activeRequestDocId);
+    } catch(err) {
+      console.error(err);
+      adminReqDetailStatus.textContent = `Error: ${err.code||""} ${err.message}`;
+    }
+  });
+
+  adminCloseRequestBtn.addEventListener("click", async () => {
+    if (!activeRequestDocId) return;
+    try {
+      await updateDoc(doc(db,"serviceRequests",activeRequestDocId), { status:"closed", updatedAt:Date.now() });
+      adminReqDetailStatus.textContent = "Request marked closed.";
+      openRequestDetail(activeRequestDocId);
+    } catch(err) { adminReqDetailStatus.textContent=`Error: ${err.message}`; }
+  });
+
+  async function init() {
+    const currentUser = await waitForAKOAuth();
+    const isAdmin = currentUser && (currentUser.tier==="admin" || currentUser.email==="johnkeif@gmail.com");
+    if (!isAdmin) { adminDenied.hidden=false; return; }
+    adminWrap.hidden = false;
+    showTab("contractors");
+    startContractorsListener();
+    startRequestsListener();
+  }
+
+  init();
+</script>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+  <span class="theme-toggle-icon">☀️</span>
+  <span id="toggleLabel">Light Mode</span>
+</button>
+<script>
+  (function(){
+    const html=document.documentElement;
+    const btn=document.getElementById('themeToggle');
+    const label=document.getElementById('toggleLabel');
+    const icon=btn.querySelector('.theme-toggle-icon');
+    const saved=localStorage.getItem('ako-theme')||'dark';
+    html.setAttribute('data-theme',saved);
+    label.textContent=saved==='dark'?'Light Mode':'Dark Mode';
+    icon.textContent=saved==='dark'?'☀️':'🌙';
+    btn.addEventListener('click',function(){
+      const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
+      html.setAttribute('data-theme',next);
+      localStorage.setItem('ako-theme',next);
+      label.textContent=next==='dark'?'Light Mode':'Dark Mode';
+      icon.textContent=next==='dark'?'☀️':'🌙';
+    });
+  })();
+</script>
+
+</body>
+</html>
