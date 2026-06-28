@@ -8,151 +8,97 @@
 </head>
 <body>
 
-<section class="contractor-leads-hero">
+<section class="contractor-hero">
   <div class="login-button">
     <div id="authArea">
       <span id="welcomeUser" class="welcome-user"></span>
       <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
     </div>
-
-    <button id="contractorLeadTopNotificationJump" type="button" class="auth-notification-jump is-hidden">
-      0 unread
-    </button>
   </div>
 
-  <a id="contractorLeadsBackLink" class="contractor-leads-back contractor-leads-back-floating" href="trucking.html">← Back to Trucking</a>
+  <a id="leadsBackLink" class="contractor-back contractor-back-floating" href="index.html">← Back to Home</a>
 
   <div class="container">
-    <div class="contractor-leads-hero-content">
-      <div class="contractor-leads-brand">AssistKingOnline</div>
-      <h1 id="contractorLeadsPageTitle" class="contractor-leads-title">📦 Trucking My Leads</h1>
-      <p id="contractorLeadsPageSubtitle">Review and respond to leads assigned to your trucking contractor profile.</p>
+    <div class="contractor-hero-content">
+      <div class="contractor-brand">AssistKingOnline</div>
+      <h1 id="leadsPageTitle" class="contractor-title">📋 My Leads</h1>
+      <p id="leadsPageSubtitle">Open service requests you can express interest in.</p>
     </div>
   </div>
 </section>
 
-<main class="container contractor-leads-wrap">
-  <div class="contractor-leads-card">
-    <strong id="contractorLeadsHeading">Your assigned leads</strong>
-    <p id="contractorLeadsIntroText" style="margin:8px 0 14px;color:var(--text-body);">This is where assigned trucking leads will appear.</p>
+<main class="container contractor-wrap">
 
-    <div id="contractorLeadReviewStatusBox" class="contractor-review-status-box">
-      <div class="contractor-review-status-top">
-        <span class="contractor-review-status-label">Approval status</span>
-        <span id="contractorLeadReviewStatusPill" class="contractor-review-status-pill status-not-submitted">not submitted</span>
-      </div>
-      <p id="contractorLeadReviewStatusMessage" class="contractor-review-status-message">Complete your profile and save it for review.</p>
-      <p id="contractorLeadReviewStatusMeta" class="contractor-review-status-meta"></p>
-
-      <div id="contractorLeadReviewFeedbackBox" class="contractor-review-feedback" hidden>
-        <div class="contractor-review-feedback-title">Admin review feedback</div>
-        <div id="contractorLeadReviewFeedbackText" class="contractor-review-feedback-text"></div>
-      </div>
-
-      <div id="contractorLeadResubmissionBox" class="contractor-resubmission-box" hidden>
-        <div class="contractor-resubmission-title">What to fix before re-review</div>
-        <ul id="contractorLeadResubmissionList" class="contractor-resubmission-list"></ul>
-        <a id="contractorLeadOnboardingLinkTop" href="contractor-onboarding.html?category=trucking" class="contractor-resubmission-link">Go to Contractor Onboarding</a>
-      </div>
-    </div>
-
-    <div id="contractorLeadDocumentSummaryBox" class="contractor-docs-box">
-      <div class="contractor-docs-title">Document review summary</div>
-      <p class="contractor-docs-note">This shows which approval documents you uploaded and how admin reviewed each one.</p>
-      <div id="contractorLeadDocumentSummaryList"></div>
-      <a id="contractorLeadOnboardingLinkBottom" href="contractor-onboarding.html?category=trucking" class="contractor-resubmission-link">
-        Go to Contractor Onboarding
-      </a>
-    </div>
-
-    <div id="contractorLeadNotificationsBox" class="contractor-notifications-box">
-      <div class="contractor-notifications-top">
-        <div class="contractor-notifications-title">Review notifications</div>
-        <span id="contractorLeadNotificationsBadge" class="contractor-notifications-badge">0 unread</span>
-      </div>
-      <div class="contractor-notifications-actions">
-        <button id="contractorLeadNotificationsMarkAllBtn" type="button" class="contractor-notifications-markall-btn">
-          Mark all read
-        </button>
-      </div>
-      <div id="contractorLeadNotificationsList" class="contractor-notifications-list">
-        <p class="contractor-notification-empty">No notifications yet.</p>
-      </div>
-    </div>
-
-    <div id="contractorLeadsList" class="requests-list">
-      <div class="request-item">
-        <p style="margin:0;font-weight:800;">Loading your leads...</p>
-      </div>
-    </div>
+  <div id="leadsNotLoggedIn" class="contractor-card" hidden>
+    <strong>Login required</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">You must be logged in as an approved contractor to view leads.</p>
+    <a id="leadsLoginLink" class="contractor-cta" href="index.html?auth=1">Log In</a>
   </div>
+
+  <div id="leadsNotApproved" class="contractor-card" hidden>
+    <strong>Approval required</strong>
+    <p style="margin:8px 0 14px;color:var(--text-body);">Your contractor profile must be approved before you can view leads for this category.</p>
+    <a id="leadsOnboardingLink" class="contractor-cta" href="contractor-onboarding.html">Complete Your Profile</a>
+  </div>
+
+  <div id="leadsApprovedWrap" hidden>
+
+    <div class="contractor-card">
+      <strong id="leadsApprovedHeading">Open Leads</strong>
+      <p id="leadsApprovedIntro" style="margin:8px 0 0;color:var(--text-body);">
+        These are open service requests in your category. Express interest and admin will follow up on assignment.
+      </p>
+    </div>
+
+    <div id="leadsListWrap" class="contractor-card">
+      <div id="leadsList">
+        <p class="contractor-notification-empty">Loading leads...</p>
+      </div>
+    </div>
+
+  </div>
+
+  <p id="leadsStatus" class="contractor-status" aria-live="polite"></p>
 </main>
 
-<script type="module" src="auth.js?v=16"></script>
+<script type="module" src="auth.js?v=18"></script>
 
 <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, getDoc, setDoc, collection, query, where,
-    updateDoc, addDoc, doc, onSnapshot
+    getFirestore, collection, query, where, doc, getDoc,
+    onSnapshot, updateDoc, arrayUnion
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  const app    = getApp();
-  const db     = getFirestore(app);
+  const app = getApp();
+  const db  = getFirestore(app);
   const params = new URLSearchParams(window.location.search);
 
-  const contractorLeadsList                    = document.getElementById("contractorLeadsList");
-  const contractorLeadReviewStatusPill         = document.getElementById("contractorLeadReviewStatusPill");
-  const contractorLeadReviewStatusMessage      = document.getElementById("contractorLeadReviewStatusMessage");
-  const contractorLeadReviewStatusMeta         = document.getElementById("contractorLeadReviewStatusMeta");
-  const contractorLeadReviewFeedbackBox        = document.getElementById("contractorLeadReviewFeedbackBox");
-  const contractorLeadReviewFeedbackText       = document.getElementById("contractorLeadReviewFeedbackText");
-  const contractorLeadResubmissionBox          = document.getElementById("contractorLeadResubmissionBox");
-  const contractorLeadResubmissionList         = document.getElementById("contractorLeadResubmissionList");
-  const contractorLeadDocumentSummaryBox       = document.getElementById("contractorLeadDocumentSummaryBox");
-  const contractorLeadDocumentSummaryList      = document.getElementById("contractorLeadDocumentSummaryList");
-  const contractorLeadNotificationsBox         = document.getElementById("contractorLeadNotificationsBox");
-  const contractorLeadNotificationsBadge       = document.getElementById("contractorLeadNotificationsBadge");
-  const contractorLeadNotificationsMarkAllBtn  = document.getElementById("contractorLeadNotificationsMarkAllBtn");
-  const contractorLeadNotificationsList        = document.getElementById("contractorLeadNotificationsList");
-  const contractorLeadTopNotificationJump      = document.getElementById("contractorLeadTopNotificationJump");
-  const contractorLeadsBackLink                = document.getElementById("contractorLeadsBackLink");
-  const contractorLeadsPageTitle               = document.getElementById("contractorLeadsPageTitle");
-  const contractorLeadsPageSubtitle            = document.getElementById("contractorLeadsPageSubtitle");
-  const contractorLeadsHeading                 = document.getElementById("contractorLeadsHeading");
-  const contractorLeadsIntroText               = document.getElementById("contractorLeadsIntroText");
-  const contractorLeadOnboardingLinkTop        = document.getElementById("contractorLeadOnboardingLinkTop");
-  const contractorLeadOnboardingLinkBottom     = document.getElementById("contractorLeadOnboardingLinkBottom");
+  const leadsNotLoggedIn    = document.getElementById("leadsNotLoggedIn");
+  const leadsNotApproved    = document.getElementById("leadsNotApproved");
+  const leadsApprovedWrap   = document.getElementById("leadsApprovedWrap");
+  const leadsApprovedHeading= document.getElementById("leadsApprovedHeading");
+  const leadsApprovedIntro  = document.getElementById("leadsApprovedIntro");
+  const leadsBackLink       = document.getElementById("leadsBackLink");
+  const leadsPageTitle      = document.getElementById("leadsPageTitle");
+  const leadsPageSubtitle   = document.getElementById("leadsPageSubtitle");
+  const leadsOnboardingLink = document.getElementById("leadsOnboardingLink");
+  const leadsLoginLink      = document.getElementById("leadsLoginLink");
+  const leadsList           = document.getElementById("leadsList");
+  const leadsStatus         = document.getElementById("leadsStatus");
 
-  let contractorProfile = null;
-  let contractorLeads   = [];
-  let contractorLeadNotificationItems = [];
-  let unsubscribeContractorProfileListener      = null;
-  let unsubscribeContractorLeadsListener        = null;
-  let unsubscribeContractorLeadNotificationsListener = null;
+  let unsubscribeLeads = null;
 
   const CATEGORY_CONFIG = {
-    trucking:         { key:"trucking",        label:"Trucking",       icon:"🚚", page:"trucking.html",        backText:"Back to Trucking",        title:"📦 Trucking My Leads",        subtitle:"Review and respond to leads assigned to your trucking contractor profile.",        intro:"This is where assigned trucking leads will appear." },
-    plumbing:         { key:"plumbing",        label:"Plumbing",       icon:"🔧", page:"plumbing.html",        backText:"Back to Plumbing",        title:"📦 Plumbing My Leads",        subtitle:"Review and respond to leads assigned to your plumbing contractor profile.",        intro:"This is where assigned plumbing leads will appear." },
-    electricians:     { key:"electricians",    label:"Electricians",   icon:"⚡", page:"electricians.html",    backText:"Back to Electricians",    title:"📦 Electricians My Leads",    subtitle:"Review and respond to leads assigned to your electricians contractor profile.",    intro:"This is where assigned electricians leads will appear." },
-    carpentry:        { key:"carpentry",       label:"Carpentry",      icon:"🪚", page:"carpentry.html",       backText:"Back to Carpentry",       title:"📦 Carpentry My Leads",       subtitle:"Review and respond to leads assigned to your carpentry contractor profile.",       intro:"This is where assigned carpentry leads will appear." },
-    auto:             { key:"auto",            label:"Auto Services",  icon:"🚗", page:"auto.html",            backText:"Back to Auto Services",   title:"📦 Auto Services My Leads",   subtitle:"Review and respond to leads assigned to your auto services contractor profile.",   intro:"This is where assigned auto service leads will appear." },
-    hvac:             { key:"hvac",            label:"HVAC",           icon:"❄️", page:"hvac.html",            backText:"Back to HVAC",            title:"📦 HVAC My Leads",            subtitle:"Review and respond to leads assigned to your HVAC contractor profile.",            intro:"This is where assigned HVAC leads will appear." },
-    "financial-help": { key:"financial-help",  label:"Financial Help", icon:"💵", page:"financial-help.html",  backText:"Back to Financial Help",  title:"📦 Financial Help My Leads",  subtitle:"Review and respond to leads assigned to your financial help provider profile.",  intro:"This is where assigned financial help leads will appear." },
-    "lawn-care":      { key:"lawn-care",       label:"Lawn Care",      icon:"🌿", page:"lawn-care.html",       backText:"Back to Lawn Care",       title:"📦 Lawn Care My Leads",       subtitle:"Review and respond to leads assigned to your lawn care contractor profile.",       intro:"This is where assigned lawn care leads will appear." },
-    food:             { key:"food",            label:"Food Services",  icon:"🍽️", page:"food2.html",           backText:"Back to Food Services",   title:"📦 Food Services My Leads",   subtitle:"Review and respond to leads assigned to your food services provider profile.",   intro:"This is where assigned food service leads will appear." }
-  };
-
-  const CATEGORY_DOC_CONFIG = {
-    trucking:         [ {key:"businessIdentity",label:"Legal business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"mcDotProof",label:"USDOT / MC proof",required:true}, {key:"equipmentProof",label:"Equipment / truck proof",required:false} ],
-    plumbing:         [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"plumbingLicense",label:"Plumbing contractor / plumber license (upload if applicable)",required:false}, {key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false} ],
-    electricians:     [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"electricalLicense",label:"Electrical contractor / electrician license (upload if applicable)",required:false}, {key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false} ],
-    carpentry:        [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"contractorLicense",label:"Contractor license (upload if applicable)",required:false}, {key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false} ],
-    auto:             [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Garage / liability insurance certificate",required:true}, {key:"aseOrRepairCert",label:"ASE certification or repair license (upload if applicable)",required:false}, {key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false} ],
-    hvac:             [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"hvacLicense",label:"HVAC contractor license",required:false}, {key:"epa608Proof",label:"EPA 608 certification (recommended)",required:false} ],
-    "financial-help": [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Professional liability / E&O insurance (if available)",required:true}, {key:"financeCert",label:"Professional certification or license (upload if applicable)",required:false}, {key:"businessRegistration",label:"Business registration or tax prep credential (recommended)",required:false} ],
-    "lawn-care":      [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"pesticideLicense",label:"Pesticide / applicator license (upload if applicable)",required:false}, {key:"workersCompProof",label:"Workers' comp certificate (recommended)",required:false} ],
-    food:             [ {key:"businessIdentity",label:"Business / identity document",required:true}, {key:"insuranceProof",label:"Insurance certificate",required:true}, {key:"foodPermit",label:"Food permit / health permit (upload if applicable)",required:false}, {key:"servsafeProof",label:"ServSafe or food safety certificate (recommended)",required:false} ]
+    trucking:         { label:"Trucking",       icon:"🚚", page:"trucking.html" },
+    plumbing:         { label:"Plumbing",       icon:"🔧", page:"plumbing.html" },
+    electricians:     { label:"Electricians",   icon:"⚡", page:"electricians.html" },
+    carpentry:        { label:"Carpentry",      icon:"🪚", page:"carpentry.html" },
+    auto:             { label:"Auto Services",  icon:"🚗", page:"auto.html" },
+    hvac:             { label:"HVAC",           icon:"❄️", page:"hvac.html" },
+    "financial-help": { label:"Financial Help", icon:"💵", page:"financial-help.html" },
+    "lawn-care":      { label:"Lawn Care",      icon:"🌿", page:"lawn-care.html" },
+    food:             { label:"Food Services",  icon:"🍽️", page:"food2.html" }
   };
 
   function normalizeCategory(value) {
@@ -170,11 +116,14 @@
     return "";
   }
 
-  const requestedCategory = normalizeCategory(params.get("category")) || "trucking";
+  function escapeHtml(v) {
+    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
+  }
 
-  function getCategoryConfig(key) { return CATEGORY_CONFIG[key] || CATEGORY_CONFIG.trucking; }
-  function getCategoryLeadDocumentEntries(key) { return CATEGORY_DOC_CONFIG[key] || CATEGORY_DOC_CONFIG.trucking; }
-  function getContractorDocId(uid, key) { return `${uid}__${key}`; }
+  function formatDate(ts) {
+    if (!ts) return "";
+    try { return new Date(ts).toLocaleString(); } catch { return ""; }
+  }
 
   function waitForAKOAuth() {
     return new Promise(resolve => {
@@ -183,451 +132,173 @@
     });
   }
 
-  function applyCategoryUI(categoryKey) {
-    const config = getCategoryConfig(categoryKey);
-    const onboardingHref = `contractor-onboarding.html?category=${encodeURIComponent(categoryKey)}`;
-    document.title = `AssistKingOnline — ${config.label} My Leads`;
-    if (contractorLeadsBackLink)     { contractorLeadsBackLink.href=config.page; contractorLeadsBackLink.textContent=`← ${config.backText}`; }
-    if (contractorLeadsPageTitle)    contractorLeadsPageTitle.textContent   = config.title;
-    if (contractorLeadsPageSubtitle) contractorLeadsPageSubtitle.textContent = config.subtitle;
-    if (contractorLeadsHeading)      contractorLeadsHeading.textContent     = `${config.label} Assigned Leads`;
-    if (contractorLeadsIntroText)    contractorLeadsIntroText.textContent   = config.intro;
-    if (contractorLeadOnboardingLinkTop)    contractorLeadOnboardingLinkTop.href    = onboardingHref;
-    if (contractorLeadOnboardingLinkBottom) contractorLeadOnboardingLinkBottom.href = onboardingHref;
-  }
+  function getContractorDocId(uid, categoryKey) { return `${uid}__${categoryKey}`; }
 
-  function formatDate(value) {
-    if (!value) return "—";
-    try { return new Date(value).toLocaleString(); } catch { return "—"; }
-  }
-
-  function escapeHtml(v) {
-    return String(v||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#39;");
-  }
-
-  function renderEmpty(message) {
-    contractorLeadsList.innerHTML = `<div class="request-item"><p style="margin:0;font-weight:800;">${escapeHtml(message)}</p></div>`;
-  }
-
-  function getApprovalMessage(status) {
-    if (status==="approved") return "Your contractor profile is approved. You are eligible for new lead assignment.";
-    if (status==="rejected") return "Your contractor profile is not approved right now. You may not receive new leads until this is resolved.";
-    if (status==="pending")  return "Your contractor profile is under review. You may not receive new leads until approved.";
-    return "Complete your profile and save it for review.";
-  }
-
-  function getContractorChecklistConfig(profileData) {
-    const rawCategory = normalizeCategory(profileData?.category||profileData?.categoryLabel||requestedCategory)||requestedCategory;
-    if (rawCategory==="trucking") return [
-      {key:"legalIdentityVerified",contractorText:"Be ready to verify your legal company and primary contact details."},
-      {key:"mcDotVerified",contractorText:"Make sure your USDOT / MC information is correct and ready for review."},
-      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
-      {key:"equipmentVerified",contractorText:"Make sure your listed equipment matches what you actually operate."},
-      {key:"serviceAreaVerified",contractorText:"Confirm your service area or lanes."},
-      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
-    ];
-    if (rawCategory==="hvac") return [
-      {key:"licenseVerified",contractorText:"Provide your HVAC license information for review."},
-      {key:"epaVerified",contractorText:"Provide your EPA 608 or required certification details."},
-      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
-      {key:"serviceAreaVerified",contractorText:"Confirm your service area."},
-      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
-    ];
-    if (rawCategory==="plumbing") return [
-      {key:"licenseVerified",contractorText:"Provide your plumbing license information for review if applicable."},
-      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
-      {key:"serviceAreaVerified",contractorText:"Confirm your service area."},
-      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
-    ];
-    if (rawCategory==="electricians") return [
-      {key:"licenseVerified",contractorText:"Provide your electrical license information for review if applicable."},
-      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
-      {key:"serviceAreaVerified",contractorText:"Confirm your service area."},
-      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
-    ];
-    return [
-      {key:"identityVerified",contractorText:"Be ready to verify your business identity."},
-      {key:"insuranceVerified",contractorText:"Provide current insurance proof for review."},
-      {key:"serviceAreaVerified",contractorText:"Confirm your service area."},
-      {key:"contactVerified",contractorText:"Make sure your phone and email are correct and reachable."}
-    ];
-  }
-
-  function getContractorActionItems(profileData) {
-    const checklistConfig  = getContractorChecklistConfig(profileData);
-    const reviewChecklist  = profileData?.reviewChecklist||{};
-    const checklistItems   = checklistConfig.filter(e=>reviewChecklist[e.key]!==true).map(e=>e.contractorText);
-    if (checklistItems.length) return checklistItems;
-    const category         = normalizeCategory(profileData?.category||profileData?.categoryLabel||requestedCategory)||requestedCategory;
-    const equipmentTypes   = Array.isArray(profileData?.equipmentTypes)?profileData.equipmentTypes:[];
-    const items = [];
-    if (!profileData?.companyName)       items.push("Add your company name.");
-    if (!profileData?.contactName)       items.push("Add your contact name.");
-    if (!profileData?.email)             items.push("Add your business email.");
-    if (!profileData?.phone)             items.push("Add your phone number.");
-    if (!profileData?.city)              items.push("Add your city.");
-    if (!profileData?.state)             items.push("Add your state.");
-    if (!profileData?.serviceRadiusMiles) items.push("Set your service radius.");
-    if (!profileData?.businessType)      items.push("Choose your business type.");
-    if (category==="trucking") {
-      if (!profileData?.mcDotNumber) items.push("Add your USDOT / MC number.");
-      if (!equipmentTypes.length)    items.push("Select at least one equipment type.");
-    }
-    if (category==="hvac"        && !profileData?.licenseNumber && !profileData?.stateLicenseNumber) items.push("Add your HVAC license number.");
-    if (category==="plumbing"    && !profileData?.licenseNumber) items.push("Add your plumbing license number if applicable.");
-    if (category==="electricians"&& !profileData?.licenseNumber) items.push("Add your electrical license number if applicable.");
-    return items;
-  }
-
-  function renderResubmissionCues(profileData) {
-    if (!contractorLeadResubmissionBox||!contractorLeadResubmissionList) return;
-    const safeStatus = String(profileData?.status||"not-submitted").toLowerCase();
-    const shouldShow = safeStatus==="pending"||safeStatus==="rejected";
-    if (!shouldShow) { contractorLeadResubmissionBox.hidden=true; contractorLeadResubmissionList.innerHTML=""; return; }
-    const items = getContractorActionItems(profileData);
-    contractorLeadResubmissionBox.hidden = false;
-    contractorLeadResubmissionList.innerHTML = items.length
-      ? items.map(i=>`<li>${escapeHtml(i)}</li>`).join("")
-      : `<li>Your profile looks complete. Review the admin feedback above and update your onboarding profile if needed.</li>`;
-  }
-
-  function renderLeadDocumentSummary(profileData) {
-    if (!contractorLeadDocumentSummaryBox||!contractorLeadDocumentSummaryList) return;
-    if (!profileData) {
-      contractorLeadDocumentSummaryBox.hidden = false;
-      contractorLeadDocumentSummaryList.innerHTML = `
-        <div class="contractor-doc-upload-row">
-          <div class="contractor-doc-upload-label">Approval documents</div>
-          <div class="contractor-doc-upload-status">
-            <span class="contractor-doc-status-pill required">Required</span>
-            <span class="contractor-doc-meta">Complete contractor onboarding and upload your approval documents.</span>
-          </div>
-        </div>`;
+  function renderLeads(requests, contractorUid, contractorRecordId) {
+    if (!leadsList) return;
+    if (!requests.length) {
+      leadsList.innerHTML = `<p class="contractor-notification-empty">No open leads in your category right now. Check back soon.</p>`;
       return;
     }
-    const categoryKey   = normalizeCategory(profileData.category||profileData.categoryLabel||requestedCategory)||requestedCategory;
-    const documents     = profileData.documents||{};
-    const documentReview = profileData.documentReview||{};
-    const entries       = getCategoryLeadDocumentEntries(categoryKey);
-    contractorLeadDocumentSummaryBox.hidden = false;
-    contractorLeadDocumentSummaryList.innerHTML = entries.map(entry => {
-      const meta         = documents[entry.key];
-      const review       = documentReview[entry.key]||{};
-      const reviewStatus = String(review.status||"pending").toLowerCase();
-      if (!meta?.url) return `
-        <div class="contractor-doc-upload-row">
-          <div class="contractor-doc-upload-label">${escapeHtml(entry.label)}</div>
-          <div class="contractor-doc-upload-status">
-            <span class="contractor-doc-status-pill ${entry.required?"required":"optional"}">${entry.required?"Required":"Optional"}</span>
-            <span class="contractor-doc-meta">No file uploaded yet.</span>
-          </div>
-        </div>`;
-      return `
-        <div class="contractor-doc-upload-row">
-          <div class="contractor-doc-upload-label">${escapeHtml(entry.label)}</div>
-          <div class="contractor-doc-upload-status">
-            <span class="contractor-doc-status-pill uploaded">Uploaded</span>
-            <a class="contractor-doc-link" href="${escapeHtml(meta.url)}" target="_blank" rel="noopener">View current file</a>
-            <span class="contractor-doc-meta">${escapeHtml(meta.name||"Uploaded file")}${meta.uploadedAt?` · ${escapeHtml(formatDate(meta.uploadedAt))}`:""}
-            </span>
-          </div>
-          <div class="contractor-doc-review-summary">
-            <span class="contractor-doc-review-pill status-${reviewStatus.replace(/\s+/g,"-")}">${escapeHtml(reviewStatus)}</span>
-            ${review.note?`<div class="contractor-doc-review-note">${escapeHtml(review.note)}</div>`:""}
-            ${review.reviewedAt?`<div class="contractor-doc-review-meta">Reviewed ${escapeHtml(formatDate(review.reviewedAt))}</div>`:""}
-          </div>
-        </div>`;
-    }).join("");
-  }
+    leadsList.innerHTML = requests.map(req => {
+      const alreadyInterested = Array.isArray(req.interestedContractors)
+        && req.interestedContractors.some(c => c.uid === contractorUid);
+      const isAssigned = req.assignedContractorUid === contractorUid;
 
-  function renderApprovalStatus(profileData) {
-    const safeStatus    = String(profileData?.status||"not-submitted").toLowerCase();
-    const reviewFeedback = String(profileData?.reviewFeedback||"").trim();
-    if (contractorLeadReviewStatusPill) {
-      contractorLeadReviewStatusPill.textContent = safeStatus;
-      contractorLeadReviewStatusPill.className   = `contractor-review-status-pill status-${safeStatus.replace(/\s+/g,"-")}`;
-    }
-    if (contractorLeadReviewStatusMessage) contractorLeadReviewStatusMessage.textContent = getApprovalMessage(safeStatus);
-    if (contractorLeadReviewStatusMeta) {
-      if (!profileData) { contractorLeadReviewStatusMeta.textContent=""; }
-      else {
-        const submittedAt   = profileData.submittedForReviewAt   ? `Submitted: ${new Date(profileData.submittedForReviewAt).toLocaleString()}`   : "";
-        const resubmittedAt = profileData.resubmittedForReviewAt ? `Resubmitted: ${new Date(profileData.resubmittedForReviewAt).toLocaleString()}` : "";
-        contractorLeadReviewStatusMeta.textContent = [submittedAt,resubmittedAt].filter(Boolean).join(" · ");
+      let statusBadge = "";
+      if (isAssigned) {
+        statusBadge = `<span class="contractor-review-status-pill status-approved" style="margin-left:8px;">Assigned to you</span>`;
+      } else if (alreadyInterested) {
+        statusBadge = `<span class="contractor-review-status-pill status-pending" style="margin-left:8px;">Interest expressed</span>`;
       }
-    }
-    if (contractorLeadReviewFeedbackBox&&contractorLeadReviewFeedbackText) {
-      const shouldShowFeedback = !!reviewFeedback&&(safeStatus==="pending"||safeStatus==="rejected");
-      contractorLeadReviewFeedbackBox.hidden = !shouldShowFeedback;
-      contractorLeadReviewFeedbackText.textContent = shouldShowFeedback?reviewFeedback:"";
-    }
-    renderResubmissionCues(profileData);
-  }
-
-  function renderContractorLeadNotifications(items = []) {
-    contractorLeadNotificationItems = [...items].sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-    const unreadCount = contractorLeadNotificationItems.filter(i=>i.isRead!==true).length;
-    if (contractorLeadNotificationsBadge) contractorLeadNotificationsBadge.textContent = unreadCount?`${unreadCount} unread`:"All caught up";
-    if (contractorLeadNotificationsMarkAllBtn) contractorLeadNotificationsMarkAllBtn.disabled = unreadCount===0;
-    if (contractorLeadTopNotificationJump) {
-      contractorLeadTopNotificationJump.textContent = `${unreadCount} unread`;
-      contractorLeadTopNotificationJump.classList.toggle("is-hidden", unreadCount===0);
-    }
-    if (!contractorLeadNotificationsList) return;
-    if (!contractorLeadNotificationItems.length) { contractorLeadNotificationsList.innerHTML=`<p class="contractor-notification-empty">No notifications yet.</p>`; return; }
-    contractorLeadNotificationsList.innerHTML = contractorLeadNotificationItems.slice(0,8).map(item=>`
-      <div class="contractor-notification-item ${item.isRead===true?"":"is-unread"}">
-        <div class="contractor-notification-row">
-          <div class="contractor-notification-title">${escapeHtml(item.title||"Review update")}</div>
-          <div class="contractor-notification-time">${escapeHtml(formatDate(item.createdAt)||"—")}</div>
-        </div>
-        <div class="contractor-notification-message">${escapeHtml(item.message||"")}</div>
-        <div class="contractor-notification-meta">${escapeHtml(item.actorName||"Admin")}</div>
-        ${item.isRead===true
-          ? `<span class="contractor-notification-read-state">Read</span>`
-          : `<button type="button" class="contractor-notification-read-btn" data-notificationid="${escapeHtml(item._docId||"")}">Mark read</button>`
-        }
-      </div>`).join("");
-  }
-
-  async function markContractorLeadNotificationRead(notificationId) {
-    if (!notificationId) return;
-    await updateDoc(doc(db,"contractorNotifications",notificationId), { isRead:true, readAt:Date.now() });
-  }
-
-  async function markAllContractorLeadNotificationsRead() {
-    for (const item of contractorLeadNotificationItems.filter(i=>i.isRead!==true)) {
-      await markContractorLeadNotificationRead(item._docId);
-    }
-  }
-
-  function renderLeads(items) {
-    if (!contractorProfile) { renderEmpty("Complete contractor onboarding before you can receive leads."); return; }
-    if (!items.length) { renderEmpty(`No ${getCategoryConfig(requestedCategory).label.toLowerCase()} leads have been assigned to you yet.`); return; }
-
-    contractorLeadsList.innerHTML = items.map(item => {
-      const rawStatus         = String(item.leadStatus||"offered").toLowerCase();
-      const contractorApproved = String(contractorProfile?.status||"").toLowerCase()==="approved";
-      const canRespond        = rawStatus==="offered" && contractorApproved;
 
       return `
-        <div class="request-item">
-          <div class="request-item-top">
-            <div>
-              <h3 class="request-item-title">${escapeHtml(item.serviceType||"Lead")}</h3>
-              <p class="request-item-subtitle">${escapeHtml(item.categoryLabel||item.category||"")}</p>
-            </div>
-            <span class="request-status-pill status-${escapeHtml(rawStatus.replace(/\s+/g,"-"))}">${escapeHtml(item.leadStatus||"offered")}</span>
+        <div class="contractor-review-status-box" style="margin-bottom:16px;">
+          <div class="contractor-review-status-top">
+            <span class="contractor-review-status-label">${escapeHtml(req.categoryLabel||req.category||"")} · ${escapeHtml(req.urgency||"")}</span>
+            <span class="contractor-review-status-pill status-not-submitted">${escapeHtml(req.status||"new")}</span>
           </div>
-          <div class="request-meta">
-            <span>📍 ${escapeHtml(item.city||"—")}</span>
-            <span>⏱ ${escapeHtml(item.urgency||"—")}</span>
-            <span>🗓 ${escapeHtml(formatDate(item.createdAt))}</span>
+          <div style="margin:8px 0 4px;">
+            <strong style="font-size:1rem;">${escapeHtml(req.serviceType||"Service Request")}</strong>
+            ${statusBadge}
           </div>
-          <p class="request-desc">${escapeHtml(item.description||"")}</p>
-          <div class="request-contact">
-            <span>👤 ${escapeHtml(item.customerName||"—")}</span>
-            <span>✉️ ${escapeHtml(item.customerEmail||"—")}</span>
-            <span>📞 ${escapeHtml(item.customerPhone||"—")}</span>
+          <p style="margin:4px 0;color:var(--text-body);font-size:0.93rem;">${escapeHtml(req.description||"")}</p>
+          <div style="margin:8px 0 0;font-size:0.85rem;color:var(--text-muted);">
+            📍 ${escapeHtml(req.city||"—")} &nbsp;·&nbsp; 🕐 ${escapeHtml(formatDate(req.createdAt))}
           </div>
-          <div class="request-quick-actions">
-            ${item.customerPhone?`<a href="tel:${escapeHtml(String(item.customerPhone).replace(/[^\d+]/g,""))}" class="request-contact-btn contact-call-btn">Call</a>`:""}
-            ${item.customerEmail?`<a href="mailto:${escapeHtml(item.customerEmail)}" class="request-contact-btn contact-email-btn">Email</a>`:""}
-          </div>
-          <div class="lead-response-actions">
-            ${canRespond?`
-              <button type="button" class="lead-accept-btn"  data-leadid="${escapeHtml(item._docId||"")}">Accept Lead</button>
-              <button type="button" class="lead-decline-btn" data-leadid="${escapeHtml(item._docId||"")}">Decline Lead</button>
-            `:""}
+          <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            ${isAssigned
+              ? `<span class="contractor-review-status-pill status-approved">You are assigned to this job</span>`
+              : alreadyInterested
+                ? `<span style="color:var(--text-muted);font-size:0.9rem;">You expressed interest — admin will follow up.</span>`
+                : `<button type="button" class="contractor-cta leads-interest-btn"
+                    data-requestid="${escapeHtml(req._docId||"")}"
+                    data-recordid="${escapeHtml(contractorRecordId||"")}">
+                    Express Interest
+                   </button>`
+            }
           </div>
         </div>`;
     }).join("");
   }
 
-  function startContractorLeadNotificationsListener(currentUser, categoryKey) {
-    if (unsubscribeContractorLeadNotificationsListener) unsubscribeContractorLeadNotificationsListener();
-    const q = query(collection(db,"contractorNotifications"), where("contractorUid","==",currentUser.uid));
-    unsubscribeContractorLeadNotificationsListener = onSnapshot(q,
+  function startLeadsListener(categoryKey, contractorUid, contractorRecordId) {
+    if (unsubscribeLeads) unsubscribeLeads();
+    const q = query(
+      collection(db, "serviceRequests"),
+      where("category", "==", categoryKey),
+      where("status", "in", ["new", "open", "assigned"])
+    );
+    unsubscribeLeads = onSnapshot(q,
       snapshot => {
-        const recordId = getContractorDocId(currentUser.uid, categoryKey);
-        const items    = snapshot.docs
-          .map(d=>({ _docId:d.id, ...d.data() }))
-          .filter(item => {
-            const itemCategory = normalizeCategory(item.category||item.categoryLabel||"");
-            const itemRecordId = String(item.contractorRecordId||"").trim();
-            return itemCategory===categoryKey && itemRecordId===recordId;
-          });
-        renderContractorLeadNotifications(items);
+        const requests = snapshot.docs
+          .map(d => ({ _docId: d.id, ...d.data() }))
+          .sort((a, b) => Number(b.createdAt||0) - Number(a.createdAt||0));
+        renderLeads(requests, contractorUid, contractorRecordId);
       },
       err => {
-        console.error(err);
-        if (contractorLeadNotificationsList) contractorLeadNotificationsList.innerHTML=`<p class="contractor-notification-empty">Could not load notifications.</p>`;
+        console.error("[AKO Leads] Listener error:", err);
+        if (leadsList) leadsList.innerHTML = `<p class="contractor-notification-empty">Could not load leads: ${escapeHtml(err.message)}</p>`;
       }
     );
   }
 
-  function startContractorLeadsListener(currentUser, categoryKey) {
-    if (unsubscribeContractorLeadsListener) unsubscribeContractorLeadsListener();
-    const q = query(collection(db,"contractorLeads"), where("contractorUid","==",currentUser.uid));
-    unsubscribeContractorLeadsListener = onSnapshot(q,
-      snapshot => {
-        const recordId = getContractorDocId(currentUser.uid, categoryKey);
-        contractorLeads = snapshot.docs
-          .map(d=>({ _docId:d.id, ...d.data() }))
-          .filter(item => {
-            const itemCategory = normalizeCategory(item.category||item.categoryLabel||"");
-            const itemRecordId = String(item.contractorRecordId||"").trim();
-            return itemCategory===categoryKey && itemRecordId===recordId;
-          })
-          .sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-        renderLeads(contractorLeads);
-      },
-      err => { console.error(err); renderEmpty(`Could not load your leads: ${err.message}`); }
-    );
-  }
-
-  function startContractorProfileListener(currentUser, categoryKey) {
-    if (unsubscribeContractorProfileListener) unsubscribeContractorProfileListener();
-    unsubscribeContractorProfileListener = onSnapshot(
-      doc(db,"contractors",getContractorDocId(currentUser.uid, categoryKey)),
-      snap => {
-        if (!snap.exists()) { contractorProfile=null; renderApprovalStatus(null); renderLeadDocumentSummary(null); renderLeads([]); return; }
-        contractorProfile = snap.data();
-        renderApprovalStatus(contractorProfile);
-        renderLeadDocumentSummary(contractorProfile);
-        renderLeads(contractorLeads);
-      },
-      err => { console.error(err); renderEmpty(`Could not load your contractor profile: ${err.message}`); }
-    );
-  }
-
-  async function loadMyLeads() {
-    const currentUser = await waitForAKOAuth();
-    if (!currentUser) { window.location.href=`index.html?auth=1&return=${encodeURIComponent(`my-leads.html?category=${requestedCategory}`)}`; return; }
-
-    applyCategoryUI(requestedCategory);
-
-    const profileRef      = doc(db,"contractors",getContractorDocId(currentUser.uid, requestedCategory));
-    const profileSnap     = await getDoc(profileRef);
-    const expectedRecordId = getContractorDocId(currentUser.uid, requestedCategory);
-
-    if (profileSnap.exists()) {
-      contractorProfile = profileSnap.data();
-      if (contractorProfile.ownerUid!==currentUser.uid||contractorProfile.contractorUid!==currentUser.uid||contractorProfile.contractorRecordId!==expectedRecordId) {
-        try {
-          await setDoc(profileRef, { ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId, category:requestedCategory, categoryLabel:getCategoryConfig(requestedCategory).label, updatedAt:Date.now() }, { merge:true });
-          contractorProfile = { ...contractorProfile, ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId };
-        } catch(err) { console.warn("Contractor profile identity normalization skipped:", err); }
-      }
-      renderApprovalStatus(contractorProfile);
-      renderLeadDocumentSummary(contractorProfile);
-    } else {
-      const legacySnap = await getDoc(doc(db,"contractors",currentUser.uid));
-      if (legacySnap.exists()) {
-        const legacyData     = legacySnap.data();
-        const legacyCategory = normalizeCategory(legacyData.category||legacyData.categoryLabel)||"trucking";
-        if (legacyCategory===requestedCategory) {
-          contractorProfile = { ...legacyData, ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId, category:requestedCategory, categoryLabel:getCategoryConfig(requestedCategory).label };
-          renderApprovalStatus(contractorProfile);
-          renderLeadDocumentSummary(contractorProfile);
-          try {
-            await setDoc(profileRef, { ...legacyData, ownerUid:currentUser.uid, contractorUid:currentUser.uid, contractorRecordId:expectedRecordId, category:requestedCategory, categoryLabel:getCategoryConfig(requestedCategory).label, migratedFromLegacy:true, updatedAt:Date.now() }, { merge:true });
-          } catch(err) { console.warn("Legacy contractor migration skipped:", err); }
-        } else { contractorProfile=null; renderApprovalStatus(null); renderLeadDocumentSummary(null); }
-      } else { contractorProfile=null; renderApprovalStatus(null); renderLeadDocumentSummary(null); }
+  async function expressInterest(requestId, contractorUid, contractorRecordId, companyName, contactName, categoryKey) {
+    if (!requestId) return;
+    leadsStatus.textContent = "Expressing interest...";
+    try {
+      await updateDoc(doc(db, "serviceRequests", requestId), {
+        interestedContractors: arrayUnion({
+          uid:               contractorUid,
+          contractorRecordId,
+          companyName:       companyName || "",
+          contactName:       contactName || "",
+          category:          categoryKey,
+          expressedAt:       Date.now()
+        }),
+        updatedAt: Date.now()
+      });
+      leadsStatus.textContent = "Interest recorded! Admin will review and follow up.";
+      setTimeout(() => { leadsStatus.textContent = ""; }, 4000);
+    } catch(err) {
+      console.error("[AKO Leads] Express interest error:", err);
+      leadsStatus.textContent = `Error: ${err.code||""} ${err.message||"Could not express interest."}`;
     }
-
-    startContractorProfileListener(currentUser, requestedCategory);
-    startContractorLeadsListener(currentUser, requestedCategory);
-    startContractorLeadNotificationsListener(currentUser, requestedCategory);
   }
 
-  contractorLeadsList.addEventListener("click", async e => {
-    const acceptBtn = e.target.closest(".lead-accept-btn");
-    if (acceptBtn) {
-      const currentUser = await waitForAKOAuth();
-      const leadId = acceptBtn.getAttribute("data-leadid");
-      const lead   = contractorLeads.find(i=>i._docId===leadId);
-      if (!leadId||!lead) { alert("Could not find this lead."); return; }
-      if (String(contractorProfile?.status||"").toLowerCase()!=="approved") { alert("Your contractor profile must be approved before you can respond to leads."); return; }
-      if (!confirm("Accept this lead?")) return;
-      const now = Date.now();
-      try {
-        await updateDoc(doc(db,"contractorLeads",leadId), { leadStatus:"accepted", respondedAt:now, updatedAt:now });
-        try {
-          await addDoc(collection(db,"requestActivity"), {
-            requestId:lead.requestId||leadId, ownerUid:lead.ownerUid||"", contractorUid:currentUser.uid,
-            contractorRecordId:getContractorDocId(currentUser.uid,requestedCategory), actorUid:currentUser.uid,
-            actorName:contractorProfile?.companyName||contractorProfile?.contactName||currentUser.name||currentUser.email||"Contractor",
-            actorRole:"contractor", actionType:"accepted", serviceType:lead.serviceType||"",
-            category:normalizeCategory(lead.category||lead.categoryLabel||requestedCategory)||requestedCategory,
-            categoryLabel:lead.categoryLabel||getCategoryConfig(requestedCategory).label,
-            contractorCompanyName:contractorProfile?.companyName||lead.contractorCompanyName||"",
-            contractorContactName:contractorProfile?.contactName||lead.contractorContactName||"", createdAt:now
-          });
-        } catch(activityErr) { console.warn("Activity log write failed:", activityErr); }
-        alert("Lead accepted.");
-      } catch(err) { console.error(err); alert(`Could not accept lead: ${err.message}`); }
+  async function init() {
+    const currentUser = await waitForAKOAuth();
+
+    if (!currentUser) {
+      leadsNotLoggedIn.hidden = false;
+      const returnUrl = `my-leads.html${window.location.search}`;
+      if (leadsLoginLink) leadsLoginLink.href = `index.html?auth=1&return=${encodeURIComponent(returnUrl)}`;
       return;
     }
 
-    const declineBtn = e.target.closest(".lead-decline-btn");
-    if (declineBtn) {
-      const currentUser = await waitForAKOAuth();
-      const leadId = declineBtn.getAttribute("data-leadid");
-      const lead   = contractorLeads.find(i=>i._docId===leadId);
-      if (!leadId||!lead) { alert("Could not find this lead."); return; }
-      if (String(contractorProfile?.status||"").toLowerCase()!=="approved") { alert("Your contractor profile must be approved before you can respond to leads."); return; }
-      if (!confirm("Decline this lead?")) return;
-      const now = Date.now();
-      try {
-        await updateDoc(doc(db,"contractorLeads",leadId), { leadStatus:"declined", respondedAt:now, updatedAt:now });
-        try {
-          await addDoc(collection(db,"requestActivity"), {
-            requestId:lead.requestId||leadId, ownerUid:lead.ownerUid||"", contractorUid:currentUser.uid,
-            contractorRecordId:getContractorDocId(currentUser.uid,requestedCategory), actorUid:currentUser.uid,
-            actorName:contractorProfile?.companyName||contractorProfile?.contactName||currentUser.name||currentUser.email||"Contractor",
-            actorRole:"contractor", actionType:"declined", serviceType:lead.serviceType||"",
-            category:normalizeCategory(lead.category||lead.categoryLabel||requestedCategory)||requestedCategory,
-            categoryLabel:lead.categoryLabel||getCategoryConfig(requestedCategory).label,
-            contractorCompanyName:contractorProfile?.companyName||lead.contractorCompanyName||"",
-            contractorContactName:contractorProfile?.contactName||lead.contractorContactName||"", createdAt:now
-          });
-        } catch(activityErr) { console.warn("Activity log write failed:", activityErr); }
-        alert("Lead declined.");
-      } catch(err) { console.error(err); alert(`Could not decline lead: ${err.message}`); }
+    const categoryKey = normalizeCategory(params.get("category")) || "";
+    const config      = CATEGORY_CONFIG[categoryKey];
+
+    if (config) {
+      leadsPageTitle.textContent    = `${config.icon} My Leads — ${config.label}`;
+      leadsPageSubtitle.textContent = `Open ${config.label.toLowerCase()} service requests you can express interest in.`;
+      leadsBackLink.href            = config.page;
+      leadsBackLink.textContent     = `← Back to ${config.label}`;
+      leadsApprovedHeading.textContent = `Open ${config.label} Leads`;
+      leadsApprovedIntro.textContent   = `These are open ${config.label.toLowerCase()} service requests. Express interest and admin will handle assignment.`;
+      if (leadsOnboardingLink) leadsOnboardingLink.href = `contractor-onboarding.html?category=${encodeURIComponent(categoryKey)}`;
     }
-  });
 
-  if (contractorLeadNotificationsList) {
-    contractorLeadNotificationsList.addEventListener("click", async e => {
-      const readBtn = e.target.closest(".contractor-notification-read-btn");
-      if (!readBtn) return;
-      const notificationId = readBtn.getAttribute("data-notificationid");
-      if (!notificationId) return;
-      try { await markContractorLeadNotificationRead(notificationId); }
-      catch(err) { console.error(err); alert(`Could not mark notification read: ${err.message}`); }
-    });
+    if (!categoryKey || !config) {
+      leadsNotApproved.hidden = false;
+      leadsNotApproved.querySelector("p").textContent = "No valid category selected. Please return to your category page and click My Leads from there.";
+      return;
+    }
+
+    const contractorRecordId = getContractorDocId(currentUser.uid, categoryKey);
+    console.log("[AKO Leads] Checking contractor doc:", contractorRecordId);
+
+    let profileData = null;
+    try {
+      const snap = await getDoc(doc(db, "contractors", contractorRecordId));
+      profileData = snap.exists() ? snap.data() : null;
+    } catch(err) {
+      console.error("[AKO Leads] Could not read contractor profile:", err);
+      leadsStatus.textContent = `Could not verify your contractor status: ${err.message}`;
+      return;
+    }
+
+    const status = String(profileData?.status||"").toLowerCase();
+    console.log("[AKO Leads] Contractor status:", status);
+
+    if (!profileData || status !== "approved") {
+      leadsNotApproved.hidden = false;
+      return;
+    }
+
+    leadsApprovedWrap.hidden = false;
+
+    const companyName = profileData.companyName || "";
+    const contactName = profileData.contactName || currentUser.name || "";
+
+    startLeadsListener(categoryKey, currentUser.uid, contractorRecordId);
+
+    if (leadsList) {
+      leadsList.addEventListener("click", async e => {
+        const btn = e.target.closest(".leads-interest-btn");
+        if (!btn) return;
+        const requestId = btn.getAttribute("data-requestid");
+        if (!requestId) return;
+        btn.disabled = true;
+        btn.textContent = "Sending...";
+        await expressInterest(requestId, currentUser.uid, contractorRecordId, companyName, contactName, categoryKey);
+      });
+    }
   }
 
-  if (contractorLeadNotificationsMarkAllBtn) {
-    contractorLeadNotificationsMarkAllBtn.addEventListener("click", async () => {
-      try { await markAllContractorLeadNotificationsRead(); }
-      catch(err) { console.error(err); alert(`Could not mark all notifications read: ${err.message}`); }
-    });
-  }
-
-  if (contractorLeadTopNotificationJump&&contractorLeadNotificationsBox) {
-    contractorLeadTopNotificationJump.addEventListener("click", () => {
-      contractorLeadNotificationsBox.scrollIntoView({ behavior:"smooth", block:"start" });
-    });
-  }
-
-  applyCategoryUI(requestedCategory);
-  loadMyLeads();
+  init();
 </script>
 
-<!-- Theme toggle -->
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
   <span id="toggleLabel">Light Mode</span>
