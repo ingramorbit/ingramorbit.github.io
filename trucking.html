@@ -6,12 +6,10 @@
   <title>AssistKingOnline — Trucking</title>
   <link rel="stylesheet" href="styles.css?v=39">
   <style>
-    /* Trucking-specific overrides */
     .trucking-hero {
       background: var(--bg-hero);
       transition: background 0.35s ease;
     }
-
     .section-heading {
       font-family: 'DM Serif Display', serif;
       font-size: 24px;
@@ -21,15 +19,12 @@
       letter-spacing: -.01em;
       transition: color 0.35s ease;
     }
-
     .section-sub {
       font-size: 14px;
       color: var(--text-body);
       margin: 0 0 14px;
       transition: color 0.35s ease;
     }
-
-    /* Job description textarea themed */
     #pjDescription {
       width: 100%;
       padding: 12px;
@@ -45,7 +40,6 @@
       font-family: inherit;
       transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
     }
-
     #pjDescription:focus {
       border-color: var(--border-focus);
       box-shadow: 0 0 0 3px rgba(201,168,76,0.18);
@@ -192,7 +186,6 @@
       </select>
 
       <input id="pjCategory" value="trucking" readonly />
-
       <textarea id="pjDescription" placeholder="Short job description" required></textarea>
 
       <button type="submit" class="trucking-cta">Post Job</button>
@@ -215,7 +208,7 @@
 
 </main>
 
-<script type="module" src="auth.js?v=16"></script>
+<script type="module" src="auth.js?v=18"></script>
 
 <script type="module">
   import { getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -226,15 +219,15 @@
   const app = getApp();
   const db  = getFirestore(app);
 
-  const body       = document.getElementById("lbBody");
+  const body        = document.getElementById("lbBody");
   const jobBoardList = document.getElementById("jobBoardList");
-  const search     = document.getElementById("lbSearch");
-  const equip      = document.getElementById("lbEquip");
-  const sort       = document.getElementById("lbSort");
-  const postForm   = document.getElementById("postLoadForm");
+  const search      = document.getElementById("lbSearch");
+  const equip       = document.getElementById("lbEquip");
+  const sort        = document.getElementById("lbSort");
+  const postForm    = document.getElementById("postLoadForm");
   const postJobForm = document.getElementById("postJobForm");
 
-  const plId = document.getElementById("plId");
+  const plId         = document.getElementById("plId");
   const plPickupCity = document.getElementById("plPickupCity");
   const plDropCity   = document.getElementById("plDropCity");
   const plEquipment  = document.getElementById("plEquipment");
@@ -377,9 +370,9 @@
     );
   }
 
-  if (search)  search.addEventListener("input",  applyFilters);
-  if (equip)   equip.addEventListener("change",  applyFilters);
-  if (sort)    sort.addEventListener("change",   applyFilters);
+  if (search) search.addEventListener("input",  applyFilters);
+  if (equip)  equip.addEventListener("change",  applyFilters);
+  if (sort)   sort.addEventListener("change",   applyFilters);
 
   document.addEventListener("ako-auth-ready", () => { applyFilters(); renderJobs(truckingJobs); });
 
@@ -399,8 +392,8 @@
       const deleteBtn = e.target.closest(".lb-delete-btn");
       if (!deleteBtn) return;
       if (!isAdminUser()) { alert("Admin access is required to delete loads."); return; }
-      const docId=deleteBtn.getAttribute("data-docid");
-      const loadId=deleteBtn.getAttribute("data-loadid")||"this load";
+      const docId  = deleteBtn.getAttribute("data-docid");
+      const loadId = deleteBtn.getAttribute("data-loadid")||"this load";
       if (!docId) { alert("Could not delete this load."); return; }
       if (!confirm(`Delete ${loadId}?`)) return;
       try { await deleteDoc(doc(db,"loads",docId)); alert("Load deleted."); }
@@ -430,7 +423,7 @@
       const currentUser = getCurrentUser();
       if (!currentUser) { redirectToLogin(); return; }
       const newLoad = {
-        id: (plId.value||"").trim()||("AK-"+Date.now()),
+        id:         (plId.value||"").trim()||("AK-"+Date.now()),
         pickupCity: (plPickupCity.value||"").trim(),
         dropCity:   (plDropCity.value||"").trim(),
         equipment:  (plEquipment.value||"").trim(),
@@ -488,7 +481,6 @@
   }
 </script>
 
-<!-- Theme toggle -->
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
   <span class="theme-toggle-icon">☀️</span>
   <span id="toggleLabel">Light Mode</span>
@@ -515,4 +507,4 @@
 </script>
 
 </body>
-  </html>
+</html>
