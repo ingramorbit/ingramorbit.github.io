@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AssistKingOnline — Billing</title>
+  <link rel="stylesheet" href="styles.css?v=41">
+</head>
+<body>
+  <section class="plans-hero">
+
+    <div class="login-button">
+      <div id="authArea">
+        <span id="welcomeUser" class="welcome-user"></span>
+        <button id="openAuth" class="auth-main-btn">Log In / Sign Up</button>
+      </div>
+    </div>
+
+    <a class="plans-back plans-back-floating" href="plans.html">← Back to Plans</a>
+
+    <div class="container">
+      <div class="plans-hero-content">
+        <div class="plans-brand">AssistKingOnline</div>
+        <h1 class="plans-title">💳 Billing & Subscription Management</h1>
+        <p>Manage your subscription, payment method, invoices, and billing details securely through Stripe.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="container plans-wrap">
+    <div class="request-card">
+      <strong>Manage your billing</strong>
+      <p style="margin:8px 0 14px;">
+        If you already have a paid AssistKingOnline subscription, use the secure billing portal below to manage your account.
+      </p>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="trucking-cta" href="https://billing.stripe.com/p/login/eVqdRaghX05U93tcel53O00">Open Billing Portal</a>
+        <a class="trucking-cta" href="plans.html">View Plans</a>
+        <a class="trucking-cta" href="contact.html">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="request-card" style="margin-top:18px;">
+      <strong>What you can do in the billing portal</strong>
+      <ul style="margin:10px 0 0 18px; padding:0; line-height:1.8;">
+        <li>Update your payment method</li>
+        <li>View billing history and invoices</li>
+        <li>Review your active subscription</li>
+        <li>Cancel your subscription if needed</li>
+      </ul>
+    </div>
+
+    <div class="request-card" style="margin-top:18px;">
+      <strong>How access works</strong>
+      <p style="margin:8px 0 0;">
+        Stripe will ask for the email tied to your subscription and send a secure one-time login code.
+        Use the same email address you used when you signed up for Silver or Gold.
+      </p>
+    </div>
+
+    <div class="request-card" style="margin-top:18px;">
+      <strong>Secure billing powered by Stripe</strong>
+      <p style="margin:8px 0 0;">
+        AssistKingOnline uses Stripe’s hosted billing portal so your subscription and payment details can be managed securely.
+      </p>
+    </div>
+  </main>
+
+  <script type="module" src="auth.js?v=18"></script>
+
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark mode">
+    <span class="theme-toggle-icon">☀️</span>
+    <span id="toggleLabel">Light Mode</span>
+  </button>
+
+  <script>
+    (function(){
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      const label = document.getElementById('toggleLabel');
+      const icon = btn.querySelector('.theme-toggle-icon');
+      const saved = localStorage.getItem('ako-theme') || 'dark';
+
+      html.setAttribute('data-theme', saved);
+      label.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
+      icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+
+      btn.addEventListener('click', function(){
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('ako-theme', next);
+        label.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+        icon.textContent = next === 'dark' ? '☀️' : '🌙';
+      });
+    })();
+  </script>
+
+</body>
+</html>
