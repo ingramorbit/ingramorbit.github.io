@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>AssistKingOnline — Plans & Pricing</title>
-  <link rel="stylesheet" href="styles.css?v=39">
+  <link rel="stylesheet" href="styles.css?v=40">
 </head>
 <body>
   <section class="plans-hero">
@@ -83,10 +83,16 @@
         Start with Bronze if you are exploring. Choose Silver if you want more tools and posting power.
         Choose Gold if you want stronger visibility and more serious lead growth.
       </p>
+
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <a class="trucking-cta" href="financial-help.html">Financial Help</a>
         <a class="trucking-cta" href="contact.html">Contact Us</a>
+        <a class="trucking-cta" href="https://billing.stripe.com/p/login/eVqdRaghX05U93tcel53O00">Manage Billing</a>
       </div>
+
+      <p style="margin:14px 0 0; opacity:.85;">
+        Already subscribed? Use <strong>Manage Billing</strong> to update your payment method, view invoices, or cancel your subscription.
+      </p>
     </div>
   </main>
 
@@ -99,9 +105,23 @@
 
   <script>
     (function(){
-      const html=document.documentElement, btn=document.getElementById('themeToggle'), label=document.getElementById('toggleLabel'), icon=btn.querySelector('.theme-toggle-icon'), saved=localStorage.getItem('ako-theme')||'dark';
-      html.setAttribute('data-theme',saved); label.textContent=saved==='dark'?'Light Mode':'Dark Mode'; icon.textContent=saved==='dark'?'☀️':'🌙';
-      btn.addEventListener('click',function(){ const next=html.getAttribute('data-theme')==='dark'?'light':'dark'; html.setAttribute('data-theme',next); localStorage.setItem('ako-theme',next); label.textContent=next==='dark'?'Light Mode':'Dark Mode'; icon.textContent=next==='dark'?'☀️':'🌙'; });
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      const label = document.getElementById('toggleLabel');
+      const icon = btn.querySelector('.theme-toggle-icon');
+      const saved = localStorage.getItem('ako-theme') || 'dark';
+
+      html.setAttribute('data-theme', saved);
+      label.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode';
+      icon.textContent = saved === 'dark' ? '☀️' : '🌙';
+
+      btn.addEventListener('click', function(){
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('ako-theme', next);
+        label.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+        icon.textContent = next === 'dark' ? '☀️' : '🌙';
+      });
     })();
   </script>
 
